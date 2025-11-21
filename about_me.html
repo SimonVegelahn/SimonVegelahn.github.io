@@ -47,18 +47,26 @@
         .lang-select {
             font-family: Arial, sans-serif;
             font-size: 14px;
-            padding: 4px 8px;
+            padding: 8px 12px;
             border: 1px solid #000;
             background: #fff;
             color: #000;
             cursor: pointer;
             outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 28px;
         }
 
         body.dark .lang-select {
             border-color: #eee;
-            background: #111;
+            background-color: #111;
             color: #eee;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
         }
 
         .theme-toggle {
@@ -187,7 +195,8 @@
                         <option value="about_me_de.html">DE</option>
                     </select>
                     <div class="theme-toggle" onclick="toggleTheme()">
-                        <svg class="icon-sun" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="icon-sun" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <circle cx="12" cy="12" r="5"></circle>
                             <line x1="12" y1="1" x2="12" y2="3"></line>
                             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -198,7 +207,8 @@
                             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                         </svg>
-                        <svg class="icon-moon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="icon-moon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
                     </div>
@@ -217,11 +227,14 @@
 
         <article id="about" class="article-box" style="margin-bottom: 20px; padding: 16px;">
             <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">About</h3>
-            <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Business Informatics student
+            <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Business Informatics
+                student
                 with an unconventional path: from chemical lab technician to data engineer. <br> Multiple years at
-                Siemens across project management tooling and data governance, with freelance web development on the side. Comfortable moving
+                Siemens across project management tooling and data governance, with freelance web development on the
+                side. Comfortable moving
                 between VBA scripts and dbt pipelines depending on what the problem needs.</p>
-            <div class="text-muted" style="font-size: 12px;">Data Analytics • SQL • Java • Agile Project Management • BPMN
+            <div class="text-muted" style="font-size: 12px;">Data Analytics • SQL • Java • Agile Project Management •
+                BPMN
             </div>
         </article>
 
@@ -249,7 +262,8 @@
                     <strong>Lab Technician Quality Control - Mayr-Melnhof Karton</strong>
                     <span class="text-muted" style="font-size: 14px;">Aug 2020 - May 2021</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Conducted quality control testing
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Conducted quality
+                    control testing
                     and maintained technical documentation in a production environment. Ensured compliance with GLP
                     standards.</p>
             </div>
@@ -259,7 +273,8 @@
                     <strong>Logistics Employee - flaschenpost SE</strong>
                     <span class="text-muted" style="font-size: 14px;">Feb 2020 - May 2020</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Warehouse operations and inventory
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Warehouse operations and
+                    inventory
                     management.</p>
             </div>
 
@@ -269,7 +284,8 @@
                         Wuppertal</strong>
                     <span class="text-muted" style="font-size: 14px;">Oct 2019 - Dec 2019</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Performed laboratory techniques
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Performed laboratory
+                    techniques
                     including wet chemistry procedures in an academic research setting. Assistance of Ph.D. candidate in
                     research project.</p>
             </div>
@@ -283,7 +299,8 @@
                     <strong>Fontys Venlo University of Applied Sciences</strong>
                     <span class="text-muted" style="font-size: 14px;">2021 - 2026</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Bachelor (B.Sc.), Business
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Bachelor (B.Sc.),
+                    Business
                     Informatics
                     (Wirtschaftsinformatik)</p>
             </div>
@@ -304,16 +321,19 @@
                 <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Forecasting of Material
                     Data
                 </h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Implementation of a
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Implementation
+                    of a
                     forecasting model to predict material requirements, optimizing delivery times and reducing costs.
                 </p>
-                <div class="text-muted" style="font-size: 12px;">Applied Machine Learning • Regressive Analysis • Snowflake
+                <div class="text-muted" style="font-size: 12px;">Applied Machine Learning • Regressive Analysis •
+                    Snowflake
                     Notebook • SQL • Python</div>
             </article>
             <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
                 <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Enterprise Data Products
                 </h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Implementation of Data
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Implementation
+                    of Data
                     Products for analytics purposes in accordance with defined best practices, thereby supporting the
                     reduction of runtimes by up to 79%</p>
                 <div class="text-muted" style="font-size: 12px;">SQL • Snowflake • PowerBI • Python</div>
@@ -322,17 +342,20 @@
             <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
                 <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">University Social
                     Platform</h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Team creation of a
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Team creation of
+                    a
                     prototype for a university social and networking platform. Received with great enthusiasm. Project
                     selected for continued development and handed over to subsequent team with full and detailed
                     documentation. </p>
-                <div class="text-muted" style="font-size: 12px;">Kotlin • AndroidSDK • Material UI • Cytoscape • REST APIs •
+                <div class="text-muted" style="font-size: 12px;">Kotlin • AndroidSDK • Material UI • Cytoscape • REST
+                    APIs •
                     Figma</div>
             </article>
             <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
                 <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Web Development Projects
                 </h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Design and implementation
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Design and
+                    implementation
                     of websites for SME. Freelance work.</p>
                 <div class="text-muted" style="font-size: 12px;">TypeScript • Vue • React • Wordpress • Figma</div>
             </article>

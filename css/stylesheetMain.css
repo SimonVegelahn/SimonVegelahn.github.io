@@ -7,6 +7,8 @@ html {
     padding: 0;
     width: 100%;
     height: 100vh;
+    overflow: hidden; 
+    overscroll-behavior: none; 
 }
 
 body {
@@ -21,6 +23,10 @@ body {
     background: url(/images/background-img.jpg);
     background-position: center;
     background-size: cover;
+    overflow: hidden;
+    overscroll-behavior: none; 
+    position: fixed; 
+    touch-action: none; 
 }
 
 a {

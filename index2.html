@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon Vegelahn</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0f1419;
+            --color-bg-elevated: #1a2029;
+            --color-bg-card: #232b36;
+            --color-accent: #c9a55c;
+            --color-accent-muted: rgba(201, 165, 92, 0.15);
+            --color-accent-hover: #dbb76a;
+            --color-text: #e8e6e3;
+            --color-text-muted: #9ca3af;
+            --color-text-subtle: #6b7280;
+            --color-border: rgba(255, 255, 255, 0.08);
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Outfit', system-ui, sans-serif;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow-card-hover: 0 8px 40px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+            --transition-fast: 150ms ease;
+            --transition-medium: 300ms ease;
+            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Subtle texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: 1000;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Focus styles for keyboard navigation */
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 3px;
+        }
+
+        /* Skip link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-accent);
+            color: var(--color-bg);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            z-index: 9999;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 1rem;
+        }
+
+        /* Layout */
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* Header / Hero */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 3rem 0 4rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s var(--ease-out-expo) forwards;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-bg-card) 0%, var(--color-bg-elevated) 100%);
+            border: 2px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .avatar-placeholder {
+            font-size: 2.5rem;
+            color: var(--color-text-subtle);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-ring {
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1px solid var(--color-accent-muted);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-title .accent {
+            color: var(--color-accent);
+        }
+
+        .hero-tagline {
+            font-size: 1.125rem;
+            color: var(--color-text-muted);
+            font-weight: 300;
+            max-width: 500px;
+        }
+
+        /* Navigation Grid */
+        .nav-section {
+            margin-top: 1rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-text-subtle);
+            margin-bottom: 1rem;
+            padding-left: 0.25rem;
+        }
+
+        /* Primary Card - CV/About */
+        .card-primary {
+            display: block;
+            background: linear-gradient(135deg, var(--color-bg-card) 0%, var(--color-bg-elevated) 100%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-card);
+            transition: all var(--transition-medium);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.1s forwards;
+        }
+
+        .card-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--color-accent) 0%, transparent 100%);
+        }
+
+        .card-primary:hover,
+        .card-primary:focus-visible {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card-hover);
+            border-color: var(--color-accent-muted);
+        }
+
+        .card-primary-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-md);
+            background: var(--color-accent-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--color-accent);
+        }
+
+        .card-text h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-text p {
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+        }
+
+        .card-arrow {
+            margin-left: auto;
+            color: var(--color-text-subtle);
+            transition: all var(--transition-fast);
+        }
+
+        .card-primary:hover .card-arrow,
+        .card-primary:focus-visible .card-arrow {
+            color: var(--color-accent);
+            transform: translateX(4px);
+        }
+
+        /* Secondary Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            max-width: 640px;
+        }
+
+        @media (min-width: 768px) {
+            .cards-grid {
+                max-width: none;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .card-secondary {
+            display: block;
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: all var(--transition-medium);
+            opacity: 0;
+            animation: fadeInUp 0.8s var(--ease-out-expo) forwards;
+        }
+
+        .card-secondary:nth-child(1) { animation-delay: 0.2s; }
+        .card-secondary:nth-child(2) { animation-delay: 0.25s; }
+        .card-secondary:nth-child(3) { animation-delay: 0.3s; }
+
+        .card-secondary:hover,
+        .card-secondary:focus-visible {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: var(--color-bg-card);
+        }
+
+        .card-secondary .card-icon {
+            width: 44px;
+            height: 44px;
+            margin-bottom: 1rem;
+        }
+
+        .card-secondary .card-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .card-secondary h3 {
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-secondary p {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Tertiary / Personal Section */
+        .section-personal {
+            border-top: 1px solid var(--color-border);
+            padding-top: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.4s forwards;
+        }
+
+        .cards-tertiary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .card-tertiary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            transition: all var(--transition-fast);
+        }
+
+        .card-tertiary:hover,
+        .card-tertiary:focus-visible {
+            color: var(--color-text);
+            border-color: rgba(255, 255, 255, 0.12);
+            background: var(--color-bg-card);
+        }
+
+        .card-tertiary svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-bg-elevated);
+            border-top: 1px solid var(--color-border);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--color-text-subtle);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--color-text-muted);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-links a:hover,
+        .footer-links a:focus-visible {
+            color: var(--color-accent);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            main {
+                padding: 1.5rem 1rem 3rem;
+            }
+
+            .hero {
+                padding: 2rem 0 3rem;
+            }
+
+            .avatar {
+                width: 100px;
+                height: 100px;
+            }
+
+            .card-primary {
+                padding: 1.75rem 1.25rem;
+            }
+
+            .card-primary-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .card-arrow {
+                display: none;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-tertiary {
+                justify-content: center;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .word-cloud-group {
+                animation: none !important;
+            }
+        }
+
+        /* Word Cloud */
+        .word-cloud-section {
+            opacity: 0;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.35s forwards;
+        }
+
+        .word-cloud-container {
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+
+        .word-cloud {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            min-height: 320px;
+        }
+
+        @media (max-width: 640px) {
+            .word-cloud {
+                height: 280px;
+            }
+        }
+
+        /* Mobile fallback list for word cloud */
+        .links-list-fallback {
+            display: none;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .links-list-fallback a {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            transition: all var(--transition-fast);
+        }
+
+        .links-list-fallback a:hover,
+        .links-list-fallback a:focus-visible {
+            color: var(--color-accent);
+            border-color: var(--color-accent-muted);
+            background: var(--color-bg-elevated);
+        }
+
+        /* Weight-based sizing for fallback list */
+        .links-list-fallback a[data-weight="10"],
+        .links-list-fallback a[data-weight="9"] {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .links-list-fallback a[data-weight="8"],
+        .links-list-fallback a[data-weight="7"] {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .links-list-fallback a[data-weight="3"],
+        .links-list-fallback a[data-weight="2"],
+        .links-list-fallback a[data-weight="1"] {
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 640px) {
+            .word-cloud-container {
+                display: none;
+            }
+            .links-list-fallback {
+                display: flex;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div class="page-wrapper">
+        <main id="main-content">
+            <!-- Hero -->
+            <header class="hero">
+                <div class="avatar-wrapper">
+                    <div class="avatar-ring"></div>
+                    <div class="avatar">
+                        <!-- <img src="your-photo.jpg" alt="photo-title"> -->
+                        <span class="avatar-placeholder">SV</span>
+                    </div>
+                </div>
+                <h1 class="hero-title">Simon <span class="accent">Vegelahn</span></h1>
+                <p class="hero-tagline">Building thoughtful solutions at the intersection of technology and creativity.</p>
+            </header>
+
+            <!-- Primary Navigation -->
+            <nav class="nav-section" aria-label="Main navigation">
+                <a href="/about_me.html" class="card-primary">
+                    <div class="card-primary-content">
+                        <div class="card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </div>
+                        <div class="card-text">
+                            <h2>About Me & CV</h2>
+                            <p>Background, experience, skills, and what I bring to the table.</p>
+                        </div>
+                        <span class="card-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+            </nav>
+
+            <!-- Secondary Navigation -->
+            <section class="nav-section" aria-labelledby="explore-label">
+                <h2 id="explore-label" class="section-label">Explore</h2>
+                <div class="cards-grid">
+                    <a href="/projects.html" class="card-secondary">
+                        <div class="card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                            </svg>
+                        </div>
+                        <h3>Projects</h3>
+                        <p>Work I've built and contributed to.</p>
+                    </a>
+
+                    <a href="/hobbies.html" class="card-secondary">
+                        <div class="card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+                            </svg>
+                        </div>
+                        <h3>Hobbies</h3>
+                        <p>Interests beyond the professional realm.</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Word Cloud Links -->
+            <section class="nav-section word-cloud-section" aria-labelledby="links-label">
+                <h2 id="links-label" class="section-label">Links</h2>
+                <!-- Desktop: animated word cloud -->
+                <div class="word-cloud-container" aria-label="Interactive links cloud">
+                    <div class="word-cloud" id="wordCloud"></div>
+                </div>
+                <!-- Mobile: simple list fallback -->
+                <div class="links-list-fallback" id="linksListFallback" aria-label="Links list"></div>
+            </section>
+
+            <!-- Tertiary / Personal -->
+            <section class="section-personal nav-section" aria-labelledby="personal-label">
+                <h2 id="personal-label" class="section-label">Personal</h2>
+                <div class="cards-tertiary">
+                    <a href="/recipes.html" class="card-tertiary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.38a48.474 48.474 0 00-6-.37c-2.032 0-4.034.125-6 .37m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.17c0 .62-.504 1.124-1.125 1.124H4.125A1.125 1.125 0 013 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 016 13.12" />
+                        </svg>
+                        Recipes
+                    </a>
+                    <!-- Add more tertiary links here as needed -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="/cookie-policy.html">Cookie Policy</a>
+                    <a href="/privacy-policy.html">Privacy Policy</a>
+                    <a href="/terms-of-use.html">Terms of Use</a>
+                </div>
+                <p>© 2025 Navigations Media B.V.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Cytoscape.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    
+    <script>
+        // ============================================
+        // WORD CLOUD CONFIGURATION
+        // Edit this array to add/remove/modify links
+        // weight: 1-10 (higher = bigger text)
+        // ============================================
+        const LINKS = [
+            { text: 'GitHub', url: 'https://github.com/SimonVegelahn', weight: 9 },
+            { text: 'LinkedIn', url: 'https://www.linkedin.com/in/simonvegelahn/?locale=en_US', weight: 9 },
+            { text: 'About Me', url: 'https://simonvegelahn.github.io/about_me.html', weight: 9 }
+        ];
+
+        // ============================================
+        // CYTOSCAPE WORD CLOUD
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('wordCloud');
+            
+            if (container && typeof cytoscape !== 'undefined') {
+                // Font size range
+                const minFontSize = 14;
+                const maxFontSize = 42;
+                
+                // Create nodes from links
+                const nodes = LINKS.map((link, index) => {
+                    const normalizedWeight = Math.max(1, Math.min(10, link.weight));
+                    const fontSize = minFontSize + ((normalizedWeight - 1) / 9) * (maxFontSize - minFontSize);
+                    
+                    return {
+                        data: {
+                            id: `node-${index}`,
+                            label: link.text,
+                            url: link.url,
+                            weight: link.weight,
+                            fontSize: fontSize
+                        }
+                    };
+                });
+
+                // Create edges to loosely connect nodes (for layout cohesion)
+                const edges = [];
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        edges.push({
+                            data: {
+                                id: `edge-${i}-${j}`,
+                                source: nodes[i].data.id,
+                                target: nodes[j].data.id
+                            }
+                        });
+                    }
+                }
+
+                const cy = cytoscape({
+                    container: container,
+                    elements: { nodes, edges },
+                    
+                    style: [
+                        {
+                            selector: 'node',
+                            style: {
+                                'label': 'data(label)',
+                                'text-valign': 'center',
+                                'text-halign': 'center',
+                                'font-family': 'Outfit, system-ui, sans-serif',
+                                'font-size': 'data(fontSize)',
+                                'font-weight': 500,
+                                'color': '#9ca3af',
+                                'text-wrap': 'none',
+                                'background-opacity': 0,
+                                'width': 'label',
+                                'height': 'label',
+                                'padding': '8px',
+                                'shape': 'round-rectangle',
+                                'transition-property': 'color',
+                                'transition-duration': '0.15s'
+                            }
+                        },
+                        {
+                            selector: 'node:active, node:grabbed',
+                            style: {
+                                'color': '#c9a55c'
+                            }
+                        },
+                        {
+                            selector: 'edge',
+                            style: {
+                                'width': 0,
+                                'opacity': 0
+                            }
+                        }
+                    ],
+
+                    layout: {
+                        name: 'cose',
+                        animate: false,
+                        fit: true,
+                        padding: 30,
+                        nodeRepulsion: function(node) {
+                            return 8000;
+                        },
+                        nodeOverlap: 20,
+                        idealEdgeLength: function(edge) {
+                            return 50;
+                        },
+                        edgeElasticity: function(edge) {
+                            return 100;
+                        },
+                        nestingFactor: 1.2,
+                        gravity: 0.8,
+                        numIter: 1000,
+                        initialTemp: 200,
+                        coolingFactor: 0.95,
+                        minTemp: 1.0
+                    },
+
+                    // Interaction settings
+                    userZoomingEnabled: false,
+                    userPanningEnabled: false,
+                    boxSelectionEnabled: false,
+                    autoungrabify: false,
+                    autounselectify: true
+                });
+
+                // Handle click to open URL
+                cy.on('tap', 'node', function(evt) {
+                    const node = evt.target;
+                    const url = node.data('url');
+                    if (url) {
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    }
+                });
+
+                // Hover effect
+                cy.on('mouseover', 'node', function(evt) {
+                    const node = evt.target;
+                    node.style('color', '#c9a55c');
+                    node.style('text-shadow', '0 0 20px rgba(201, 165, 92, 0.4)');
+                    container.style.cursor = 'pointer';
+                });
+
+                cy.on('mouseout', 'node', function(evt) {
+                    const node = evt.target;
+                    node.style('color', '#9ca3af');
+                    node.style('text-shadow', 'none');
+                    container.style.cursor = 'default';
+                });
+
+                // Re-run layout on resize
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        cy.resize();
+                        cy.fit(undefined, 30);
+                    }, 250);
+                });
+            }
+            
+            // Render fallback list for mobile
+            const fallbackContainer = document.getElementById('linksListFallback');
+            if (fallbackContainer) {
+                const sortedLinks = [...LINKS].sort((a, b) => b.weight - a.weight);
+                sortedLinks.forEach(link => {
+                    const a = document.createElement('a');
+                    a.href = link.url;
+                    a.textContent = link.text;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.setAttribute('data-weight', link.weight);
+                    fallbackContainer.appendChild(a);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

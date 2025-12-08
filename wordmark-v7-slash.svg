@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 60">
+  <defs>
+    <style>
+      .name-part { 
+        font-family: 'Helvetica Neue', Arial, sans-serif; 
+        font-weight: 600; 
+        font-size: 24px; 
+        letter-spacing: 1.5px;
+      }
+    </style>
+  </defs>
+  <text x="20" y="38" class="name-part" fill="#f0f0f0">SIMON</text>
+  <text x="118" y="38" class="name-part" fill="#3b82f6">/</text>
+  <text x="138" y="38" class="name-part" fill="#f0f0f0">VEGELAHN</text>
+</svg>

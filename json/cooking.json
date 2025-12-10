@@ -1,0 +1,346 @@
+[
+  {
+    "title": "Sourdough Farmhouse Bread",
+    "image": "images/bauernbrot.jpg",
+    "duration": "17 hrs 30 min",
+    "servings": "2 loaves (750 g each)",
+    "source": {
+      "creator": "zaubermaus558",
+      "platform": "Chefkoch.de",
+      "url": "https://www.chefkoch.de/rezepte/773231179277591/Bauernbrot-mit-Sauerteig.html"
+    },
+    "prerequisites": {
+      "equipment": [
+        "Mixing bowl",
+        "Stand mixer",
+        "Proofing baskets",
+        "Baking stone",
+        "Peel"
+      ],
+      "skills": [
+        "Maintaining sourdough",
+        "Kneading bread dough",
+        "Baking with steam"
+      ]
+    },
+    "ingredients": [
+      "400 g rye flour (Type 997) for sourdough",
+      "400 ml water",
+      "80 g active rye sourdough starter",
+      "400 g rye flour (Type 997) for main dough",
+      "300 g wheat flour (Type 550)",
+      "3 level tsp salt",
+      "0-2 g yeast (depending on starter activity)",
+      "6 g rye malt",
+      "300 g lukewarm water"
+    ],
+    "steps": [
+      "For the sourdough: Mix rye flour, water, and active starter, let stand at room temperature for 15-17 hours.",
+      "Mix both flours in a bowl, make a well in the center.",
+      "Sprinkle salt and rye malt around the edge.",
+      "Optional: Dissolve yeast in lukewarm water and pour into the well.",
+      "Add sourdough and knead for 5-10 minutes.",
+      "Let rest for 30 minutes.",
+      "Knead vigorously, shape into rounds, and divide into two portions.",
+      "Place seam-side up in floured proofing baskets.",
+      "After 60 minutes, turn onto a peel, score the tops.",
+      "Slide into the oven preheated to 250°C.",
+      "Bake with strong steam for 15 minutes, then release steam.",
+      "Finish baking at 200°C for about 60 minutes.",
+      "Crack the oven door slightly 10 minutes before the end."
+    ],
+    "hints": [
+      "The dough won't be sticky if kneaded properly.",
+      "Knock test: The bread should sound hollow when tapped on the bottom.",
+      "I don't use any yeast because my starter is very active.",
+      "Do the poke test to determine the right time to bake."
+    ]
+  },
+  {
+    "title": "Chinese Fried Noodles with Chicken",
+    "image": "images/bratnudeln.jpg",
+    "duration": "35 min",
+    "servings": "1 portion",
+    "source": {
+      "creator": "yasiliciousDE",
+      "platform": "Chefkoch.de",
+      "url": "https://www.chefkoch.de/rezepte/1483461261880978/Chinesisch-gebratene-Nudeln-mit-Huehnchenfleisch-Ei-und-Gemuese.html"
+    },
+    "prerequisites": {
+      "equipment": [
+        "Wok or large frying pan",
+        "Pot"
+      ],
+      "skills": [
+        "Wok frying",
+        "Cutting vegetables"
+      ]
+    },
+    "ingredients": [
+      "125 g wok noodles",
+      "80 g chicken breast",
+      "Oil for frying",
+      "1 egg",
+      "1 handful carrots (julienned)",
+      "1 tbsp chopped onions",
+      "1 handful bean sprouts",
+      "1 handful leeks",
+      "¼ tsp sugar",
+      "1 tbsp dark soy sauce",
+      "Salt and white pepper",
+      "½ tsp sesame oil"
+    ],
+    "steps": [
+      "Soak noodles in warm water for about 15 minutes, then drain.",
+      "Cut chicken into small pieces, cook in salted water, and drain.",
+      "Heat oil in a hot wok, briefly fry the beaten egg, and scramble.",
+      "Add chopped onions and stir-fry briefly.",
+      "Add carrot strips and sliced leeks, stir-fry briefly.",
+      "Add noodles and fry, season with salt, sugar, and dark soy sauce.",
+      "Add chicken and bean sprouts, toss quickly in the heat.",
+      "Mix in white pepper and sesame oil, then serve."
+    ],
+    "hints": [
+      "Everything must happen quickly – prep all ingredients beforehand!",
+      "Noodles should be cooked but not too soft.",
+      "Add sesame oil only at the very end."
+    ]
+  },
+  {
+    "title": "Creamy Pasta Bake with Tomatoes and Mozzarella",
+    "image": "images/nudelauflauf.jpg",
+    "duration": "1 hr",
+    "servings": "4 portions",
+    "source": {
+      "creator": "Katrinili",
+      "platform": "Chefkoch.de",
+      "url": "https://www.chefkoch.de/rezepte/1298151236927959/Cremiger-Nudelauflauf-mit-Tomaten-und-Mozzarella.html"
+    },
+    "prerequisites": {
+      "equipment": [
+        "Large pot",
+        "Large pan",
+        "Baking dish"
+      ],
+      "skills": [
+        "Cooking pasta",
+        "Making sauce",
+        "Gratinating"
+      ]
+    },
+    "ingredients": [
+      "1 onion",
+      "2 cloves garlic",
+      "1 fresh chili pepper",
+      "400 g cherry tomatoes",
+      "50 g Parmesan",
+      "125 g mozzarella",
+      "1 bunch basil",
+      "400 g rigatoni or penne",
+      "Olive oil",
+      "500 g passata (strained tomatoes)",
+      "200 ml heavy cream",
+      "Salt, black pepper, sugar"
+    ],
+    "steps": [
+      "Finely dice onion and garlic, seed and finely chop chili.",
+      "Halve cherry tomatoes, grate Parmesan, dice mozzarella, pick basil leaves.",
+      "Bring salted water to a boil and cook pasta al dente.",
+      "Heat olive oil in a large pan, sauté onion, garlic, and chili.",
+      "Add passata and simmer for a few minutes.",
+      "Stir in cream and grated Parmesan.",
+      "Season with salt, pepper, and a generous pinch of sugar.",
+      "Drain pasta and add to the sauce.",
+      "Fold in cherry tomatoes, half the mozzarella, and basil.",
+      "Transfer to a baking dish, top with remaining mozzarella.",
+      "Bake at 200°C (conventional) for about 20 minutes until golden."
+    ],
+    "hints": [
+      "A generous pinch of sugar is important for the tomato sauce!",
+      "Serve with green salad and garlic baguette.",
+      "Remove pan from heat before folding in the fresh ingredients."
+    ]
+  },
+  {
+    "title": "Mini Potato Cordon Bleu",
+    "image": "images/cordonbleu.jpg",
+    "duration": "45 min",
+    "servings": "8 pieces",
+    "source": {
+      "creator": "Henglein",
+      "platform": "Chefkoch.de",
+      "url": "https://www.chefkoch.de/rezepte/3524681500614595/Kleine-Kartoffel-Cordon-Bleu.html"
+    },
+    "prerequisites": {
+      "equipment": [
+        "Deep fryer or pot with oil",
+        "Paper towels"
+      ],
+      "skills": [
+        "Deep frying",
+        "Shaping patties"
+      ]
+    },
+    "ingredients": [
+      "750 g potato pancake mix",
+      "2 slices ham",
+      "8 cubes cheese",
+      "100 g breadcrumbs",
+      "Oil for frying"
+    ],
+    "steps": [
+      "Cut ham into quarters.",
+      "Place ham and cheese on 2 tbsp potato pancake mix.",
+      "Cover with another 1 tbsp potato pancake mix.",
+      "Seal well.",
+      "Coat the patties in breadcrumbs.",
+      "Deep fry in hot oil until golden brown."
+    ],
+    "hints": [
+      "Seal the patties well so the cheese doesn't leak out.",
+      "The oil should be hot enough (about 175°C).",
+      "Per portion: 220 calories, 11 g protein, 26 g carbohydrates, 11 g fat."
+    ]
+  },
+  {
+    "title": "Grandma's Chicken Soup",
+    "image": "images/huehnersuppe.jpg",
+    "duration": "1 hr 25 min",
+    "servings": "6 portions",
+    "source": {
+      "creator": "Olli-Schulz",
+      "platform": "Chefkoch.de",
+      "url": "https://www.chefkoch.de/rezepte/2839921419595568/Omas-Huehnersuppe.html"
+    },
+    "prerequisites": {
+      "equipment": [
+        "Large pot",
+        "Strainer"
+      ],
+      "skills": [
+        "Making soup",
+        "Shredding meat"
+      ]
+    },
+    "ingredients": [
+      "3 chicken legs",
+      "2 large carrots",
+      "1 leek",
+      "1 piece celery root",
+      "1 bunch parsley",
+      "Water as needed",
+      "Salt and pepper",
+      "1 tsp turmeric powder",
+      "2 allspice berries",
+      "175 g soup noodles"
+    ],
+    "steps": [
+      "Wash the chicken legs.",
+      "Wash and chop the soup vegetables (carrots, celery, and leek).",
+      "Fill a large pot with cold water, add chicken legs, and bring to a boil.",
+      "Cook for 30-40 minutes depending on size.",
+      "Remove chicken legs.",
+      "Add chopped vegetables and noodles to the pot and bring to a boil.",
+      "Reduce heat to medium, add allspice berries.",
+      "Remove meat from bones and shred.",
+      "After 10-15 minutes, return the meat to the soup.",
+      "Bring to a boil again and season with salt, pepper, and turmeric.",
+      "Remove allspice berries.",
+      "Add chopped parsley just before serving."
+    ],
+    "hints": [
+      "Cooking time varies depending on the size of the legs (30-40 minutes).",
+      "The allspice berries usually float to the top and are easy to remove.",
+      "Add parsley just before serving."
+    ]
+  },
+  {
+    "title": "Italian Pizza Dough",
+    "image": "images/pizzateig.jpg",
+    "duration": "45 min",
+    "servings": "3-4 pizzas",
+    "source": {
+      "creator": "bibberle",
+      "platform": "Chefkoch.de",
+      "url": "https://www.chefkoch.de/rezepte/570451155029391/Pizzateig.html"
+    },
+    "prerequisites": {
+      "equipment": [
+        "Mixing bowl",
+        "Rolling pin or hands for stretching"
+      ],
+      "skills": [
+        "Kneading yeast dough"
+      ]
+    },
+    "ingredients": [
+      "500 g flour",
+      "4 g fresh yeast",
+      "2 tbsp olive oil",
+      "300 ml lukewarm water",
+      "10 g salt"
+    ],
+    "steps": [
+      "Put all ingredients in a bowl.",
+      "Knead thoroughly for at least 5 minutes.",
+      "Let the dough rise for about 30 minutes.",
+      "Divide into 3-4 portions and shape into balls.",
+      "Roll out and add toppings."
+    ],
+    "hints": [
+      "This dough makes 3-4 round pizzas or one sheet pan.",
+      "Oven: 220°C, about 15-20 minutes.",
+      "Pizza stone: 250°C, about 10-15 minutes.",
+      "Electric skillet: Level 3, first side 3 min, flip, add toppings, another 3 min.",
+      "This recipe came from an Italian friend."
+    ]
+  },
+  {
+    "title": "Quick Flammkuchen (Tarte Flambée)",
+    "image": "images/flammkuchen.jpg",
+    "duration": "35 min",
+    "servings": "2-3 portions",
+    "source": {
+      "creator": "meerjungfrau",
+      "platform": "Chefkoch.de",
+      "url": "https://www.chefkoch.de/rezepte/563541154556998/Schneller-Flammkuchen.html"
+    },
+    "prerequisites": {
+      "equipment": [
+        "Baking sheet",
+        "Rolling pin",
+        "Microwave (optional)"
+      ],
+      "skills": [
+        "Making shortcrust",
+        "Rolling dough"
+      ]
+    },
+    "ingredients": [
+      "2 tbsp oil",
+      "125 ml water",
+      "1 pinch salt",
+      "250 g flour",
+      "2 onions (thinly sliced into half-rings)",
+      "1 container sour cream (24% fat)",
+      "1 container crème fraîche",
+      "Salt or seasoning salt and pepper",
+      "100 g bacon cubes",
+      "Chive rings"
+    ],
+    "steps": [
+      "Make a shortcrust dough from oil, water, salt, and flour.",
+      "Roll out very thin.",
+      "Mix sour cream and crème fraîche, season, and spread over the dough.",
+      "Microwave onions with a little water for 1 minute at 600 watts.",
+      "Distribute onions and bacon over the topping.",
+      "Bake at 250°C (conventional) on the lowest rack for 20 minutes.",
+      "Serve sprinkled with chive rings."
+    ],
+    "hints": [
+      "This dough contains no yeast – making it especially quick!",
+      "Pre-cook onions in the microwave so they don't burn.",
+      "To save calories, replace crème fraîche with 20% quark."
+    ]
+  }
+]

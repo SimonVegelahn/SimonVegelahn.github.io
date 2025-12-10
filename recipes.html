@@ -428,8 +428,36 @@
         .card-title {
             font-size: 1.125rem;
             font-weight: 700;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.25rem;
             letter-spacing: -0.02em;
+        }
+
+        /* Recipe Source */
+        .recipe-source {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .recipe-source a {
+            color: var(--color-accent);
+            text-decoration: none;
+            transition: opacity 0.15s ease;
+        }
+
+        .recipe-source a:hover {
+            opacity: 0.7;
+            text-decoration: underline;
+        }
+
+        .recipe-source svg {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
         }
 
         /* Meta Grid */
@@ -937,6 +965,33 @@
         function renderRecipeCard(recipe) {
             const prereqEquipment = recipe.prerequisites.equipment.join(', ');
             const prereqSkills = recipe.prerequisites.skills.join(', ');
+            
+            // Build source attribution if available
+            let sourceHtml = '';
+            if (recipe.source) {
+                const creator = recipe.source.creator || 'Unknown';
+                const platform = recipe.source.platform || '';
+                const url = recipe.source.url || '';
+                
+                if (url) {
+                    sourceHtml = `
+                        <div class="recipe-source">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <span>by ${creator}</span>
+                            <span>·</span>
+                            <a href="${url}" target="_blank" rel="noopener noreferrer">${platform}</a>
+                        </div>
+                    `;
+                } else {
+                    sourceHtml = `
+                        <div class="recipe-source">
+                            <span>by ${creator}${platform ? ` · ${platform}` : ''}</span>
+                        </div>
+                    `;
+                }
+            }
 
             return `
                 <article class="recipe-card">
@@ -945,6 +1000,7 @@
                     </div>
                     <div class="card-content">
                         <h3 class="card-title">${recipe.title}</h3>
+                        ${sourceHtml}
                         
                         <div class="meta-grid">
                             <div class="meta-item">

@@ -392,11 +392,11 @@
         }
 
         /* Examples Dropdown */
-        .examples-dropdown {
+        .examples-dropdown, .export-dropdown {
             position: relative;
         }
 
-        .examples-menu {
+        .examples-menu, .export-menu {
             position: absolute;
             top: 100%;
             left: 0;
@@ -410,11 +410,16 @@
             display: none;
         }
 
-        .examples-menu.open {
+        .export-menu {
+            left: auto;
+            right: 0;
+        }
+
+        .examples-menu.open, .export-menu.open {
             display: block;
         }
 
-        .examples-menu-item {
+        .examples-menu-item, .export-menu-item {
             padding: 0.625rem 1rem;
             font-size: 0.8125rem;
             color: var(--color-text-secondary);
@@ -425,19 +430,33 @@
             border-bottom: 1px solid var(--color-border-subtle);
         }
 
-        .examples-menu-item:last-child {
+        .examples-menu-item:last-child, .export-menu-item:last-child {
             border-bottom: none;
         }
 
-        .examples-menu-item:hover {
+        .examples-menu-item:hover, .export-menu-item:hover {
             background: var(--color-bg-secondary);
             color: var(--color-text);
         }
 
-        .examples-menu-item-icon {
+        .examples-menu-item-icon, .export-menu-item-icon {
             width: 18px;
             height: 18px;
             color: var(--color-text-muted);
+        }
+
+        .export-hint {
+            margin-left: auto;
+            font-size: 0.6875rem;
+            color: var(--color-text-muted);
+        }
+
+        .export-menu-item.bpmn-only {
+            display: none;
+        }
+
+        body.bpmn-mode .export-menu-item.bpmn-only {
+            display: flex;
         }
 
         /* File input */
@@ -587,14 +606,37 @@
                 <input type="file" class="file-input" id="fileInput" accept=".mermaid,.mmd,.bpmn,.xml,.txt" onchange="loadFile(event)">
             </label>
 
-            <button class="btn btn-primary" onclick="exportDiagram()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Export SVG
-            </button>
+            <div class="export-dropdown">
+                <button class="btn btn-primary" onclick="toggleExportMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:4px;">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="export-menu" id="exportMenu">
+                    <div class="export-menu-item" onclick="exportSVG()">
+                        <svg class="export-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M7 12l3-3 2 2 5-5"/>
+                        </svg>
+                        Export as SVG
+                        <span class="export-hint">Image</span>
+                    </div>
+                    <div class="export-menu-item bpmn-only" onclick="exportBPMN()">
+                        <svg class="export-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        Export as BPMN
+                        <span class="export-hint">Signavio, draw.io</span>
+                    </div>
+                </div>
+            </div>
 
             <button class="btn theme-toggle" id="themeToggle">
                 <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -677,6 +719,7 @@
         let zoomLevel = 1;
         let bpmnViewer = null;
         let debounceTimer = null;
+        let lastBpmnXml = null;
 
         // Examples
         const examples = {
@@ -828,6 +871,9 @@
             document.getElementById('mermaid-output').style.display = mode === 'mermaid' ? 'block' : 'none';
             document.getElementById('bpmn-container').style.display = mode === 'bpmn' ? 'block' : 'none';
 
+            // Toggle body class for export menu
+            document.body.classList.toggle('bpmn-mode', mode === 'bpmn');
+
             // Load appropriate example
             const editor = document.getElementById('codeEditor');
             if (mode === 'mermaid' && editor.value.includes('(start)')) {
@@ -875,6 +921,7 @@
             
             try {
                 const xml = convertToBPMNXml(code);
+                lastBpmnXml = xml; // Store for export
                 
                 if (!bpmnViewer) {
                     bpmnViewer = new BpmnJS({ container: container });
@@ -883,6 +930,7 @@
                 await bpmnViewer.importXML(xml);
                 bpmnViewer.get('canvas').zoom('fit-viewport');
             } catch (error) {
+                lastBpmnXml = null;
                 container.innerHTML = `
                     <div class="preview-error" style="margin: 2rem;">
                         <div class="preview-error-title">BPMN Error</div>
@@ -1154,6 +1202,9 @@
             if (!e.target.closest('.examples-dropdown')) {
                 closeExamples();
             }
+            if (!e.target.closest('.export-dropdown')) {
+                closeExportMenu();
+            }
         });
 
         // File handling
@@ -1179,25 +1230,72 @@
             event.target.value = '';
         }
 
-        // Export
-        function exportDiagram() {
+        // Export menu
+        function toggleExportMenu() {
+            document.getElementById('exportMenu').classList.toggle('open');
+            closeExamples();
+        }
+
+        function closeExportMenu() {
+            document.getElementById('exportMenu').classList.remove('open');
+        }
+
+        // Export SVG
+        async function exportSVG() {
+            closeExportMenu();
+            
             let svgContent;
             
             if (currentMode === 'mermaid') {
                 const svg = document.querySelector('#mermaid-output svg');
-                if (!svg) return;
+                if (!svg) {
+                    alert('No diagram to export');
+                    return;
+                }
                 svgContent = new XMLSerializer().serializeToString(svg);
             } else {
-                const svg = document.querySelector('#bpmn-container svg');
-                if (!svg) return;
-                svgContent = new XMLSerializer().serializeToString(svg);
+                // Use bpmn-js's saveSVG method for proper export
+                if (!bpmnViewer) {
+                    alert('No diagram to export');
+                    return;
+                }
+                try {
+                    const result = await bpmnViewer.saveSVG();
+                    svgContent = result.svg;
+                } catch (err) {
+                    console.error('SVG export failed:', err);
+                    alert('Failed to export SVG');
+                    return;
+                }
             }
 
-            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            downloadFile(svgContent, `diagram-${Date.now()}.svg`, 'image/svg+xml');
+        }
+
+        // Export BPMN XML
+        function exportBPMN() {
+            closeExportMenu();
+            
+            if (currentMode !== 'bpmn') {
+                alert('BPMN export only available in BPMN mode');
+                return;
+            }
+
+            if (!lastBpmnXml) {
+                alert('No diagram to export');
+                return;
+            }
+
+            downloadFile(lastBpmnXml, `process-${Date.now()}.bpmn`, 'application/xml');
+        }
+
+        // Helper to download file
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `diagram-${Date.now()}.svg`;
+            a.download = filename;
             a.click();
             URL.revokeObjectURL(url);
         }

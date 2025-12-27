@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagram Editor - Simon Vegelahn</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bpmn-js@17.2.0/dist/bpmn-viewer.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+    <style>
+        :root {
+            --color-bg-hero: #0a0a0a;
+            --color-bg-secondary: #111113;
+            --color-bg-card: #161618;
+            --color-bg-input: #1a1a1d;
+            --color-text: #fafafa;
+            --color-text-secondary: #b0b0b0;
+            --color-text-muted: #606060;
+            --color-accent: #60a5fa;
+            --color-accent-hover: #93c5fd;
+            --color-border: #262626;
+            --color-border-subtle: #1f1f1f;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        [data-theme="light"] {
+            --color-bg-hero: #ffffff;
+            --color-bg-secondary: #f5f5f7;
+            --color-bg-card: #ffffff;
+            --color-bg-input: #f8f8fa;
+            --color-text: #0a0a0a;
+            --color-text-secondary: #525252;
+            --color-text-muted: #8a8a8a;
+            --color-accent: #0066cc;
+            --color-accent-hover: #0052a3;
+            --color-border: #e5e5e5;
+            --color-border-subtle: #ebebeb;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg-hero);
+            color: var(--color-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            height: 56px;
+            background: var(--color-bg-secondary);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-logo {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: var(--color-text);
+            text-decoration: none;
+        }
+
+        .header-logo:hover {
+            color: var(--color-accent);
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--color-border);
+        }
+
+        .header-title {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        .header-center {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        .mode-btn:hover {
+            color: var(--color-text);
+        }
+
+        .mode-btn.active {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-card);
+            color: var(--color-text-secondary);
+            font-family: inherit;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .btn:hover {
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent-hover);
+            border-color: var(--color-accent-hover);
+        }
+
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle .icon-moon { display: none; }
+        [data-theme="light"] .theme-toggle .icon-sun { display: none; }
+        [data-theme="light"] .theme-toggle .icon-moon { display: block; }
+
+        /* Main Layout */
+        .main {
+            display: flex;
+            height: calc(100vh - 56px);
+        }
+
+        /* Editor Panel */
+        .editor-panel {
+            width: 45%;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--color-border);
+            background: var(--color-bg-card);
+        }
+
+        .editor-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .editor-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .editor-tab {
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--color-text-muted);
+            font-family: inherit;
+        }
+
+        .editor-tab:hover {
+            color: var(--color-text-secondary);
+        }
+
+        .editor-tab.active {
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .editor-action {
+            padding: 0.375rem;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .editor-action:hover {
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+        }
+
+        .editor-action svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .code-editor {
+            flex: 1;
+            padding: 1rem;
+            background: var(--color-bg-input);
+            border: none;
+            resize: none;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8125rem;
+            line-height: 1.7;
+            color: var(--color-text);
+            outline: none;
+        }
+
+        .code-editor::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        /* Preview Panel */
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-bg-hero);
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--color-bg-card);
+        }
+
+        .preview-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .preview-zoom {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .zoom-btn:hover {
+            background: var(--color-bg-card);
+            color: var(--color-text);
+        }
+
+        .zoom-level {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .preview-content {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .preview-content.align-start {
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        #mermaid-output {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transform-origin: center center;
+            transition: transform 0.2s ease;
+        }
+
+        #mermaid-output svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #bpmn-container {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .preview-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            color: #ef4444;
+            font-size: 0.875rem;
+            max-width: 500px;
+        }
+
+        .preview-error-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-error-message {
+            font-family: monospace;
+            font-size: 0.8125rem;
+            opacity: 0.9;
+        }
+
+        /* Examples Dropdown */
+        .examples-dropdown {
+            position: relative;
+        }
+
+        .examples-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 0.5rem;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            box-shadow: var(--shadow-card);
+            min-width: 220px;
+            z-index: 100;
+            display: none;
+        }
+
+        .examples-menu.open {
+            display: block;
+        }
+
+        .examples-menu-item {
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--color-border-subtle);
+        }
+
+        .examples-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .examples-menu-item:hover {
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+        }
+
+        .examples-menu-item-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--color-text-muted);
+        }
+
+        /* File input */
+        .file-input {
+            display: none;
+        }
+
+        /* Resize handle */
+        .resize-handle {
+            width: 4px;
+            background: var(--color-border);
+            cursor: col-resize;
+            transition: background 0.15s ease;
+        }
+
+        .resize-handle:hover {
+            background: var(--color-accent);
+        }
+
+        /* BPMN Help */
+        .bpmn-help {
+            padding: 1rem;
+            border-top: 1px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .bpmn-help-title {
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .bpmn-help code {
+            background: var(--color-bg-card);
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main {
+                flex-direction: column;
+            }
+
+            .editor-panel {
+                width: 100%;
+                height: 50%;
+                border-right: none;
+                border-bottom: 1px solid var(--color-border);
+            }
+
+            .resize-handle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="interactive-projects.html" class="header-logo">← Back</a>
+            <div class="header-divider"></div>
+            <span class="header-title">Diagram Editor</span>
+        </div>
+
+        <div class="header-center">
+            <button class="mode-btn active" id="mermaidModeBtn" onclick="setMode('mermaid')">Mermaid</button>
+            <button class="mode-btn" id="bpmnModeBtn" onclick="setMode('bpmn')">BPMN</button>
+        </div>
+
+        <div class="header-right">
+            <div class="examples-dropdown">
+                <button class="btn" onclick="toggleExamples()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    Examples
+                </button>
+                <div class="examples-menu" id="examplesMenu">
+                    <div class="examples-menu-item" onclick="loadExample('flowchart')">
+                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M12 8v8M8 12h8"/>
+                        </svg>
+                        Flowchart
+                    </div>
+                    <div class="examples-menu-item" onclick="loadExample('sequence')">
+                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                        Sequence Diagram
+                    </div>
+                    <div class="examples-menu-item" onclick="loadExample('state')">
+                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        State Diagram
+                    </div>
+                    <div class="examples-menu-item" onclick="loadExample('erDiagram')">
+                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <path d="M8 21h8M12 17v4"/>
+                        </svg>
+                        ER Diagram
+                    </div>
+                    <div class="examples-menu-item" onclick="loadExample('gantt')">
+                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <rect x="7" y="7" width="8" height="3"/>
+                            <rect x="10" y="13" width="6" height="3"/>
+                        </svg>
+                        Gantt Chart
+                    </div>
+                    <div class="examples-menu-item" onclick="loadExample('bpmn-order')">
+                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        BPMN: Order Process
+                    </div>
+                    <div class="examples-menu-item" onclick="loadExample('bpmn-approval')">
+                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        BPMN: Approval Flow
+                    </div>
+                </div>
+            </div>
+
+            <label class="btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Load File
+                <input type="file" class="file-input" id="fileInput" accept=".mermaid,.mmd,.bpmn,.xml,.txt" onchange="loadFile(event)">
+            </label>
+
+            <button class="btn btn-primary" onclick="exportDiagram()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export SVG
+            </button>
+
+            <button class="btn theme-toggle" id="themeToggle">
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="editor-panel" id="editorPanel">
+            <div class="editor-header">
+                <div class="editor-tabs">
+                    <button class="editor-tab active">Code</button>
+                </div>
+                <div class="editor-actions">
+                    <button class="editor-action" onclick="copyCode()" title="Copy code">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                    </button>
+                    <button class="editor-action" onclick="clearEditor()" title="Clear">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="editor-content">
+                <textarea 
+                    class="code-editor" 
+                    id="codeEditor" 
+                    placeholder="Enter your diagram code here..."
+                    spellcheck="false"
+                ></textarea>
+            </div>
+            <div class="bpmn-help" id="bpmnHelp" style="display: none;">
+                <div class="bpmn-help-title">BPMN Syntax Guide</div>
+                <div>
+                    <code>(start)</code> Start event · 
+                    <code>(end)</code> End event · 
+                    <code>[Task Name]</code> Task · 
+                    <code>&lt;Decision?&gt;</code> Gateway<br>
+                    <code>-></code> Connect elements · 
+                    <code>|Yes|</code> Condition label · 
+                    <code>(timer)</code> Timer · 
+                    <code>(error)</code> Error end
+                </div>
+            </div>
+        </div>
+
+        <div class="resize-handle" id="resizeHandle"></div>
+
+        <div class="preview-panel">
+            <div class="preview-header">
+                <span class="preview-title">Preview</span>
+                <div class="preview-zoom">
+                    <button class="zoom-btn" onclick="zoomOut()">−</button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" onclick="zoomIn()">+</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset">⟲</button>
+                </div>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <div id="mermaid-output"></div>
+                <div id="bpmn-container" style="display: none;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // State
+        let currentMode = 'mermaid';
+        let zoomLevel = 1;
+        let bpmnViewer = null;
+        let debounceTimer = null;
+
+        // Examples
+        const examples = {
+            flowchart: `flowchart TD
+    A[Start] --> B{Is it working?}
+    B -->|Yes| C[Great!]
+    B -->|No| D[Debug]
+    D --> E[Fix the code]
+    E --> B
+    C --> F[Deploy]
+    F --> G[End]`,
+
+            sequence: `sequenceDiagram
+    participant U as User
+    participant C as Client
+    participant S as Server
+    participant D as Database
+
+    U->>C: Click submit
+    C->>S: POST /api/data
+    S->>D: INSERT query
+    D-->>S: Success
+    S-->>C: 200 OK
+    C-->>U: Show confirmation`,
+
+            state: `stateDiagram-v2
+    [*] --> Draft
+    Draft --> Review: Submit
+    Review --> Draft: Request changes
+    Review --> Approved: Approve
+    Review --> Rejected: Reject
+    Approved --> Published: Publish
+    Published --> [*]
+    Rejected --> [*]`,
+
+            erDiagram: `erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    ORDER ||--|{ LINE_ITEM : contains
+    CUSTOMER {
+        int id PK
+        string name
+        string email
+    }
+    ORDER {
+        int id PK
+        date created
+        string status
+    }
+    LINE_ITEM {
+        int quantity
+        float price
+    }
+    PRODUCT ||--o{ LINE_ITEM : "ordered in"
+    PRODUCT {
+        int id PK
+        string name
+        float price
+    }`,
+
+            gantt: `gantt
+    title Project Timeline
+    dateFormat YYYY-MM-DD
+    section Planning
+        Requirements    :a1, 2024-01-01, 14d
+        Design          :a2, after a1, 10d
+    section Development
+        Backend         :b1, after a2, 21d
+        Frontend        :b2, after a2, 21d
+    section Testing
+        Integration     :c1, after b1, 7d
+        UAT             :c2, after c1, 7d
+    section Deployment
+        Release         :d1, after c2, 3d`,
+
+            'bpmn-order': `(start) -> [Receive Order] -> <In Stock?>
+<In Stock?> -> |Yes| [Pack Items]
+<In Stock?> -> |No| [Reorder Stock] -> [Wait for Delivery] -> [Pack Items]
+[Pack Items] -> [Ship Order] -> (end)`,
+
+            'bpmn-approval': `(start) -> [Submit Request] -> <Amount > $1000?>
+<Amount > $1000?> -> |No| [Auto Approve] -> [Process Payment]
+<Amount > $1000?> -> |Yes| [Manager Review] -> <Approved?>
+<Approved?> -> |Yes| [Process Payment]
+<Approved?> -> |No| [Send Rejection] -> (end)
+[Process Payment] -> (end)`
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initMermaid();
+            initResizer();
+            
+            // Load default example
+            document.getElementById('codeEditor').value = examples.flowchart;
+            renderDiagram();
+
+            // Live preview on input
+            document.getElementById('codeEditor').addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(renderDiagram, 300);
+            });
+        });
+
+        // Theme
+        function initTheme() {
+            const toggle = document.getElementById('themeToggle');
+            const saved = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (saved === 'light' || (!saved && !prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+
+            toggle.addEventListener('click', () => {
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                const newTheme = isDark ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Re-render with new theme
+                if (currentMode === 'mermaid') {
+                    initMermaid();
+                    renderDiagram();
+                }
+            });
+        }
+
+        // Mermaid
+        function initMermaid() {
+            const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: isDark ? 'dark' : 'default',
+                securityLevel: 'loose',
+                flowchart: { useMaxWidth: true, htmlLabels: true },
+                sequence: { useMaxWidth: true },
+            });
+        }
+
+        // Set mode
+        function setMode(mode) {
+            currentMode = mode;
+            
+            document.getElementById('mermaidModeBtn').classList.toggle('active', mode === 'mermaid');
+            document.getElementById('bpmnModeBtn').classList.toggle('active', mode === 'bpmn');
+            document.getElementById('bpmnHelp').style.display = mode === 'bpmn' ? 'block' : 'none';
+            
+            document.getElementById('mermaid-output').style.display = mode === 'mermaid' ? 'block' : 'none';
+            document.getElementById('bpmn-container').style.display = mode === 'bpmn' ? 'block' : 'none';
+
+            // Load appropriate example
+            const editor = document.getElementById('codeEditor');
+            if (mode === 'mermaid' && editor.value.includes('(start)')) {
+                editor.value = examples.flowchart;
+            } else if (mode === 'bpmn' && !editor.value.includes('(start)')) {
+                editor.value = examples['bpmn-order'];
+            }
+
+            renderDiagram();
+        }
+
+        // Render
+        async function renderDiagram() {
+            const code = document.getElementById('codeEditor').value.trim();
+            if (!code) return;
+
+            if (currentMode === 'mermaid') {
+                await renderMermaid(code);
+            } else {
+                await renderBPMN(code);
+            }
+        }
+
+        async function renderMermaid(code) {
+            const output = document.getElementById('mermaid-output');
+            
+            try {
+                const { svg } = await mermaid.render('mermaid-svg', code);
+                output.innerHTML = svg;
+                output.style.transform = `scale(${zoomLevel})`;
+                document.getElementById('previewContent').classList.remove('align-start');
+            } catch (error) {
+                output.innerHTML = `
+                    <div class="preview-error">
+                        <div class="preview-error-title">Syntax Error</div>
+                        <div class="preview-error-message">${error.message || 'Invalid diagram syntax'}</div>
+                    </div>
+                `;
+            }
+        }
+
+        async function renderBPMN(code) {
+            const container = document.getElementById('bpmn-container');
+            document.getElementById('previewContent').classList.add('align-start');
+            
+            try {
+                const xml = convertToBPMNXml(code);
+                
+                if (!bpmnViewer) {
+                    bpmnViewer = new BpmnJS({ container: container });
+                }
+                
+                await bpmnViewer.importXML(xml);
+                bpmnViewer.get('canvas').zoom('fit-viewport');
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="preview-error" style="margin: 2rem;">
+                        <div class="preview-error-title">BPMN Error</div>
+                        <div class="preview-error-message">${error.message || 'Invalid BPMN syntax'}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Convert simple DSL to BPMN XML with dagre layout
+        function convertToBPMNXml(code) {
+            const lines = code.split('\n').filter(l => l.trim());
+            const elements = new Map();
+            const flows = [];
+            let elementId = 0;
+
+            // Parse all elements and flows
+            lines.forEach(line => {
+                const parts = line.split('->').map(p => p.trim()).filter(p => p);
+                
+                for (let i = 0; i < parts.length; i++) {
+                    let part = parts[i];
+                    let condition = null;
+                    
+                    // Check for condition like |Yes| or |No|
+                    const condMatch = part.match(/^\|([^|]+)\|\s*(.+)$/);
+                    if (condMatch) {
+                        condition = condMatch[1];
+                        part = condMatch[2];
+                    }
+                    
+                    // Create element if not exists
+                    if (!elements.has(part)) {
+                        elementId++;
+                        let type = 'task';
+                        let name = part;
+                        let width = 100;
+                        let height = 80;
+                        
+                        if (part === '(start)') {
+                            type = 'startEvent';
+                            name = '';
+                            width = 36;
+                            height = 36;
+                        } else if (part === '(end)') {
+                            type = 'endEvent';
+                            name = '';
+                            width = 36;
+                            height = 36;
+                        } else if (part === '(timer)') {
+                            type = 'intermediateCatchEvent';
+                            name = 'Timer';
+                            width = 36;
+                            height = 36;
+                        } else if (part === '(error)') {
+                            type = 'endEvent';
+                            name = 'Error';
+                            width = 36;
+                            height = 36;
+                        } else if (part.startsWith('<') && part.endsWith('>')) {
+                            type = 'exclusiveGateway';
+                            name = part.slice(1, -1);
+                            width = 50;
+                            height = 50;
+                        } else if (part.startsWith('[') && part.endsWith(']')) {
+                            type = 'task';
+                            name = part.slice(1, -1);
+                        }
+                        
+                        elements.set(part, { 
+                            id: `Element_${elementId}`, 
+                            type, 
+                            name,
+                            key: part,
+                            width,
+                            height
+                        });
+                    }
+                    
+                    // Create flow from previous element
+                    if (i > 0) {
+                        let sourcePart = parts[i - 1];
+                        const srcCondMatch = sourcePart.match(/^\|([^|]+)\|\s*(.+)$/);
+                        if (srcCondMatch) {
+                            sourcePart = srcCondMatch[2];
+                        }
+                        
+                        const source = elements.get(sourcePart);
+                        const target = elements.get(part);
+                        
+                        if (source && target) {
+                            flows.push({
+                                id: `Flow_${flows.length + 1}`,
+                                sourceRef: source.id,
+                                targetRef: target.id,
+                                sourceKey: sourcePart,
+                                targetKey: part,
+                                name: condition || ''
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Use dagre for layout
+            const g = new dagre.graphlib.Graph();
+            g.setGraph({
+                rankdir: 'LR',      // Left to right
+                nodesep: 60,        // Horizontal separation between nodes
+                ranksep: 80,        // Vertical separation between ranks
+                marginx: 50,
+                marginy: 50
+            });
+            g.setDefaultEdgeLabel(() => ({}));
+
+            // Add nodes to dagre
+            elements.forEach((el, key) => {
+                g.setNode(key, { 
+                    width: el.width, 
+                    height: el.height,
+                    element: el
+                });
+            });
+
+            // Add edges to dagre
+            flows.forEach(flow => {
+                g.setEdge(flow.sourceKey, flow.targetKey);
+            });
+
+            // Calculate layout
+            dagre.layout(g);
+
+            // Extract positions
+            const positions = new Map();
+            g.nodes().forEach(key => {
+                const node = g.node(key);
+                if (node) {
+                    // dagre gives center positions, convert to top-left
+                    positions.set(key, {
+                        x: node.x - node.width / 2,
+                        y: node.y - node.height / 2,
+                        width: node.width,
+                        height: node.height
+                    });
+                }
+            });
+
+            // Generate BPMN XML
+            let processContent = '';
+            let shapeContent = '';
+            let edgeContent = '';
+
+            elements.forEach((el, key) => {
+                const pos = positions.get(key) || { x: 100, y: 100 };
+                
+                if (el.type === 'startEvent') {
+                    processContent += `<bpmn:startEvent id="${el.id}" name="${el.name}"/>\n`;
+                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
+                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="36" height="36"/>
+                    </bpmndi:BPMNShape>\n`;
+                } else if (el.type === 'endEvent') {
+                    processContent += `<bpmn:endEvent id="${el.id}" name="${el.name}"/>\n`;
+                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
+                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="36" height="36"/>
+                    </bpmndi:BPMNShape>\n`;
+                } else if (el.type === 'exclusiveGateway') {
+                    processContent += `<bpmn:exclusiveGateway id="${el.id}" name="${el.name}"/>\n`;
+                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}" isMarkerVisible="true">
+                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="50" height="50"/>
+                        <bpmndi:BPMNLabel><dc:Bounds x="${pos.x - 5}" y="${pos.y + 58}" width="60" height="14"/></bpmndi:BPMNLabel>
+                    </bpmndi:BPMNShape>\n`;
+                } else if (el.type === 'intermediateCatchEvent') {
+                    processContent += `<bpmn:intermediateCatchEvent id="${el.id}" name="${el.name}"><bpmn:timerEventDefinition/></bpmn:intermediateCatchEvent>\n`;
+                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
+                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="36" height="36"/>
+                    </bpmndi:BPMNShape>\n`;
+                } else {
+                    processContent += `<bpmn:task id="${el.id}" name="${el.name}"/>\n`;
+                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
+                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="100" height="80"/>
+                    </bpmndi:BPMNShape>\n`;
+                }
+            });
+
+            // Generate edges using dagre's edge points
+            flows.forEach(flow => {
+                const sourceEl = elements.get(flow.sourceKey);
+                const targetEl = elements.get(flow.targetKey);
+                const sp = positions.get(flow.sourceKey);
+                const tp = positions.get(flow.targetKey);
+                
+                if (!sp || !tp || !sourceEl || !targetEl) return;
+                
+                // Get edge points from dagre
+                const edge = g.edge(flow.sourceKey, flow.targetKey);
+                
+                processContent += `<bpmn:sequenceFlow id="${flow.id}" name="${flow.name}" sourceRef="${flow.sourceRef}" targetRef="${flow.targetRef}"/>\n`;
+                
+                // Build waypoints
+                let waypointsXml = '';
+                if (edge && edge.points && edge.points.length > 0) {
+                    edge.points.forEach(pt => {
+                        waypointsXml += `<di:waypoint x="${Math.round(pt.x)}" y="${Math.round(pt.y)}"/>\n`;
+                    });
+                } else {
+                    // Fallback: direct line
+                    const sx = sp.x + sp.width;
+                    const sy = sp.y + sp.height / 2;
+                    const tx = tp.x;
+                    const ty = tp.y + tp.height / 2;
+                    waypointsXml = `<di:waypoint x="${sx}" y="${sy}"/>\n<di:waypoint x="${tx}" y="${ty}"/>\n`;
+                }
+                
+                // Label for conditions
+                let labelXml = '';
+                if (flow.name && edge && edge.points && edge.points.length >= 2) {
+                    const midIdx = Math.floor(edge.points.length / 2);
+                    const midPt = edge.points[midIdx];
+                    labelXml = `<bpmndi:BPMNLabel><dc:Bounds x="${Math.round(midPt.x) - 15}" y="${Math.round(midPt.y) - 20}" width="40" height="14"/></bpmndi:BPMNLabel>`;
+                }
+                
+                edgeContent += `<bpmndi:BPMNEdge id="${flow.id}_di" bpmnElement="${flow.id}">
+                    ${waypointsXml}${labelXml}
+                </bpmndi:BPMNEdge>\n`;
+            });
+
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+    <bpmn:process id="Process_1" isExecutable="false">
+        ${processContent}
+    </bpmn:process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+        <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+            ${shapeContent}
+            ${edgeContent}
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</bpmn:definitions>`;
+        }
+
+        // Load example
+        function loadExample(name) {
+            closeExamples();
+            
+            if (name.startsWith('bpmn-')) {
+                setMode('bpmn');
+            } else {
+                setMode('mermaid');
+            }
+            
+            document.getElementById('codeEditor').value = examples[name];
+            renderDiagram();
+        }
+
+        // Examples dropdown
+        function toggleExamples() {
+            document.getElementById('examplesMenu').classList.toggle('open');
+        }
+
+        function closeExamples() {
+            document.getElementById('examplesMenu').classList.remove('open');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.examples-dropdown')) {
+                closeExamples();
+            }
+        });
+
+        // File handling
+        function loadFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                document.getElementById('codeEditor').value = content;
+                
+                // Auto-detect mode
+                if (file.name.endsWith('.bpmn') || file.name.endsWith('.xml') || content.includes('bpmn:')) {
+                    setMode('bpmn');
+                } else {
+                    setMode('mermaid');
+                }
+                
+                renderDiagram();
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Export
+        function exportDiagram() {
+            let svgContent;
+            
+            if (currentMode === 'mermaid') {
+                const svg = document.querySelector('#mermaid-output svg');
+                if (!svg) return;
+                svgContent = new XMLSerializer().serializeToString(svg);
+            } else {
+                const svg = document.querySelector('#bpmn-container svg');
+                if (!svg) return;
+                svgContent = new XMLSerializer().serializeToString(svg);
+            }
+
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagram-${Date.now()}.svg`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Editor actions
+        function copyCode() {
+            const editor = document.getElementById('codeEditor');
+            navigator.clipboard.writeText(editor.value);
+        }
+
+        function clearEditor() {
+            document.getElementById('codeEditor').value = '';
+            document.getElementById('mermaid-output').innerHTML = '';
+            if (bpmnViewer) {
+                bpmnViewer.clear();
+            }
+        }
+
+        // Zoom
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 0.1, 2);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 0.1, 0.5);
+            updateZoom();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+            if (currentMode === 'mermaid') {
+                document.getElementById('mermaid-output').style.transform = `scale(${zoomLevel})`;
+            } else if (bpmnViewer) {
+                bpmnViewer.get('canvas').zoom(zoomLevel);
+            }
+        }
+
+        // Resizer
+        function initResizer() {
+            const handle = document.getElementById('resizeHandle');
+            const panel = document.getElementById('editorPanel');
+            let startX, startWidth;
+
+            handle.addEventListener('mousedown', (e) => {
+                startX = e.clientX;
+                startWidth = panel.offsetWidth;
+                document.addEventListener('mousemove', resize);
+                document.addEventListener('mouseup', stopResize);
+            });
+
+            function resize(e) {
+                const newWidth = startWidth + (e.clientX - startX);
+                if (newWidth > 250 && newWidth < window.innerWidth - 300) {
+                    panel.style.width = newWidth + 'px';
+                }
+            }
+
+            function stopResize() {
+                document.removeEventListener('mousemove', resize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+        }
+    </script>
+</body>
+</html>

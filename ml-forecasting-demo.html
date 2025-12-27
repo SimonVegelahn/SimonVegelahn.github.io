@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Forecasting Demo | Simon Vegelahn</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #09090b;
+            --bg-secondary: #18181b;
+            --bg-tertiary: #27272a;
+            --bg-card: #1c1c1f;
+            --border-color: #3f3f46;
+            --border-subtle: #27272a;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-primary: #06b6d4;
+            --accent-secondary: #8b5cf6;
+            --accent-tertiary: #f59e0b;
+            --accent-success: #22c55e;
+            --accent-error: #ef4444;
+            --font-sans: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .header-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .header-badge {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Layout */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar Controls */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 1.5;
+        }
+
+        .card-icon.cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-primary); }
+        .card-icon.purple { background: rgba(139, 92, 246, 0.15); color: var(--accent-secondary); }
+        .card-icon.amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-tertiary); }
+        .card-icon.green { background: rgba(34, 197, 94, 0.15); color: var(--accent-success); }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* Form Controls */
+        .control-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .label-text {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .label-value {
+            font-size: 0.8125rem;
+            font-family: var(--font-mono);
+            color: var(--accent-primary);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--accent-primary);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), #0891b2);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .metric {
+            background: var(--bg-tertiary);
+            padding: 0.875rem;
+            border-radius: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value.loading {
+            color: var(--text-muted);
+        }
+
+        .metric-label {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Chart Area */
+        .chart-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            flex: 1;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            padding: 1rem;
+        }
+
+        /* Training Log */
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+        }
+
+        .log-entry {
+            padding: 0.25rem 0;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.info { color: var(--accent-primary); }
+        .log-entry.success { color: var(--accent-success); }
+        .log-entry.warning { color: var(--accent-tertiary); }
+        .log-entry.error { color: var(--accent-error); }
+
+        .log-timestamp {
+            color: var(--text-muted);
+            margin-right: 0.5rem;
+        }
+
+        /* Model Architecture Display */
+        .architecture {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+        }
+
+        .layer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .layer-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .layer-box.input { background: rgba(6, 182, 212, 0.2); color: var(--accent-primary); }
+        .layer-box.hidden { background: rgba(139, 92, 246, 0.2); color: var(--accent-secondary); }
+        .layer-box.output { background: rgba(34, 197, 94, 0.2); color: var(--accent-success); }
+
+        .layer-label {
+            font-size: 0.625rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .layer-arrow {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 1rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .progress-value {
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--accent-primary);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* Legend */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-color.actual { background: var(--accent-primary); }
+        .legend-color.predicted { background: var(--accent-secondary); }
+        .legend-color.forecast { background: var(--accent-tertiary); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .sidebar {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">ML</div>
+            <div>
+                <div class="header-title">Time Series Forecasting</div>
+            </div>
+            <span class="header-badge">TensorFlow.js</span>
+        </div>
+        <div class="header-right">
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span id="statusText">Ready</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <aside class="sidebar">
+            <!-- Data Configuration -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon cyan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 21H4.6c-.56 0-.84 0-1.054-.109a1 1 0 0 1-.437-.437C3 20.24 3 19.96 3 19.4V3"/>
+                            <path d="M7 14l4-4 4 4 6-6"/>
+                        </svg>
+                    </div>
+                    <span class="card-title">Data Configuration</span>
+                </div>
+                <div class="card-body">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span class="label-text">Dataset</span>
+                        </div>
+                        <select id="datasetSelect" onchange="loadDataset()">
+                            <option value="material">Material Demand (Seasonal)</option>
+                            <option value="sales">Sales Revenue (Trend)</option>
+                            <option value="energy">Energy Usage (Cyclical)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span class="label-text">Noise Level</span>
+                            <span class="label-value" id="noiseValue">0.1</span>
+                        </div>
+                        <input type="range" id="noiseSlider" min="0" max="0.5" step="0.05" value="0.1" oninput="updateNoise()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span class="label-text">Forecast Horizon</span>
+                            <span class="label-value" id="horizonValue">12 periods</span>
+                        </div>
+                        <input type="range" id="horizonSlider" min="6" max="24" step="1" value="12" oninput="updateHorizon()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Configuration -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/>
+                        </svg>
+                    </div>
+                    <span class="card-title">Model Parameters</span>
+                </div>
+                <div class="card-body">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span class="label-text">Hidden Units</span>
+                            <span class="label-value" id="unitsValue">32</span>
+                        </div>
+                        <input type="range" id="unitsSlider" min="8" max="128" step="8" value="32" oninput="updateUnits()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span class="label-text">Learning Rate</span>
+                            <span class="label-value" id="lrValue">0.01</span>
+                        </div>
+                        <input type="range" id="lrSlider" min="0.001" max="0.1" step="0.001" value="0.01" oninput="updateLR()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span class="label-text">Epochs</span>
+                            <span class="label-value" id="epochsValue">100</span>
+                        </div>
+                        <input type="range" id="epochsSlider" min="50" max="300" step="10" value="100" oninput="updateEpochs()">
+                    </div>
+                    <div class="control-group">
+                        <span class="label-text">Architecture</span>
+                        <div class="architecture">
+                            <div class="layer">
+                                <div class="layer-box input" id="inputLayer">1</div>
+                                <span class="layer-label">Input</span>
+                            </div>
+                            <span class="layer-arrow">→</span>
+                            <div class="layer">
+                                <div class="layer-box hidden" id="hiddenLayer">32</div>
+                                <span class="layer-label">Dense</span>
+                            </div>
+                            <span class="layer-arrow">→</span>
+                            <div class="layer">
+                                <div class="layer-box hidden" id="hiddenLayer2">16</div>
+                                <span class="layer-label">Dense</span>
+                            </div>
+                            <span class="layer-arrow">→</span>
+                            <div class="layer">
+                                <div class="layer-box output">1</div>
+                                <span class="layer-label">Output</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Controls -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                    </div>
+                    <span class="card-title">Training</span>
+                </div>
+                <div class="card-body">
+                    <div class="progress-container" id="progressContainer" style="display: none;">
+                        <div class="progress-header">
+                            <span class="progress-label">Training Progress</span>
+                            <span class="progress-value" id="progressText">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="trainBtn" onclick="trainModel()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Train Model
+                    </button>
+                    <button class="btn btn-secondary" style="margin-top: 0.75rem;" onclick="resetModel()">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon amber">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <span class="card-title">Metrics</span>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value loading" id="metricMSE">--</div>
+                            <div class="metric-label">MSE</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value loading" id="metricMAE">--</div>
+                            <div class="metric-label">MAE</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value loading" id="metricR2">--</div>
+                            <div class="metric-label">R² Score</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value loading" id="metricTime">--</div>
+                            <div class="metric-label">Train Time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="chart-area">
+            <!-- Main Forecast Chart -->
+            <div class="card chart-card">
+                <div class="card-header">
+                    <div class="card-icon cyan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 3v18h18"/>
+                            <path d="M18 9l-5 5-4-4-3 3"/>
+                        </svg>
+                    </div>
+                    <span class="card-title">Forecast Results</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color actual"></span>
+                        <span>Actual Data</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color predicted"></span>
+                        <span>Model Prediction</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color forecast"></span>
+                        <span>Future Forecast</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Loss Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <span class="card-title">Training Loss</span>
+                </div>
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="lossChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Training Log -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                    </div>
+                    <span class="card-title">Training Log</span>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry info"><span class="log-timestamp">[00:00]</span>System initialized. Select a dataset and click "Train Model" to begin.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global state
+        let model = null;
+        let forecastChart = null;
+        let lossChart = null;
+        let trainingData = { x: [], y: [] };
+        let isTraining = false;
+
+        // Configuration
+        const config = {
+            noise: 0.1,
+            horizon: 12,
+            units: 32,
+            lr: 0.01,
+            epochs: 100
+        };
+
+        // Dataset generators
+        const datasets = {
+            material: {
+                name: 'Material Demand',
+                generate: (n, noise) => {
+                    const data = [];
+                    for (let i = 0; i < n; i++) {
+                        // Seasonal pattern with trend
+                        const trend = 100 + i * 0.5;
+                        const seasonal = 20 * Math.sin(2 * Math.PI * i / 12);
+                        const random = noise * 50 * (Math.random() - 0.5);
+                        data.push(trend + seasonal + random);
+                    }
+                    return data;
+                }
+            },
+            sales: {
+                name: 'Sales Revenue',
+                generate: (n, noise) => {
+                    const data = [];
+                    for (let i = 0; i < n; i++) {
+                        // Exponential growth with noise
+                        const growth = 50 * Math.exp(0.02 * i);
+                        const random = noise * growth * (Math.random() - 0.5);
+                        data.push(growth + random);
+                    }
+                    return data;
+                }
+            },
+            energy: {
+                name: 'Energy Usage',
+                generate: (n, noise) => {
+                    const data = [];
+                    for (let i = 0; i < n; i++) {
+                        // Multiple cyclical patterns
+                        const daily = 30 * Math.sin(2 * Math.PI * i / 7);
+                        const weekly = 15 * Math.sin(2 * Math.PI * i / 30);
+                        const base = 200;
+                        const random = noise * 40 * (Math.random() - 0.5);
+                        data.push(base + daily + weekly + random);
+                    }
+                    return data;
+                }
+            }
+        };
+
+        // Initialize charts
+        function initCharts() {
+            const forecastCtx = document.getElementById('forecastChart').getContext('2d');
+            const lossCtx = document.getElementById('lossChart').getContext('2d');
+
+            // Chart.js dark theme
+            Chart.defaults.color = '#a1a1aa';
+            Chart.defaults.borderColor = '#27272a';
+
+            forecastChart = new Chart(forecastCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Actual',
+                            data: [],
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 2
+                        },
+                        {
+                            label: 'Predicted',
+                            data: [],
+                            borderColor: '#8b5cf6',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Forecast',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#f59e0b'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#27272a' },
+                            ticks: { maxTicksLimit: 12 }
+                        },
+                        y: {
+                            grid: { color: '#27272a' }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+
+            lossChart = new Chart(lossCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Loss',
+                        data: [],
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#27272a' },
+                            title: { display: true, text: 'Epoch', color: '#71717a' }
+                        },
+                        y: {
+                            grid: { color: '#27272a' },
+                            title: { display: true, text: 'MSE Loss', color: '#71717a' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load dataset
+        function loadDataset() {
+            const datasetKey = document.getElementById('datasetSelect').value;
+            const dataset = datasets[datasetKey];
+            
+            // Generate 60 data points
+            const rawData = dataset.generate(60, config.noise);
+            
+            // Prepare training data
+            trainingData.x = [];
+            trainingData.y = [];
+            for (let i = 0; i < rawData.length; i++) {
+                trainingData.x.push(i);
+                trainingData.y.push(rawData[i]);
+            }
+
+            // Update forecast chart with actual data
+            const labels = trainingData.x.map(i => `T${i + 1}`);
+            forecastChart.data.labels = labels;
+            forecastChart.data.datasets[0].data = trainingData.y;
+            forecastChart.data.datasets[1].data = [];
+            forecastChart.data.datasets[2].data = [];
+            forecastChart.update();
+
+            // Reset loss chart
+            lossChart.data.labels = [];
+            lossChart.data.datasets[0].data = [];
+            lossChart.update();
+
+            // Reset metrics
+            resetMetrics();
+
+            log('info', `Loaded ${dataset.name} dataset with ${rawData.length} data points`);
+        }
+
+        // Create model
+        function createModel() {
+            if (model) {
+                model.dispose();
+            }
+
+            model = tf.sequential();
+            
+            // Input layer + first hidden layer
+            model.add(tf.layers.dense({
+                units: config.units,
+                activation: 'relu',
+                inputShape: [1]
+            }));
+
+            // Second hidden layer
+            model.add(tf.layers.dense({
+                units: Math.floor(config.units / 2),
+                activation: 'relu'
+            }));
+
+            // Output layer
+            model.add(tf.layers.dense({
+                units: 1
+            }));
+
+            model.compile({
+                optimizer: tf.train.adam(config.lr),
+                loss: 'meanSquaredError'
+            });
+
+            // Update architecture display
+            document.getElementById('hiddenLayer').textContent = config.units;
+            document.getElementById('hiddenLayer2').textContent = Math.floor(config.units / 2);
+
+            log('success', `Model created: Dense(${config.units}) → Dense(${Math.floor(config.units / 2)}) → Dense(1)`);
+        }
+
+        // Train model
+        async function trainModel() {
+            if (isTraining) return;
+            if (trainingData.x.length === 0) {
+                log('error', 'No data loaded. Please select a dataset first.');
+                return;
+            }
+
+            isTraining = true;
+            const trainBtn = document.getElementById('trainBtn');
+            trainBtn.disabled = true;
+            trainBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Training...';
+
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('statusText').textContent = 'Training...';
+
+            createModel();
+
+            // Normalize data
+            const xMin = Math.min(...trainingData.x);
+            const xMax = Math.max(...trainingData.x);
+            const yMin = Math.min(...trainingData.y);
+            const yMax = Math.max(...trainingData.y);
+
+            const xNorm = trainingData.x.map(v => (v - xMin) / (xMax - xMin));
+            const yNorm = trainingData.y.map(v => (v - yMin) / (yMax - yMin));
+
+            const xs = tf.tensor2d(xNorm, [xNorm.length, 1]);
+            const ys = tf.tensor2d(yNorm, [yNorm.length, 1]);
+
+            // Clear loss chart
+            lossChart.data.labels = [];
+            lossChart.data.datasets[0].data = [];
+
+            log('info', `Starting training: ${config.epochs} epochs, LR=${config.lr}`);
+            const startTime = performance.now();
+
+            // Train
+            await model.fit(xs, ys, {
+                epochs: config.epochs,
+                batchSize: 16,
+                shuffle: true,
+                callbacks: {
+                    onEpochEnd: (epoch, logs) => {
+                        // Update progress
+                        const progress = ((epoch + 1) / config.epochs) * 100;
+                        document.getElementById('progressFill').style.width = progress + '%';
+                        document.getElementById('progressText').textContent = Math.round(progress) + '%';
+
+                        // Update loss chart
+                        lossChart.data.labels.push(epoch + 1);
+                        lossChart.data.datasets[0].data.push(logs.loss);
+                        if (epoch % 10 === 0) {
+                            lossChart.update('none');
+                        }
+
+                        // Log every 20 epochs
+                        if (epoch % 20 === 0 || epoch === config.epochs - 1) {
+                            log('info', `Epoch ${epoch + 1}/${config.epochs} - Loss: ${logs.loss.toFixed(6)}`);
+                        }
+                    }
+                }
+            });
+
+            const trainTime = ((performance.now() - startTime) / 1000).toFixed(2);
+            lossChart.update();
+
+            // Generate predictions
+            const allX = [];
+            for (let i = 0; i < trainingData.x.length + config.horizon; i++) {
+                allX.push((i - xMin) / (xMax - xMin));
+            }
+            const predXs = tf.tensor2d(allX, [allX.length, 1]);
+            const predictions = model.predict(predXs);
+            const predValues = await predictions.data();
+
+            // Denormalize predictions
+            const denormPred = Array.from(predValues).map(v => v * (yMax - yMin) + yMin);
+
+            // Split into fitted and forecast
+            const fitted = denormPred.slice(0, trainingData.y.length);
+            const forecast = denormPred.slice(trainingData.y.length);
+
+            // Update chart
+            // Extend labels for forecast
+            const extendedLabels = [...forecastChart.data.labels];
+            for (let i = 0; i < config.horizon; i++) {
+                extendedLabels.push(`F${i + 1}`);
+            }
+            forecastChart.data.labels = extendedLabels;
+
+            // Actual data (with nulls for forecast period)
+            const actualExtended = [...trainingData.y, ...Array(config.horizon).fill(null)];
+            forecastChart.data.datasets[0].data = actualExtended;
+
+            // Fitted predictions (with nulls for forecast period)
+            const fittedExtended = [...fitted, ...Array(config.horizon).fill(null)];
+            forecastChart.data.datasets[1].data = fittedExtended;
+
+            // Forecast (nulls for historical, then forecast values)
+            const forecastData = [...Array(trainingData.y.length - 1).fill(null), fitted[fitted.length - 1], ...forecast];
+            forecastChart.data.datasets[2].data = forecastData;
+
+            forecastChart.update();
+
+            // Calculate metrics
+            const mse = calculateMSE(trainingData.y, fitted);
+            const mae = calculateMAE(trainingData.y, fitted);
+            const r2 = calculateR2(trainingData.y, fitted);
+
+            document.getElementById('metricMSE').textContent = mse.toFixed(2);
+            document.getElementById('metricMSE').classList.remove('loading');
+            document.getElementById('metricMAE').textContent = mae.toFixed(2);
+            document.getElementById('metricMAE').classList.remove('loading');
+            document.getElementById('metricR2').textContent = r2.toFixed(3);
+            document.getElementById('metricR2').classList.remove('loading');
+            document.getElementById('metricTime').textContent = trainTime + 's';
+            document.getElementById('metricTime').classList.remove('loading');
+
+            log('success', `Training complete! MSE: ${mse.toFixed(4)}, R²: ${r2.toFixed(4)}`);
+            log('info', `Generated ${config.horizon}-period forecast`);
+
+            // Cleanup
+            xs.dispose();
+            ys.dispose();
+            predXs.dispose();
+            predictions.dispose();
+
+            isTraining = false;
+            trainBtn.disabled = false;
+            trainBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Train Model';
+            document.getElementById('statusText').textContent = 'Ready';
+        }
+
+        // Metrics calculations
+        function calculateMSE(actual, predicted) {
+            let sum = 0;
+            for (let i = 0; i < actual.length; i++) {
+                sum += Math.pow(actual[i] - predicted[i], 2);
+            }
+            return sum / actual.length;
+        }
+
+        function calculateMAE(actual, predicted) {
+            let sum = 0;
+            for (let i = 0; i < actual.length; i++) {
+                sum += Math.abs(actual[i] - predicted[i]);
+            }
+            return sum / actual.length;
+        }
+
+        function calculateR2(actual, predicted) {
+            const mean = actual.reduce((a, b) => a + b, 0) / actual.length;
+            let ssRes = 0, ssTot = 0;
+            for (let i = 0; i < actual.length; i++) {
+                ssRes += Math.pow(actual[i] - predicted[i], 2);
+                ssTot += Math.pow(actual[i] - mean, 2);
+            }
+            return 1 - (ssRes / ssTot);
+        }
+
+        // Reset model
+        function resetModel() {
+            if (model) {
+                model.dispose();
+                model = null;
+            }
+            
+            loadDataset();
+            resetMetrics();
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+            
+            log('info', 'Model reset. Ready for new training.');
+        }
+
+        function resetMetrics() {
+            ['metricMSE', 'metricMAE', 'metricR2', 'metricTime'].forEach(id => {
+                const el = document.getElementById(id);
+                el.textContent = '--';
+                el.classList.add('loading');
+            });
+        }
+
+        // Logging
+        function log(type, message) {
+            const container = document.getElementById('logContainer');
+            const now = new Date();
+            const timestamp = `${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span>${message}`;
+            
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Update functions
+        function updateNoise() {
+            config.noise = parseFloat(document.getElementById('noiseSlider').value);
+            document.getElementById('noiseValue').textContent = config.noise.toFixed(2);
+        }
+
+        function updateHorizon() {
+            config.horizon = parseInt(document.getElementById('horizonSlider').value);
+            document.getElementById('horizonValue').textContent = config.horizon + ' periods';
+        }
+
+        function updateUnits() {
+            config.units = parseInt(document.getElementById('unitsSlider').value);
+            document.getElementById('unitsValue').textContent = config.units;
+            document.getElementById('hiddenLayer').textContent = config.units;
+            document.getElementById('hiddenLayer2').textContent = Math.floor(config.units / 2);
+        }
+
+        function updateLR() {
+            config.lr = parseFloat(document.getElementById('lrSlider').value);
+            document.getElementById('lrValue').textContent = config.lr.toFixed(3);
+        }
+
+        function updateEpochs() {
+            config.epochs = parseInt(document.getElementById('epochsSlider').value);
+            document.getElementById('epochsValue').textContent = config.epochs;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            loadDataset();
+        });
+    </script>
+</body>
+</html>

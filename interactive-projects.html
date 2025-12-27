@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Demos - Simon Vegelahn</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <style>
+        :root {
+            --color-bg-hero: #0a0a0a;
+            --color-bg-secondary: #111113;
+            --color-bg-card: #161618;
+            --color-text: #fafafa;
+            --color-text-secondary: #b0b0b0;
+            --color-text-muted: #606060;
+            --color-accent: #60a5fa;
+            --color-accent-hover: #93c5fd;
+            --color-border: #262626;
+            --color-border-subtle: #1f1f1f;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        [data-theme="light"] {
+            --color-bg-hero: #ffffff;
+            --color-bg-secondary: #f5f5f7;
+            --color-bg-card: #ffffff;
+            --color-text: #0a0a0a;
+            --color-text-secondary: #525252;
+            --color-text-muted: #8a8a8a;
+            --color-accent: #0066cc;
+            --color-accent-hover: #0052a3;
+            --color-border: #e5e5e5;
+            --color-border-subtle: #ebebeb;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg-hero);
+            color: var(--color-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+        /* Header */
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--color-bg-hero);
+            border-bottom: 1px solid var(--color-border);
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        .sticky-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 3rem;
+        }
+
+        .sticky-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sticky-logo span {
+            font-weight: 700;
+            font-size: 0.9375rem;
+            letter-spacing: -0.02em;
+        }
+
+        .sticky-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .sticky-link {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--color-accent);
+            transition: opacity 0.15s ease;
+        }
+
+        .sticky-link:hover { opacity: 0.7; }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text);
+            transition: all 0.15s ease;
+        }
+
+        .theme-toggle:hover { background: var(--color-bg-secondary); }
+        .theme-toggle svg { width: 20px; height: 20px; }
+        .theme-toggle .icon-moon { display: none; }
+        [data-theme="light"] .theme-toggle .icon-sun { display: none; }
+        [data-theme="light"] .theme-toggle .icon-moon { display: block; }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 64px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            padding: 4rem 3rem 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            max-width: 560px;
+        }
+
+        /* View Toggle */
+        .view-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+            background: transparent;
+            color: var(--color-text-secondary);
+            font-family: inherit;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .view-btn:hover {
+            background: var(--color-bg-secondary);
+            color: var(--color-text);
+        }
+
+        .view-btn.active {
+            background: var(--color-bg-card);
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .view-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Projects Container */
+        .projects-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem 5rem;
+        }
+
+        /* Grid View */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-card);
+            transform: translateY(-2px);
+        }
+
+        .project-preview {
+            aspect-ratio: 16/9;
+            background: var(--color-bg-secondary);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--color-border-subtle);
+        }
+
+        .project-preview iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            border: none;
+            transform: scale(0.5);
+            transform-origin: top left;
+            pointer-events: none;
+        }
+
+        .project-preview-overlay {
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .project-card:hover .project-preview-overlay {
+            background: linear-gradient(to bottom, transparent 50%, var(--color-bg-card) 100%);
+        }
+
+        .project-live-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.625rem;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 4px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #22c55e;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        [data-theme="light"] .project-live-badge {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .project-live-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-year {
+            font-size: 0.75rem;
+            font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+            color: var(--color-text-muted);
+        }
+
+        .project-category {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-accent);
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.15s ease;
+        }
+
+        .project-card:hover .project-title {
+            color: var(--color-accent);
+        }
+
+        .project-title svg {
+            width: 18px;
+            height: 18px;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all 0.2s ease;
+        }
+
+        .project-card:hover .project-title svg {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .project-desc {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.625rem;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            color: var(--color-text-secondary);
+        }
+
+        /* Graph View */
+        .graph-container {
+            display: none;
+            height: 620px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .graph-container.active {
+            display: block;
+        }
+
+        .graph-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 1px 1px, var(--color-border) 1px, transparent 0);
+            background-size: 32px 32px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        #cy {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Preview Overlays */
+        .preview-overlays {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .node-preview {
+            position: absolute;
+            border-radius: 10px;
+            overflow: hidden;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .node-preview:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .node-preview-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .node-preview iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 400%;
+            height: 400%;
+            border: none;
+            transform: scale(0.25);
+            transform-origin: top left;
+            pointer-events: none;
+        }
+
+        .node-preview-border {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            border: 2px solid var(--node-color);
+            pointer-events: none;
+            transition: border-width 0.2s ease;
+        }
+
+        .node-preview:hover .node-preview-border {
+            border-width: 3px;
+        }
+
+        .node-preview-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 0.75rem 0.625rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+            border-radius: 0 0 8px 8px;
+            pointer-events: none;
+        }
+
+        .node-preview-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .node-preview-category {
+            font-size: 0.625rem;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .graph-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(to top, var(--color-bg-card) 70%, transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .graph-legend {
+            display: flex;
+            gap: 1.25rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        .legend-dot.data { background: #3b82f6; }
+        .legend-dot.ml { background: #8b5cf6; }
+        .legend-dot.tool { background: #10b981; }
+        .legend-dot.web { background: #f59e0b; }
+
+        .graph-hint {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-bg-secondary);
+            border-top: 1px solid var(--color-border-subtle);
+            padding: 2.5rem 3rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-copy {
+            font-size: 0.8125rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header,
+            .projects-container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            .sticky-header-content {
+                padding: 0 1.5rem;
+            }
+
+            footer {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="sticky-header">
+        <div class="sticky-header-content">
+            <a href="index.html" class="sticky-logo">
+                <span>Simon Vegelahn</span>
+            </a>
+            <div class="sticky-links">
+                <a href="about_me_de.html" class="sticky-link">About</a>
+                <a href="projects.html" class="sticky-link">Projects</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Interactive Demos</h1>
+            <p class="page-subtitle">Live technical showcases demonstrating data engineering, machine learning, and web development. All demos run entirely in the browser.</p>
+            
+            <div class="view-controls">
+                <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    Grid
+                </button>
+                <button class="view-btn" id="graphViewBtn" onclick="setView('graph')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="5" cy="6" r="3"/><circle cx="12" cy="18" r="3"/>
+                        <circle cx="19" cy="6" r="3"/><path d="M5 9v3a2 2 0 0 0 2 2h3M19 9v3a2 2 0 0 1-2 2h-3"/>
+                    </svg>
+                    Connections
+                </button>
+            </div>
+        </div>
+
+        <div class="projects-container">
+            <!-- Grid View -->
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Pipeline Visualizer -->
+                <article class="project-card" onclick="openProject('pipeline-visualizer.html')">
+                    <div class="project-preview">
+                        <iframe src="pipeline-visualizer.html" loading="lazy"></iframe>
+                        <div class="project-preview-overlay"></div>
+                        <span class="project-live-badge">Live Preview</span>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-meta">
+                            <span class="project-year">/2024</span>
+                            <span class="project-category">Data Engineering</span>
+                        </div>
+                        <h2 class="project-title">
+                            Data Pipeline Visualizer
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </h2>
+                        <p class="project-desc">Interactive ELT architecture visualization. Explore data flow from sources through staging, transformation, and analytical layers with live SQL inspection.</p>
+                        <div class="project-tags">
+                            <span class="tag">Snowflake</span>
+                            <span class="tag">dbt</span>
+                            <span class="tag">SQL</span>
+                            <span class="tag">SVG</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ML Forecasting -->
+                <article class="project-card" onclick="openProject('ml-forecasting-demo.html')">
+                    <div class="project-preview">
+                        <iframe src="ml-forecasting-demo.html" loading="lazy"></iframe>
+                        <div class="project-preview-overlay"></div>
+                        <span class="project-live-badge">Live Preview</span>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-meta">
+                            <span class="project-year">/2024</span>
+                            <span class="project-category">Machine Learning</span>
+                        </div>
+                        <h2 class="project-title">
+                            Time Series Forecasting
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </h2>
+                        <p class="project-desc">Client-side neural network for time series prediction. Train models directly in the browser, configure hyperparameters, and generate forecasts.</p>
+                        <div class="project-tags">
+                            <span class="tag">TensorFlow.js</span>
+                            <span class="tag">Regression</span>
+                            <span class="tag">Chart.js</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Diagram Editor -->
+                <article class="project-card" onclick="openProject('diagram-editor.html')">
+                    <div class="project-preview">
+                        <iframe src="diagram-editor.html" loading="lazy"></iframe>
+                        <div class="project-preview-overlay"></div>
+                        <span class="project-live-badge">Live Preview</span>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-meta">
+                            <span class="project-year">/2024</span>
+                            <span class="project-category">Developer Tool</span>
+                        </div>
+                        <h2 class="project-title">
+                            Diagram Editor
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </h2>
+                        <p class="project-desc">Live Mermaid and BPMN diagram editor. Write code, see instant previews, load files, and export to SVG.</p>
+                        <div class="project-tags">
+                            <span class="tag">Mermaid</span>
+                            <span class="tag">BPMN</span>
+                            <span class="tag">SVG</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Recipes -->
+                <article class="project-card" onclick="openProject('recipes.html')">
+                    <div class="project-preview">
+                        <iframe src="recipes.html" loading="lazy"></iframe>
+                        <div class="project-preview-overlay"></div>
+                        <span class="project-live-badge">Live Preview</span>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-meta">
+                            <span class="project-year">/2025</span>
+                            <span class="project-category">Web Application</span>
+                        </div>
+                        <h2 class="project-title">
+                            Recipe Collection
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </h2>
+                        <p class="project-desc">Personal recipe database with search, category filtering, and expandable instructions. Clean reading experience with theme support.</p>
+                        <div class="project-tags">
+                            <span class="tag">HTML/CSS</span>
+                            <span class="tag">JavaScript</span>
+                            <span class="tag">JSON</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Flashcards -->
+                <article class="project-card" onclick="openProject('flashcards.html')">
+                    <div class="project-preview">
+                        <iframe src="flashcards.html" loading="lazy"></iframe>
+                        <div class="project-preview-overlay"></div>
+                        <span class="project-live-badge">Live Preview</span>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-meta">
+                            <span class="project-year">/2025</span>
+                            <span class="project-category">Web Application</span>
+                        </div>
+                        <h2 class="project-title">
+                            Flashcard System
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </h2>
+                        <p class="project-desc">Interactive learning tool with flip-to-reveal cards, multiple study decks, and progress tracking. Keyboard navigation support.</p>
+                        <div class="project-tags">
+                            <span class="tag">Education</span>
+                            <span class="tag">Interactive</span>
+                            <span class="tag">JavaScript</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Graph View -->
+            <div class="graph-container" id="graphContainer">
+                <div id="cy"></div>
+                <div class="preview-overlays" id="previewOverlays"></div>
+                <div class="graph-footer">
+                    <div class="graph-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot data"></span>
+                            Data Engineering
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot ml"></span>
+                            Machine Learning
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot tool"></span>
+                            Developer Tool
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot web"></span>
+                            Web Application
+                        </div>
+                    </div>
+                    <div class="graph-hint">Click to open · Drag to pan · Scroll to zoom</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-copy">© Simon Vegelahn 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        // Project data
+        const projects = {
+            pipeline: {
+                id: 'pipeline',
+                title: 'Data Pipeline Visualizer',
+                desc: 'Interactive ELT architecture with live SQL inspection and animated data flow',
+                url: 'pipeline-visualizer.html',
+                category: 'data',
+                color: '#3b82f6',
+                related: ['forecasting']
+            },
+            forecasting: {
+                id: 'forecasting',
+                title: 'Time Series Forecasting',
+                desc: 'Train neural networks and generate predictions directly in your browser',
+                url: 'ml-forecasting-demo.html',
+                category: 'ml',
+                color: '#8b5cf6',
+                related: ['pipeline']
+            },
+            diagrams: {
+                id: 'diagrams',
+                title: 'Diagram Editor',
+                desc: 'Live Mermaid and BPMN diagram editor with syntax highlighting and SVG export',
+                url: 'diagram-editor.html',
+                category: 'tool',
+                color: '#10b981',
+                related: ['pipeline']
+            },
+            recipes: {
+                id: 'recipes',
+                title: 'Recipe Collection',
+                desc: 'Searchable recipe database with filtering and clean reading experience',
+                url: 'recipes.html',
+                category: 'web',
+                color: '#f59e0b',
+                related: ['flashcards']
+            },
+            flashcards: {
+                id: 'flashcards',
+                title: 'Flashcard System',
+                desc: 'Interactive learning tool with progress tracking and keyboard navigation',
+                url: 'flashcards.html',
+                category: 'web',
+                color: '#f59e0b',
+                related: ['recipes']
+            }
+        };
+
+        let cy = null;
+        let currentView = 'grid';
+
+        // Theme toggle
+        function initThemeToggle() {
+            const toggle = document.getElementById('themeToggle');
+            const savedTheme = localStorage.getItem('theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+
+            toggle.addEventListener('click', () => {
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                const newTheme = isDark ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                if (cy) updateCytoscapeTheme(newTheme);
+            });
+        }
+
+        // View switching
+        function setView(view) {
+            currentView = view;
+            
+            document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+            document.getElementById('graphViewBtn').classList.toggle('active', view === 'graph');
+            
+            document.getElementById('projectsGrid').style.display = view === 'grid' ? 'grid' : 'none';
+            document.getElementById('graphContainer').classList.toggle('active', view === 'graph');
+            
+            if (view === 'graph' && !cy) {
+                initCytoscape();
+            }
+        }
+
+        // Open project
+        function openProject(url) {
+            window.location.href = url;
+        }
+
+        // Initialize Cytoscape
+        function initCytoscape() {
+            const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            const colors = getThemeColors(isDark);
+
+            const nodeWidth = 200;
+            const nodeHeight = 130;
+
+            cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [
+                    { data: { id: 'pipeline', ...projects.pipeline } },
+                    { data: { id: 'forecasting', ...projects.forecasting } },
+                    { data: { id: 'diagrams', ...projects.diagrams } },
+                    { data: { id: 'recipes', ...projects.recipes } },
+                    { data: { id: 'flashcards', ...projects.flashcards } },
+                    { data: { source: 'pipeline', target: 'forecasting' } },
+                    { data: { source: 'pipeline', target: 'diagrams' } },
+                    { data: { source: 'forecasting', target: 'diagrams' } },
+                    { data: { source: 'recipes', target: 'flashcards' } }
+                ],
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'width': nodeWidth,
+                            'height': nodeHeight,
+                            'shape': 'round-rectangle',
+                            'background-opacity': 0,
+                            'border-width': 0,
+                            'label': '',
+                            'corner-radius': 10
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 1.5,
+                            'line-color': colors.border,
+                            'line-opacity': 0.5,
+                            'curve-style': 'straight',
+                            'line-style': 'dashed',
+                            'line-dash-pattern': [6, 6]
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'grid',
+                    rows: 2,
+                    cols: 3,
+                    padding: 50,
+                    avoidOverlap: true,
+                    avoidOverlapPadding: 20,
+                    fit: true
+                },
+                minZoom: 0.7,
+                maxZoom: 1.4,
+                wheelSensitivity: 0.15,
+                boxSelectionEnabled: false,
+                panningEnabled: true,
+                userPanningEnabled: true
+            });
+
+            // Create preview overlays
+            createPreviewOverlays(nodeWidth, nodeHeight);
+
+            // Update positions on viewport changes
+            cy.on('viewport', () => updatePreviewPositions(nodeWidth, nodeHeight));
+            cy.on('pan zoom', () => updatePreviewPositions(nodeWidth, nodeHeight));
+        }
+
+        function createPreviewOverlays(nodeWidth, nodeHeight) {
+            const container = document.getElementById('previewOverlays');
+            container.innerHTML = '';
+
+            const categoryLabels = {
+                'data': 'Data Engineering',
+                'ml': 'Machine Learning',
+                'tool': 'Developer Tool',
+                'web': 'Web Application'
+            };
+
+            cy.nodes().forEach(node => {
+                const data = node.data();
+                
+                const preview = document.createElement('div');
+                preview.className = 'node-preview';
+                preview.id = `preview-${data.id}`;
+                preview.style.setProperty('--node-color', data.color);
+                preview.onclick = () => openProject(data.url);
+
+                preview.innerHTML = `
+                    <div class="node-preview-inner">
+                        <iframe src="${data.url}" loading="lazy"></iframe>
+                    </div>
+                    <div class="node-preview-border" style="border-color: ${data.color}"></div>
+                    <div class="node-preview-label">
+                        <div class="node-preview-category">${categoryLabels[data.category]}</div>
+                        <div class="node-preview-title">${data.title}</div>
+                    </div>
+                `;
+
+                container.appendChild(preview);
+            });
+
+            updatePreviewPositions(nodeWidth, nodeHeight);
+        }
+
+        function updatePreviewPositions(nodeWidth, nodeHeight) {
+            const zoom = cy.zoom();
+            const pan = cy.pan();
+
+            cy.nodes().forEach(node => {
+                const preview = document.getElementById(`preview-${node.id()}`);
+                if (!preview) return;
+
+                const pos = node.position();
+                const w = nodeWidth * zoom;
+                const h = nodeHeight * zoom;
+                const x = pos.x * zoom + pan.x - w / 2;
+                const y = pos.y * zoom + pan.y - h / 2;
+
+                preview.style.left = `${x}px`;
+                preview.style.top = `${y}px`;
+                preview.style.width = `${w}px`;
+                preview.style.height = `${h}px`;
+            });
+        }
+
+        function getThemeColors(isDark) {
+            return {
+                cardBg: isDark ? '#1a1a1f' : '#ffffff',
+                text: isDark ? '#ffffff' : '#111111',
+                border: isDark ? '#333340' : '#d0d0d0'
+            };
+        }
+
+        function updateCytoscapeTheme(theme) {
+            if (!cy) return;
+            const colors = getThemeColors(theme === 'dark');
+            
+            cy.edges().forEach(edge => {
+                edge.style('line-color', colors.border);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initThemeToggle);
+    </script>
+</body>
+</html>

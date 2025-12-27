@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pipeline Visualizer | Simon Vegelahn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b0d;
+            --bg-secondary: #12141a;
+            --bg-tertiary: #1a1d26;
+            --bg-node: #1e2230;
+            --border-color: #2a2f3e;
+            --border-active: #3b82f6;
+            --text-primary: #e4e4e7;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-purple: #a855f7;
+            --accent-red: #ef4444;
+            --particle-color: #3b82f6;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Space Grotesk', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-secondary);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo svg {
+            width: 18px;
+            height: 18px;
+            stroke: white;
+            fill: none;
+        }
+
+        .header-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+        }
+
+        .btn:hover {
+            background: var(--bg-node);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            height: calc(100vh - 73px);
+        }
+
+        /* Pipeline Canvas */
+        .canvas-container {
+            position: relative;
+            overflow: hidden;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+
+        .canvas-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(var(--border-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.3;
+        }
+
+        .pipeline-svg {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Pipeline Nodes */
+        .node {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+
+
+        .node-bg {
+            fill: var(--bg-node);
+            stroke: var(--border-color);
+            stroke-width: 2;
+            rx: 12;
+            transition: all 0.2s ease;
+        }
+
+        .node.active .node-bg {
+            stroke: var(--border-active);
+            stroke-width: 2;
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
+        }
+
+        .node-icon-bg {
+            fill: var(--bg-tertiary);
+            rx: 8;
+        }
+
+        .node-icon {
+            stroke: var(--text-secondary);
+            fill: none;
+            stroke-width: 1.5;
+        }
+
+        .node.active .node-icon {
+            stroke: var(--accent-blue);
+        }
+
+        .node-title {
+            fill: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .node-subtitle {
+            fill: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .node-badge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* Pipeline Connections */
+        .connection {
+            fill: none;
+            stroke: var(--border-color);
+            stroke-width: 2;
+            stroke-dasharray: 8 4;
+        }
+
+        .connection.active {
+            stroke: var(--accent-blue);
+            stroke-dasharray: none;
+        }
+
+        /* Animated Particles */
+        .particle {
+            fill: var(--particle-color);
+            filter: drop-shadow(0 0 6px var(--particle-color));
+        }
+
+        @keyframes flowParticle {
+            0% { offset-distance: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { offset-distance: 100%; opacity: 0; }
+        }
+
+        .flowing-particle {
+            offset-rotate: 0deg;
+            animation: flowParticle 2s linear infinite;
+        }
+
+        /* Sidebar Panel */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.5;
+        }
+
+        .sidebar-icon.source { background: rgba(34, 197, 94, 0.15); }
+        .sidebar-icon.source svg { stroke: var(--accent-green); }
+        .sidebar-icon.staging { background: rgba(245, 158, 11, 0.15); }
+        .sidebar-icon.staging svg { stroke: var(--accent-amber); }
+        .sidebar-icon.transform { background: rgba(168, 85, 247, 0.15); }
+        .sidebar-icon.transform svg { stroke: var(--accent-purple); }
+        .sidebar-icon.mart { background: rgba(59, 130, 246, 0.15); }
+        .sidebar-icon.mart svg { stroke: var(--accent-blue); }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .sidebar-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 1.5rem;
+        }
+
+        .tab {
+            padding: 0.875rem 1rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.15s ease;
+        }
+
+        .tab:hover {
+            color: var(--text-secondary);
+        }
+
+        .tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Code Block */
+        .code-container {
+            flex: 1;
+            overflow: auto;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .code-filename {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-filename::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-amber);
+            border-radius: 2px;
+        }
+
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-content {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .keyword { color: var(--accent-purple); }
+        .function { color: var(--accent-blue); }
+        .string { color: var(--accent-green); }
+        .comment { color: var(--text-muted); font-style: italic; }
+        .number { color: var(--accent-amber); }
+
+        /* Data Preview */
+        .data-container {
+            flex: 1;
+            overflow: auto;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .data-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table-wrapper {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+        }
+
+        .data-table th {
+            background: var(--bg-tertiary);
+            padding: 0.625rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        .cell-null {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .cell-number {
+            color: var(--accent-amber);
+        }
+
+        .cell-string {
+            color: var(--accent-green);
+        }
+
+        /* Info Panel */
+        .info-container {
+            padding: 1.25rem 1.5rem;
+            overflow: auto;
+        }
+
+        .info-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-list li::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+        }
+
+        /* Lineage Mini Map */
+        .lineage-mini {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .lineage-node {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .lineage-node.source { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
+        .lineage-node.staging { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
+        .lineage-node.transform { background: rgba(168, 85, 247, 0.2); color: var(--accent-purple); }
+        .lineage-node.mart { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+        .lineage-node.active { 
+            box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px currentColor;
+        }
+
+        .lineage-arrow {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .control-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .control-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Stage Indicator */
+        .stage-indicator {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            z-index: 10;
+        }
+
+        .stage-label {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.25rem;
+        }
+
+        .stage-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stage-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .stage-dot.source { background: var(--accent-green); }
+        .stage-dot.staging { background: var(--accent-amber); }
+        .stage-dot.transform { background: var(--accent-purple); }
+        .stage-dot.mart { background: var(--accent-blue); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+            
+            .sidebar {
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div>
+                <div class="header-title">Data Pipeline Visualizer</div>
+                <div class="header-subtitle">Interactive ELT Architecture Demo</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn" onclick="resetPipeline()">Reset</button>
+            <button class="btn btn-primary" onclick="runPipeline()">
+                <span id="runBtnText">Run Pipeline</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="canvas-container">
+            <div class="canvas-grid"></div>
+            
+            <div class="stage-indicator">
+                <div class="stage-label">Current Stage</div>
+                <div class="stage-name">
+                    <span class="stage-dot source"></span>
+                    <span id="currentStage">Raw Sources</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn active" id="animToggle" onclick="toggleAnimation()" title="Toggle Animation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5,3 19,12 5,21"/>
+                    </svg>
+                </button>
+                <button class="control-btn" onclick="zoomIn()" title="Zoom In">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+                    </svg>
+                </button>
+                <button class="control-btn" onclick="zoomOut()" title="Zoom Out">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M8 11h6"/>
+                    </svg>
+                </button>
+            </div>
+
+            <svg class="pipeline-svg" id="pipelineSvg" viewBox="0 0 800 500">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#2a2f3e"/>
+                    </marker>
+                    <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+                    </marker>
+                    
+                    <!-- Particle paths -->
+                    <path id="path1" d="M 170 150 C 220 150 230 250 280 250" fill="none"/>
+                    <path id="path2" d="M 170 350 C 220 350 230 250 280 250" fill="none"/>
+                    <path id="path3" d="M 380 250 L 480 250" fill="none"/>
+                    <path id="path4" d="M 580 250 L 680 250" fill="none"/>
+                </defs>
+
+                <!-- Connections -->
+                <path class="connection" id="conn1" d="M 170 150 C 220 150 230 250 280 250" marker-end="url(#arrowhead)"/>
+                <path class="connection" id="conn2" d="M 170 350 C 220 350 230 250 280 250" marker-end="url(#arrowhead)"/>
+                <path class="connection" id="conn3" d="M 380 250 L 480 250" marker-end="url(#arrowhead)"/>
+                <path class="connection" id="conn4" d="M 580 250 L 680 250" marker-end="url(#arrowhead)"/>
+
+                <!-- Animated Particles Container -->
+                <g id="particles"></g>
+
+                <!-- Source Node 1: Orders -->
+                <g class="node active" id="node-orders" onclick="selectNode('orders')" transform="translate(50, 100)">
+                    <rect class="node-bg" width="120" height="100" x="0" y="0"/>
+                    <rect class="node-icon-bg" width="36" height="36" x="10" y="10"/>
+                    <svg class="node-icon" x="18" y="18" width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <text class="node-title" x="10" y="65">raw_orders</text>
+                    <text class="node-subtitle" x="10" y="82">PostgreSQL</text>
+                    <rect fill="rgba(34, 197, 94, 0.2)" rx="4" x="75" y="10" width="36" height="18"/>
+                    <text class="node-badge" fill="#22c55e" x="82" y="23">SRC</text>
+                </g>
+
+                <!-- Source Node 2: Customers -->
+                <g class="node" id="node-customers" onclick="selectNode('customers')" transform="translate(50, 300)">
+                    <rect class="node-bg" width="120" height="100" x="0" y="0"/>
+                    <rect class="node-icon-bg" width="36" height="36" x="10" y="10"/>
+                    <svg class="node-icon" x="18" y="18" width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <text class="node-title" x="10" y="65">raw_customers</text>
+                    <text class="node-subtitle" x="10" y="82">PostgreSQL</text>
+                    <rect fill="rgba(34, 197, 94, 0.2)" rx="4" x="75" y="10" width="36" height="18"/>
+                    <text class="node-badge" fill="#22c55e" x="82" y="23">SRC</text>
+                </g>
+
+                <!-- Staging Node -->
+                <g class="node" id="node-staging" onclick="selectNode('staging')" transform="translate(280, 200)">
+                    <rect class="node-bg" width="100" height="100" x="0" y="0"/>
+                    <rect class="node-icon-bg" width="36" height="36" x="10" y="10"/>
+                    <svg class="node-icon" x="18" y="18" width="20" height="20" viewBox="0 0 24 24">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    <text class="node-title" x="10" y="65">stg_orders</text>
+                    <text class="node-subtitle" x="10" y="82">Snowflake</text>
+                    <rect fill="rgba(245, 158, 11, 0.2)" rx="4" x="55" y="10" width="36" height="18"/>
+                    <text class="node-badge" fill="#f59e0b" x="62" y="23">STG</text>
+                </g>
+
+                <!-- Transform Node -->
+                <g class="node" id="node-transform" onclick="selectNode('transform')" transform="translate(480, 200)">
+                    <rect class="node-bg" width="100" height="100" x="0" y="0"/>
+                    <rect class="node-icon-bg" width="36" height="36" x="10" y="10"/>
+                    <svg class="node-icon" x="18" y="18" width="20" height="20" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    <text class="node-title" x="10" y="65">int_orders</text>
+                    <text class="node-subtitle" x="10" y="82">dbt model</text>
+                    <rect fill="rgba(168, 85, 247, 0.2)" rx="4" x="55" y="10" width="36" height="18"/>
+                    <text class="node-badge" fill="#a855f7" x="62" y="23">INT</text>
+                </g>
+
+                <!-- Mart Node -->
+                <g class="node" id="node-mart" onclick="selectNode('mart')" transform="translate(680, 200)">
+                    <rect class="node-bg" width="100" height="100" x="0" y="0"/>
+                    <rect class="node-icon-bg" width="36" height="36" x="10" y="10"/>
+                    <svg class="node-icon" x="18" y="18" width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    <text class="node-title" x="10" y="65">fct_orders</text>
+                    <text class="node-subtitle" x="10" y="82">PowerBI</text>
+                    <rect fill="rgba(59, 130, 246, 0.2)" rx="4" x="55" y="10" width="36" height="18"/>
+                    <text class="node-badge" fill="#3b82f6" x="62" y="23">FCT</text>
+                </g>
+            </svg>
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-icon source" id="sidebarIcon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="sidebar-title" id="sidebarTitle">raw_orders</div>
+                    <div class="sidebar-meta" id="sidebarMeta">source / postgresql</div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('sql')">SQL</div>
+                <div class="tab" onclick="switchTab('data')">Data Preview</div>
+                <div class="tab" onclick="switchTab('info')">Info</div>
+            </div>
+
+            <div class="tab-content active" id="tab-sql">
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-filename" id="codeFilename">raw_orders.sql</span>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-content">
+                            <pre id="codeContent"><span class="comment">-- Source: PostgreSQL Production DB</span>
+<span class="comment">-- Raw orders data extracted via Fivetran</span>
+
+<span class="keyword">SELECT</span>
+    id,
+    user_id,
+    order_date,
+    status,
+    amount
+<span class="keyword">FROM</span> production.orders
+<span class="keyword">WHERE</span> _fivetran_deleted = <span class="keyword">FALSE</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-data">
+                <div class="data-container">
+                    <div class="data-stats">
+                        <div class="stat">
+                            <div class="stat-value" id="statRows">12,847</div>
+                            <div class="stat-label">Rows</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="statCols">5</div>
+                            <div class="stat-label">Columns</div>
+                        </div>
+                    </div>
+                    <div class="data-table-wrapper">
+                        <table class="data-table" id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>user_id</th>
+                                    <th>order_date</th>
+                                    <th>status</th>
+                                    <th>amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataBody">
+                                <tr>
+                                    <td class="cell-number">1</td>
+                                    <td class="cell-number">1042</td>
+                                    <td>2024-01-15</td>
+                                    <td class="cell-string">completed</td>
+                                    <td class="cell-number">149.99</td>
+                                </tr>
+                                <tr>
+                                    <td class="cell-number">2</td>
+                                    <td class="cell-number">983</td>
+                                    <td>2024-01-15</td>
+                                    <td class="cell-string">pending</td>
+                                    <td class="cell-number">89.50</td>
+                                </tr>
+                                <tr>
+                                    <td class="cell-number">3</td>
+                                    <td class="cell-number">1105</td>
+                                    <td>2024-01-16</td>
+                                    <td class="cell-string">completed</td>
+                                    <td class="cell-number">234.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="cell-number">4</td>
+                                    <td class="cell-null">NULL</td>
+                                    <td>2024-01-16</td>
+                                    <td class="cell-string">cancelled</td>
+                                    <td class="cell-number">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="cell-number">5</td>
+                                    <td class="cell-number">892</td>
+                                    <td>2024-01-17</td>
+                                    <td class="cell-string">completed</td>
+                                    <td class="cell-number">567.25</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-info">
+                <div class="info-container">
+                    <div class="info-section">
+                        <div class="info-label">Description</div>
+                        <p class="info-text" id="infoDesc">Raw orders data extracted from the PostgreSQL production database. Contains all customer orders with their status and amounts.</p>
+                    </div>
+                    <div class="info-section">
+                        <div class="info-label">Lineage</div>
+                        <div class="lineage-mini">
+                            <div class="lineage-node source active" id="lin-src">SRC</div>
+                            <span class="lineage-arrow">→</span>
+                            <div class="lineage-node staging" id="lin-stg">STG</div>
+                            <span class="lineage-arrow">→</span>
+                            <div class="lineage-node transform" id="lin-int">INT</div>
+                            <span class="lineage-arrow">→</span>
+                            <div class="lineage-node mart" id="lin-fct">FCT</div>
+                        </div>
+                    </div>
+                    <div class="info-section">
+                        <div class="info-label">Transformations Applied</div>
+                        <ul class="info-list" id="infoTransforms">
+                            <li>Fivetran CDC replication</li>
+                            <li>Soft delete filtering</li>
+                        </ul>
+                    </div>
+                    <div class="info-section">
+                        <div class="info-label">Performance</div>
+                        <ul class="info-list" id="infoPerf">
+                            <li>Refresh: Every 15 minutes</li>
+                            <li>Avg runtime: 2.3s</li>
+                            <li>Last run: 5 min ago</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // Node Data
+        const nodeData = {
+            orders: {
+                title: 'raw_orders',
+                meta: 'source / postgresql',
+                type: 'source',
+                stage: 'Raw Sources',
+                filename: 'raw_orders.sql',
+                sql: `<span class="comment">-- Source: PostgreSQL Production DB</span>
+<span class="comment">-- Raw orders data extracted via Fivetran</span>
+
+<span class="keyword">SELECT</span>
+    id,
+    user_id,
+    order_date,
+    status,
+    amount
+<span class="keyword">FROM</span> production.orders
+<span class="keyword">WHERE</span> _fivetran_deleted = <span class="keyword">FALSE</span>`,
+                stats: { rows: '12,847', cols: '5' },
+                columns: ['id', 'user_id', 'order_date', 'status', 'amount'],
+                data: [
+                    ['1', '1042', '2024-01-15', 'completed', '149.99'],
+                    ['2', '983', '2024-01-15', 'pending', '89.50'],
+                    ['3', '1105', '2024-01-16', 'completed', '234.00'],
+                    ['4', 'NULL', '2024-01-16', 'cancelled', '0.00'],
+                    ['5', '892', '2024-01-17', 'completed', '567.25']
+                ],
+                desc: 'Raw orders data extracted from the PostgreSQL production database. Contains all customer orders with their status and amounts.',
+                transforms: ['Fivetran CDC replication', 'Soft delete filtering'],
+                perf: ['Refresh: Every 15 minutes', 'Avg runtime: 2.3s', 'Last run: 5 min ago'],
+                lineageActive: 'src'
+            },
+            customers: {
+                title: 'raw_customers',
+                meta: 'source / postgresql',
+                type: 'source',
+                stage: 'Raw Sources',
+                filename: 'raw_customers.sql',
+                sql: `<span class="comment">-- Source: PostgreSQL Production DB</span>
+<span class="comment">-- Customer master data</span>
+
+<span class="keyword">SELECT</span>
+    id,
+    email,
+    first_name,
+    last_name,
+    created_at,
+    country_code
+<span class="keyword">FROM</span> production.customers
+<span class="keyword">WHERE</span> _fivetran_deleted = <span class="keyword">FALSE</span>`,
+                stats: { rows: '8,234', cols: '6' },
+                columns: ['id', 'email', 'first_name', 'last_name', 'created_at'],
+                data: [
+                    ['1042', 'j.doe@email.com', 'John', 'Doe', '2023-03-12'],
+                    ['983', 's.smith@mail.co', 'Sarah', 'Smith', '2023-05-22'],
+                    ['1105', 'mike.j@test.io', 'Mike', 'Johnson', '2023-08-01'],
+                    ['892', 'a.wilson@corp.com', 'Anna', 'Wilson', '2022-11-30'],
+                    ['1201', 'NULL', 'Guest', 'User', '2024-01-01']
+                ],
+                desc: 'Customer master data from the production database. Contains PII that requires proper handling in downstream transformations.',
+                transforms: ['Fivetran CDC replication', 'Soft delete filtering'],
+                perf: ['Refresh: Every 15 minutes', 'Avg runtime: 1.8s', 'Last run: 5 min ago'],
+                lineageActive: 'src'
+            },
+            staging: {
+                title: 'stg_orders',
+                meta: 'staging / snowflake',
+                type: 'staging',
+                stage: 'Staging Layer',
+                filename: 'stg_orders.sql',
+                sql: `<span class="comment">-- Staging model: Clean and standardize raw orders</span>
+<span class="comment">-- dbt model with incremental materialization</span>
+
+<span class="keyword">WITH</span> source <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> {{ <span class="function">source</span>(<span class="string">'postgres'</span>, <span class="string">'orders'</span>) }}
+),
+
+renamed <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span>
+        id <span class="keyword">AS</span> order_id,
+        user_id <span class="keyword">AS</span> customer_id,
+        <span class="function">CAST</span>(order_date <span class="keyword">AS</span> DATE) <span class="keyword">AS</span> order_date,
+        <span class="function">UPPER</span>(status) <span class="keyword">AS</span> order_status,
+        <span class="function">ROUND</span>(amount, <span class="number">2</span>) <span class="keyword">AS</span> order_amount_usd,
+        <span class="function">CURRENT_TIMESTAMP</span>() <span class="keyword">AS</span> _loaded_at
+    <span class="keyword">FROM</span> source
+    <span class="keyword">WHERE</span> status <span class="keyword">IS NOT NULL</span>
+)
+
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> renamed`,
+                stats: { rows: '12,501', cols: '6' },
+                columns: ['order_id', 'customer_id', 'order_date', 'order_status', 'order_amount_usd'],
+                data: [
+                    ['1', '1042', '2024-01-15', 'COMPLETED', '149.99'],
+                    ['2', '983', '2024-01-15', 'PENDING', '89.50'],
+                    ['3', '1105', '2024-01-16', 'COMPLETED', '234.00'],
+                    ['5', '892', '2024-01-17', 'COMPLETED', '567.25'],
+                    ['6', '1042', '2024-01-17', 'COMPLETED', '45.00']
+                ],
+                desc: 'Staged orders with standardized column names, data types, and basic cleaning. Null status records filtered out.',
+                transforms: ['Column renaming (snake_case)', 'Type casting', 'Status standardization (UPPER)', 'Null filtering', 'Audit column added'],
+                perf: ['Materialization: Incremental', 'Avg runtime: 4.7s', 'Runtime reduction: 79%'],
+                lineageActive: 'stg'
+            },
+            transform: {
+                title: 'int_orders',
+                meta: 'intermediate / dbt',
+                type: 'transform',
+                stage: 'Transform Layer',
+                filename: 'int_orders_enriched.sql',
+                sql: `<span class="comment">-- Intermediate: Enrich orders with customer data</span>
+<span class="comment">-- Business logic layer with joins and calculations</span>
+
+<span class="keyword">WITH</span> orders <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> {{ <span class="function">ref</span>(<span class="string">'stg_orders'</span>) }}
+),
+
+customers <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> {{ <span class="function">ref</span>(<span class="string">'stg_customers'</span>) }}
+),
+
+enriched <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span>
+        o.order_id,
+        o.customer_id,
+        c.customer_name,
+        c.customer_segment,
+        o.order_date,
+        o.order_status,
+        o.order_amount_usd,
+        <span class="function">SUM</span>(o.order_amount_usd) <span class="function">OVER</span> (
+            <span class="keyword">PARTITION BY</span> o.customer_id
+            <span class="keyword">ORDER BY</span> o.order_date
+        ) <span class="keyword">AS</span> customer_ltv
+    <span class="keyword">FROM</span> orders o
+    <span class="keyword">LEFT JOIN</span> customers c
+        <span class="keyword">ON</span> o.customer_id = c.customer_id
+)
+
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> enriched`,
+                stats: { rows: '12,501', cols: '8' },
+                columns: ['order_id', 'customer_id', 'customer_name', 'order_status', 'customer_ltv'],
+                data: [
+                    ['1', '1042', 'John Doe', 'COMPLETED', '194.99'],
+                    ['2', '983', 'Sarah Smith', 'PENDING', '89.50'],
+                    ['3', '1105', 'Mike Johnson', 'COMPLETED', '234.00'],
+                    ['5', '892', 'Anna Wilson', 'COMPLETED', '567.25'],
+                    ['6', '1042', 'John Doe', 'COMPLETED', '194.99']
+                ],
+                desc: 'Orders enriched with customer attributes and running LTV calculation. Core business logic applied here.',
+                transforms: ['Customer dimension join', 'Running LTV window function', 'Segment assignment', 'NULL handling for orphan orders'],
+                perf: ['Materialization: Table', 'Avg runtime: 12.3s', 'Downstream deps: 4'],
+                lineageActive: 'int'
+            },
+            mart: {
+                title: 'fct_orders',
+                meta: 'mart / powerbi',
+                type: 'mart',
+                stage: 'Analytics Mart',
+                filename: 'fct_orders.sql',
+                sql: `<span class="comment">-- Fact table: Final analytical model</span>
+<span class="comment">-- Optimized for BI tool consumption</span>
+
+<span class="keyword">WITH</span> enriched_orders <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> {{ <span class="function">ref</span>(<span class="string">'int_orders_enriched'</span>) }}
+),
+
+final <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span>
+        <span class="comment">-- Keys</span>
+        order_id,
+        customer_id,
+        
+        <span class="comment">-- Dimensions</span>
+        customer_name,
+        customer_segment,
+        order_status,
+        
+        <span class="comment">-- Date dimensions</span>
+        order_date,
+        <span class="function">DATE_TRUNC</span>(<span class="string">'month'</span>, order_date) <span class="keyword">AS</span> order_month,
+        <span class="function">DAYOFWEEK</span>(order_date) <span class="keyword">AS</span> order_dow,
+        
+        <span class="comment">-- Metrics</span>
+        order_amount_usd,
+        customer_ltv,
+        
+        <span class="comment">-- Flags</span>
+        <span class="keyword">CASE WHEN</span> customer_ltv > <span class="number">500</span> 
+            <span class="keyword">THEN</span> <span class="keyword">TRUE ELSE FALSE END</span> <span class="keyword">AS</span> is_high_value
+            
+    <span class="keyword">FROM</span> enriched_orders
+    <span class="keyword">WHERE</span> order_status != <span class="string">'CANCELLED'</span>
+)
+
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> final`,
+                stats: { rows: '11,892', cols: '11' },
+                columns: ['order_id', 'customer_name', 'order_month', 'order_amount_usd', 'is_high_value'],
+                data: [
+                    ['1', 'John Doe', '2024-01-01', '149.99', 'FALSE'],
+                    ['2', 'Sarah Smith', '2024-01-01', '89.50', 'FALSE'],
+                    ['3', 'Mike Johnson', '2024-01-01', '234.00', 'FALSE'],
+                    ['5', 'Anna Wilson', '2024-01-01', '567.25', 'TRUE'],
+                    ['6', 'John Doe', '2024-01-01', '45.00', 'FALSE']
+                ],
+                desc: 'Production-ready fact table for PowerBI dashboards. Cancelled orders excluded, high-value customer flag added.',
+                transforms: ['Date dimension extraction', 'High-value customer flagging', 'Cancelled order exclusion', 'BI-optimized column ordering'],
+                perf: ['Materialization: Table', 'Avg runtime: 8.1s', 'PowerBI refresh: Hourly'],
+                lineageActive: 'fct'
+            }
+        };
+
+        let currentNode = 'orders';
+        let animationEnabled = true;
+        let particleIntervals = [];
+
+        // Select Node
+        function selectNode(nodeId) {
+            // Update active state on nodes
+            document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+            document.getElementById('node-' + nodeId).classList.add('active');
+
+            // Update sidebar
+            const data = nodeData[nodeId];
+            document.getElementById('sidebarTitle').textContent = data.title;
+            document.getElementById('sidebarMeta').textContent = data.meta;
+            document.getElementById('codeFilename').textContent = data.filename;
+            document.getElementById('codeContent').innerHTML = data.sql;
+            document.getElementById('statRows').textContent = data.stats.rows;
+            document.getElementById('statCols').textContent = data.stats.cols;
+            document.getElementById('infoDesc').textContent = data.desc;
+            document.getElementById('currentStage').textContent = data.stage;
+
+            // Update stage dot color
+            const stageDot = document.querySelector('.stage-dot');
+            stageDot.className = 'stage-dot ' + data.type;
+
+            // Update sidebar icon
+            const sidebarIcon = document.getElementById('sidebarIcon');
+            sidebarIcon.className = 'sidebar-icon ' + data.type;
+
+            // Update transforms list
+            const transformsList = document.getElementById('infoTransforms');
+            transformsList.innerHTML = data.transforms.map(t => `<li>${t}</li>`).join('');
+
+            // Update perf list
+            const perfList = document.getElementById('infoPerf');
+            perfList.innerHTML = data.perf.map(p => `<li>${p}</li>`).join('');
+
+            // Update data table
+            const thead = document.querySelector('.data-table thead tr');
+            thead.innerHTML = data.columns.map(c => `<th>${c}</th>`).join('');
+
+            const tbody = document.getElementById('dataBody');
+            tbody.innerHTML = data.data.map(row => `
+                <tr>
+                    ${row.map((cell, i) => {
+                        if (cell === 'NULL') return `<td class="cell-null">NULL</td>`;
+                        if (!isNaN(cell) && cell !== '') return `<td class="cell-number">${cell}</td>`;
+                        if (cell === 'TRUE' || cell === 'FALSE') return `<td class="cell-string">${cell}</td>`;
+                        if (i === 0) return `<td class="cell-number">${cell}</td>`;
+                        return `<td>${cell}</td>`;
+                    }).join('')}
+                </tr>
+            `).join('');
+
+            // Update lineage mini
+            document.querySelectorAll('.lineage-node').forEach(n => n.classList.remove('active'));
+            if (data.lineageActive === 'src') {
+                document.getElementById('lin-src').classList.add('active');
+            } else if (data.lineageActive === 'stg') {
+                document.getElementById('lin-stg').classList.add('active');
+            } else if (data.lineageActive === 'int') {
+                document.getElementById('lin-int').classList.add('active');
+            } else if (data.lineageActive === 'fct') {
+                document.getElementById('lin-fct').classList.add('active');
+            }
+
+            currentNode = nodeId;
+        }
+
+        // Switch tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        // Toggle animation
+        function toggleAnimation() {
+            animationEnabled = !animationEnabled;
+            const btn = document.getElementById('animToggle');
+            btn.classList.toggle('active', animationEnabled);
+            
+            if (animationEnabled) {
+                startParticles();
+            } else {
+                stopParticles();
+            }
+        }
+
+        // Create flowing particles
+        function createParticle(pathId, delay) {
+            const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            particle.setAttribute('r', '4');
+            particle.classList.add('particle', 'flowing-particle');
+            particle.style.offsetPath = `path("${document.getElementById(pathId.replace('path', 'conn')).getAttribute('d')}")`;
+            particle.style.animationDelay = delay + 's';
+            document.getElementById('particles').appendChild(particle);
+            
+            // Remove after animation
+            setTimeout(() => {
+                particle.remove();
+            }, 2000 + delay * 1000);
+        }
+
+        function startParticles() {
+            if (!animationEnabled) return;
+            
+            // Create particles for each path
+            createParticle('path1', 0);
+            createParticle('path2', 0.3);
+            
+            setTimeout(() => {
+                if (animationEnabled) createParticle('path3', 0);
+            }, 800);
+            
+            setTimeout(() => {
+                if (animationEnabled) createParticle('path4', 0);
+            }, 1600);
+
+            // Loop
+            particleIntervals.push(setTimeout(() => startParticles(), 2500));
+        }
+
+        function stopParticles() {
+            particleIntervals.forEach(clearTimeout);
+            particleIntervals = [];
+            document.getElementById('particles').innerHTML = '';
+        }
+
+        // Run pipeline animation
+        function runPipeline() {
+            const btn = document.getElementById('runBtnText');
+            btn.textContent = 'Running...';
+            
+            // Animate connections
+            const connections = ['conn1', 'conn2', 'conn3', 'conn4'];
+            const nodes = ['orders', 'customers', 'staging', 'transform', 'mart'];
+            
+            let step = 0;
+            const interval = setInterval(() => {
+                if (step < connections.length) {
+                    document.getElementById(connections[step]).classList.add('active');
+                    document.getElementById(connections[step]).setAttribute('marker-end', 'url(#arrowhead-active)');
+                }
+                if (step < nodes.length) {
+                    selectNode(nodes[step]);
+                }
+                step++;
+                
+                if (step > nodes.length) {
+                    clearInterval(interval);
+                    btn.textContent = 'Run Pipeline';
+                }
+            }, 800);
+        }
+
+        // Reset pipeline
+        function resetPipeline() {
+            document.querySelectorAll('.connection').forEach(c => {
+                c.classList.remove('active');
+                c.setAttribute('marker-end', 'url(#arrowhead)');
+            });
+            selectNode('orders');
+        }
+
+        // Zoom functions (simplified)
+        let zoomLevel = 1;
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 0.1, 1.5);
+            document.getElementById('pipelineSvg').style.transform = `scale(${zoomLevel})`;
+        }
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 0.1, 0.7);
+            document.getElementById('pipelineSvg').style.transform = `scale(${zoomLevel})`;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            selectNode('orders');
+            startParticles();
+        });
+    </script>
+</body>
+</html>

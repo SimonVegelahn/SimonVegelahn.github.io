@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         /* ═══════════════════════════════════════════════════════════════════════
-           COMPASS V3 — WELCOMING DESIGN TOKENS
+           AMI-css V3 — WELCOMING DESIGN TOKENS
            ═══════════════════════════════════════════════════════════════════════ */
         :root {
             /* Gray Scale — Cool neutrals */
@@ -1385,8 +1385,9 @@
             box-shadow: var(--shadow-xl);
         }
 
+        /* Live Preview Container */
         .demo-preview {
-            height: 180px;
+            height: 200px;
             background: linear-gradient(135deg, var(--indigo-100), var(--indigo-50));
             display: flex;
             align-items: center;
@@ -1395,24 +1396,149 @@
             overflow: hidden;
         }
 
-        .demo-preview::before {
-            content: '';
+        .demo-preview-iframe-container {
             position: absolute;
             inset: 0;
-            background: linear-gradient(45deg, transparent 40%, rgba(99, 102, 241, 0.1) 50%, transparent 60%);
-            animation: shimmer 3s ease-in-out infinite;
+            overflow: hidden;
         }
 
-        @keyframes shimmer {
-            0%, 100% { transform: translateX(-100%); }
-            50% { transform: translateX(100%); }
+        .demo-preview-iframe {
+            width: 1280px;
+            height: 800px;
+            border: none;
+            transform: scale(0.25);
+            transform-origin: top left;
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--bg-page);
+        }
+
+        /* Center the scaled iframe */
+        .demo-preview-iframe-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-preview-iframe-wrapper {
+            width: 320px;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .demo-preview-iframe-wrapper .demo-preview-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Loading state */
+        .demo-preview-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            background: linear-gradient(135deg, var(--indigo-100), var(--indigo-50));
+            z-index: 2;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .demo-preview-loading.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .demo-preview-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--indigo-200);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .demo-preview-loading-text {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Error/Fallback state */
+        .demo-preview-fallback {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            background: linear-gradient(135deg, var(--indigo-100), var(--indigo-50));
+            z-index: 1;
+        }
+
+        .demo-preview-fallback.hidden {
+            display: none;
         }
 
         .demo-preview-icon {
-            width: 64px;
-            height: 64px;
+            width: 48px;
+            height: 48px;
             color: var(--accent);
             opacity: 0.6;
+        }
+
+        .demo-preview-label {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Hover overlay for interaction hint */
+        .demo-preview-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            z-index: 3;
+        }
+
+        .demo-card:hover .demo-preview-overlay {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .demo-preview-overlay-text {
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: white;
+            padding: var(--space-2) var(--space-4);
+            background: var(--accent);
+            border-radius: var(--radius-full);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .demo-card:hover .demo-preview-overlay-text {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .demo-content {
@@ -1592,6 +1718,18 @@
                 top: auto;
                 bottom: var(--space-4);
                 right: var(--space-4);
+            }
+
+            /* Adjust iframe scale for mobile */
+            .demo-preview-iframe {
+                width: 960px;
+                height: 600px;
+                transform: scale(0.333);
+            }
+
+            .demo-preview-iframe-wrapper {
+                width: 100%;
+                height: 200px;
             }
         }
 
@@ -2286,7 +2424,7 @@
         }
 
         // ============================================
-        // DEMOS
+        // DEMOS WITH LIVE IFRAME PREVIEW
         // ============================================
         function initDemos() {
             const grid = document.getElementById('demosGrid');
@@ -2296,11 +2434,42 @@
                 card.href = demo.url;
                 card.className = 'demo-card';
                 card.style.transitionDelay = `${index * 60}ms`;
+                
+                const cardId = `demo-preview-${index}`;
+                
                 card.innerHTML = `
                     <div class="demo-preview">
-                        <svg class="demo-preview-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
-                        </svg>
+                        <!-- Loading State -->
+                        <div class="demo-preview-loading" id="${cardId}-loading">
+                            <div class="demo-preview-spinner"></div>
+                            <span class="demo-preview-loading-text">Loading preview...</span>
+                        </div>
+                        
+                        <!-- Fallback State (shown on error) -->
+                        <div class="demo-preview-fallback hidden" id="${cardId}-fallback">
+                            <svg class="demo-preview-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                            <span class="demo-preview-label">Preview unavailable</span>
+                        </div>
+                        
+                        <!-- Iframe Container -->
+                        <div class="demo-preview-iframe-container" id="${cardId}-container">
+                            <div class="demo-preview-iframe-wrapper">
+                                <iframe 
+                                    class="demo-preview-iframe" 
+                                    id="${cardId}-iframe"
+                                    loading="lazy"
+                                    sandbox="allow-scripts allow-same-origin"
+                                    title="${demo.title} preview"
+                                ></iframe>
+                            </div>
+                        </div>
+                        
+                        <!-- Hover Overlay -->
+                        <div class="demo-preview-overlay">
+                            <span class="demo-preview-overlay-text">View Demo →</span>
+                        </div>
                     </div>
                     <div class="demo-content">
                         <h3 class="demo-title">${demo.title}</h3>
@@ -2311,7 +2480,73 @@
                     </div>
                 `;
                 grid.appendChild(card);
+                
+                // Initialize iframe after card is in DOM
+                setTimeout(() => {
+                    initDemoIframe(cardId, demo.url);
+                }, 100 + index * 200); // Stagger iframe loads
             });
+        }
+
+        // ============================================
+        // DEMO IFRAME LOADER
+        // ============================================
+        function initDemoIframe(cardId, url) {
+            const iframe = document.getElementById(`${cardId}-iframe`);
+            const loading = document.getElementById(`${cardId}-loading`);
+            const fallback = document.getElementById(`${cardId}-fallback`);
+            const container = document.getElementById(`${cardId}-container`);
+            
+            if (!iframe || !loading || !fallback) return;
+            
+            let loadTimeout;
+            let hasLoaded = false;
+            
+            // Handle successful load
+            iframe.onload = () => {
+                if (hasLoaded) return;
+                hasLoaded = true;
+                clearTimeout(loadTimeout);
+                loading.classList.add('hidden');
+            };
+            
+            // Handle errors
+            iframe.onerror = () => {
+                if (hasLoaded) return;
+                hasLoaded = true;
+                clearTimeout(loadTimeout);
+                showFallback();
+            };
+            
+            // Timeout fallback (if iframe takes too long or fails silently)
+            loadTimeout = setTimeout(() => {
+                if (!hasLoaded) {
+                    // Check if iframe actually loaded content
+                    try {
+                        // This will throw if cross-origin or if content didn't load
+                        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                        if (!doc || !doc.body || doc.body.innerHTML === '') {
+                            showFallback();
+                        } else {
+                            hasLoaded = true;
+                            loading.classList.add('hidden');
+                        }
+                    } catch (e) {
+                        // Cross-origin - assume loaded if no error event fired
+                        hasLoaded = true;
+                        loading.classList.add('hidden');
+                    }
+                }
+            }, 5000); // 5 second timeout
+            
+            function showFallback() {
+                loading.classList.add('hidden');
+                fallback.classList.remove('hidden');
+                container.style.display = 'none';
+            }
+            
+            // Set the iframe src
+            iframe.src = url;
         }
 
         // ============================================

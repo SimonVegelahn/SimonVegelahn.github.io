@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagram Editor - Simon Vegelahn</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Mermaid + BPMN 2.0 Editor | Simon Vegelahn</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bpmn-js@17.2.0/dist/bpmn-viewer.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap');
+
         :root {
             --color-bg-hero: #0a0a0a;
             --color-bg-secondary: #111113;
@@ -17,10 +18,13 @@
             --color-text: #fafafa;
             --color-text-secondary: #b0b0b0;
             --color-text-muted: #606060;
-            --color-accent: #60a5fa;
-            --color-accent-hover: #93c5fd;
+            --color-accent: #3b82f6;
+            --color-accent-hover: #60a5fa;
             --color-border: #262626;
             --color-border-subtle: #1f1f1f;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
             --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
         }
 
@@ -32,8 +36,8 @@
             --color-text: #0a0a0a;
             --color-text-secondary: #525252;
             --color-text-muted: #8a8a8a;
-            --color-accent: #0066cc;
-            --color-accent-hover: #0052a3;
+            --color-accent: #2563eb;
+            --color-accent-hover: #1d4ed8;
             --color-border: #e5e5e5;
             --color-border-subtle: #ebebeb;
             --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
@@ -43,7 +47,7 @@
         html, body { height: 100%; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--color-bg-hero);
             color: var(--color-text);
             line-height: 1.6;
@@ -72,10 +76,27 @@
             font-size: 0.875rem;
             color: var(--color-text);
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .header-logo:hover {
-            color: var(--color-accent);
+        .header-logo:hover { color: var(--color-accent); }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--color-accent), #8b5cf6);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 14px;
+            height: 14px;
+            color: white;
         }
 
         .header-divider {
@@ -111,9 +132,7 @@
             transition: all 0.15s ease;
         }
 
-        .mode-btn:hover {
-            color: var(--color-text);
-        }
+        .mode-btn:hover { color: var(--color-text); }
 
         .mode-btn.active {
             background: var(--color-accent);
@@ -147,10 +166,7 @@
             color: var(--color-text);
         }
 
-        .btn svg {
-            width: 16px;
-            height: 16px;
-        }
+        .btn svg { width: 16px; height: 16px; }
 
         .btn-primary {
             background: var(--color-accent);
@@ -217,9 +233,7 @@
             font-family: inherit;
         }
 
-        .editor-tab:hover {
-            color: var(--color-text-secondary);
-        }
+        .editor-tab:hover { color: var(--color-text-secondary); }
 
         .editor-tab.active {
             background: var(--color-bg-secondary);
@@ -248,10 +262,7 @@
             color: var(--color-text);
         }
 
-        .editor-action svg {
-            width: 16px;
-            height: 16px;
-        }
+        .editor-action svg { width: 16px; height: 16px; }
 
         .editor-content {
             flex: 1;
@@ -266,16 +277,15 @@
             background: var(--color-bg-input);
             border: none;
             resize: none;
-            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace;
             font-size: 0.8125rem;
             line-height: 1.7;
             color: var(--color-text);
             outline: none;
+            transition: box-shadow 0.15s ease;
         }
 
-        .code-editor::placeholder {
-            color: var(--color-text-muted);
-        }
+        .code-editor::placeholder { color: var(--color-text-muted); }
 
         /* Preview Panel */
         .preview-panel {
@@ -391,7 +401,7 @@
             opacity: 0.9;
         }
 
-        /* Examples Dropdown */
+        /* Dropdown menus */
         .examples-dropdown, .export-dropdown {
             position: relative;
         }
@@ -410,14 +420,9 @@
             display: none;
         }
 
-        .export-menu {
-            left: auto;
-            right: 0;
-        }
+        .export-menu { left: auto; right: 0; }
 
-        .examples-menu.open, .export-menu.open {
-            display: block;
-        }
+        .examples-menu.open, .export-menu.open { display: block; }
 
         .examples-menu-item, .export-menu-item {
             padding: 0.625rem 1rem;
@@ -430,9 +435,7 @@
             border-bottom: 1px solid var(--color-border-subtle);
         }
 
-        .examples-menu-item:last-child, .export-menu-item:last-child {
-            border-bottom: none;
-        }
+        .examples-menu-item:last-child, .export-menu-item:last-child { border-bottom: none; }
 
         .examples-menu-item:hover, .export-menu-item:hover {
             background: var(--color-bg-secondary);
@@ -451,18 +454,10 @@
             color: var(--color-text-muted);
         }
 
-        .export-menu-item.bpmn-only {
-            display: none;
-        }
+        .export-menu-item.bpmn-only { display: none; }
+        body.bpmn-mode .export-menu-item.bpmn-only { display: flex; }
 
-        body.bpmn-mode .export-menu-item.bpmn-only {
-            display: flex;
-        }
-
-        /* File input */
-        .file-input {
-            display: none;
-        }
+        .file-input { display: none; }
 
         /* Resize handle */
         .resize-handle {
@@ -472,59 +467,176 @@
             transition: background 0.15s ease;
         }
 
-        .resize-handle:hover {
-            background: var(--color-accent);
-        }
+        .resize-handle:hover { background: var(--color-accent); }
 
-        /* BPMN Help */
+        /* BPMN Help Panel */
         .bpmn-help {
-            padding: 1rem;
             border-top: 1px solid var(--color-border);
             background: var(--color-bg-secondary);
             font-size: 0.75rem;
             color: var(--color-text-muted);
-            max-height: 150px;
+            max-height: 300px;
             overflow-y: auto;
+        }
+
+        .bpmn-help-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            background: var(--color-bg-secondary);
+            z-index: 10;
         }
 
         .bpmn-help-title {
             font-weight: 600;
             color: var(--color-text-secondary);
-            margin-bottom: 0.5rem;
+            font-size: 0.8125rem;
         }
 
-        .bpmn-help code {
+        .legend-toggle {
+            display: flex;
+            gap: 0.25rem;
             background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 0.125rem;
+        }
+
+        .legend-toggle-btn {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.6875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--color-text-muted);
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        .legend-toggle-btn:hover { color: var(--color-text-secondary); }
+
+        .legend-toggle-btn.active {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .bpmn-help-content {
+            padding: 0.75rem 1rem;
+        }
+
+        .legend-section {
+            margin-bottom: 1rem;
+        }
+
+        .legend-section:last-child { margin-bottom: 0; }
+
+        .legend-section-title {
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.375rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.375rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin: 0.125rem 0;
+        }
+
+        .legend-item:hover {
+            background: var(--color-bg-card);
+        }
+
+        .legend-item:active {
+            transform: scale(0.98);
+        }
+
+        .legend-item code {
+            background: var(--color-bg-input);
             padding: 0.125rem 0.375rem;
             border-radius: 3px;
-            font-family: monospace;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6875rem;
+            color: var(--color-accent);
+            white-space: nowrap;
+            transition: all 0.15s ease;
         }
+
+        .legend-item:hover code {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .legend-item span {
+            color: var(--color-text-secondary);
+            font-size: 0.6875rem;
+        }
+
+        .legend-item:hover span {
+            color: var(--color-text);
+        }
+
+        .insert-hint {
+            margin-left: auto;
+            font-size: 0.5625rem;
+            color: var(--color-text-muted);
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .legend-item:hover .insert-hint {
+            opacity: 1;
+        }
+
+        .legend-complete { display: none; }
+        .bpmn-help.complete .legend-complete { display: block; }
+        .bpmn-help.complete .legend-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .main {
-                flex-direction: column;
-            }
-
+            .main { flex-direction: column; }
             .editor-panel {
                 width: 100%;
                 height: 50%;
                 border-right: none;
                 border-bottom: 1px solid var(--color-border);
             }
-
-            .resize-handle {
-                display: none;
-            }
+            .resize-handle { display: none; }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-left">
-            <a href="interactive-projects.html" class="header-logo">← Back</a>
+            <a href="#" class="header-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 3v18M3 12h18"/>
+                    </svg>
+                </div>
+                BPMN Editor
+            </a>
             <div class="header-divider"></div>
-            <span class="header-title">Diagram Editor</span>
+            <span class="header-title">Full BPMN 2.0 Support</span>
         </div>
 
         <div class="header-center">
@@ -547,51 +659,42 @@
                             <rect x="3" y="3" width="18" height="18" rx="2"/>
                             <path d="M12 8v8M8 12h8"/>
                         </svg>
-                        Flowchart
+                        Mermaid Flowchart
                     </div>
-                    <div class="examples-menu-item" onclick="loadExample('sequence')">
+                    <div class="examples-menu-item" onclick="loadExample('bpmn-simple')">
                         <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                            <circle cx="5" cy="12" r="2"/>
+                            <rect x="10" y="8" width="8" height="8" rx="1"/>
+                            <circle cx="23" cy="12" r="2" fill="currentColor"/>
                         </svg>
-                        Sequence Diagram
+                        BPMN: Simple Flow
                     </div>
-                    <div class="examples-menu-item" onclick="loadExample('state')">
+                    <div class="examples-menu-item" onclick="loadExample('bpmn-gateways')">
                         <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <circle cx="12" cy="12" r="3"/>
+                            <rect x="6" y="6" width="12" height="12" rx="1" transform="rotate(45 12 12)"/>
                         </svg>
-                        State Diagram
+                        BPMN: All Gateways
                     </div>
-                    <div class="examples-menu-item" onclick="loadExample('erDiagram')">
+                    <div class="examples-menu-item" onclick="loadExample('bpmn-events')">
                         <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="3" width="20" height="14" rx="2"/>
-                            <path d="M8 21h8M12 17v4"/>
+                            <circle cx="12" cy="12" r="9"/>
+                            <circle cx="12" cy="12" r="6"/>
                         </svg>
-                        ER Diagram
+                        BPMN: Event Types
                     </div>
-                    <div class="examples-menu-item" onclick="loadExample('gantt')">
+                    <div class="examples-menu-item" onclick="loadExample('bpmn-tasks')">
                         <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 3v18h18"/>
-                            <rect x="7" y="7" width="8" height="3"/>
-                            <rect x="10" y="13" width="6" height="3"/>
+                            <rect x="3" y="6" width="18" height="12" rx="2"/>
+                            <path d="M8 10h8M8 14h4"/>
                         </svg>
-                        Gantt Chart
+                        BPMN: Task Types
                     </div>
-                    <div class="examples-menu-item" onclick="loadExample('bpmn-order')">
-                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="7" height="7"/>
-                            <rect x="14" y="3" width="7" height="7"/>
-                            <rect x="14" y="14" width="7" height="7"/>
-                            <rect x="3" y="14" width="7" height="7"/>
-                        </svg>
-                        BPMN: Order Process
-                    </div>
-                    <div class="examples-menu-item" onclick="loadExample('bpmn-approval')">
+                    <div class="examples-menu-item" onclick="loadExample('bpmn-complete')">
                         <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                             <polyline points="22 4 12 14.01 9 11.01"/>
                         </svg>
-                        BPMN: Approval Flow
+                        BPMN: Complete Demo
                     </div>
                 </div>
             </div>
@@ -614,9 +717,6 @@
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
                     Export
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:4px;">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
                 </button>
                 <div class="export-menu" id="exportMenu">
                     <div class="export-menu-item" onclick="exportSVG()">
@@ -633,7 +733,7 @@
                             <polyline points="14 2 14 8 20 8"/>
                         </svg>
                         Export as BPMN
-                        <span class="export-hint">Signavio, draw.io</span>
+                        <span class="export-hint">Signavio compatible</span>
                     </div>
                 </div>
             </div>
@@ -679,17 +779,97 @@
                     spellcheck="false"
                 ></textarea>
             </div>
+            
+            <!-- BPMN Legend Panel -->
             <div class="bpmn-help" id="bpmnHelp" style="display: none;">
-                <div class="bpmn-help-title">BPMN Syntax Guide</div>
-                <div>
-                    <code>(start)</code> Start event · 
-                    <code>(end)</code> End event · 
-                    <code>[Task Name]</code> Task · 
-                    <code>&lt;Decision?&gt;</code> Gateway<br>
-                    <code>-></code> Connect elements · 
-                    <code>|Yes|</code> Condition label · 
-                    <code>(timer)</code> Timer · 
-                    <code>(error)</code> Error end
+                <div class="bpmn-help-header">
+                    <div class="bpmn-help-title">BPMN 2.0 Syntax Reference</div>
+                    <div class="legend-toggle">
+                        <button class="legend-toggle-btn active" onclick="setLegendMode('simple')">Simple</button>
+                        <button class="legend-toggle-btn" onclick="setLegendMode('complete')">Complete</button>
+                    </div>
+                </div>
+                <div class="bpmn-help-content">
+                    <!-- EVENTS SECTION -->
+                    <div class="legend-section">
+                        <div class="legend-section-title">Events</div>
+                        <div class="legend-grid">
+                            <div class="legend-item" onclick="insertAtCursor('(start)')"><code>(start)</code> <span>Start Event</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('(end)')"><code>(end)</code> <span>End Event</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:message)')"><code>(start:message)</code> <span>Message Start</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:timer)')"><code>(start:timer)</code> <span>Timer Start</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:signal)')"><code>(start:signal)</code> <span>Signal Start</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:conditional)')"><code>(start:conditional)</code> <span>Conditional Start</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('(timer)')"><code>(timer)</code> <span>Timer Intermediate</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:message)')"><code>(catch:message)</code> <span>Message Catch</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:signal)')"><code>(catch:signal)</code> <span>Signal Catch</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:conditional)')"><code>(catch:conditional)</code> <span>Conditional Catch</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:link)')"><code>(catch:link)</code> <span>Link Catch</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:message)')"><code>(throw:message)</code> <span>Message Throw</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:signal)')"><code>(throw:signal)</code> <span>Signal Throw</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:escalation)')"><code>(throw:escalation)</code> <span>Escalation Throw</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:compensation)')"><code>(throw:compensation)</code> <span>Compensation Throw</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:link)')"><code>(throw:link)</code> <span>Link Throw</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('(error)')"><code>(error)</code> <span>Error End</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:message)')"><code>(end:message)</code> <span>Message End</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:signal)')"><code>(end:signal)</code> <span>Signal End</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:escalation)')"><code>(end:escalation)</code> <span>Escalation End</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:compensation)')"><code>(end:compensation)</code> <span>Compensation End</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:cancel)')"><code>(end:cancel)</code> <span>Cancel End</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('(terminate)')"><code>(terminate)</code> <span>Terminate End</span><span class="insert-hint">click to insert</span></div>
+                        </div>
+                    </div>
+
+                    <!-- ACTIVITIES SECTION -->
+                    <div class="legend-section">
+                        <div class="legend-section-title">Activities</div>
+                        <div class="legend-grid">
+                            <div class="legend-item" onclick="insertAtCursor('[Task Name]')"><code>[Task Name]</code> <span>Task (Generic)</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('[user: Task Name]')"><code>[user: Name]</code> <span>User Task</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('[service: Task Name]')"><code>[service: Name]</code> <span>Service Task</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('[script: Task Name]')"><code>[script: Name]</code> <span>Script Task</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('[rule: Task Name]')"><code>[rule: Name]</code> <span>Business Rule Task</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('[send: Task Name]')"><code>[send: Name]</code> <span>Send Task</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('[receive: Task Name]')"><code>[receive: Name]</code> <span>Receive Task</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('[manual: Task Name]')"><code>[manual: Name]</code> <span>Manual Task</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('[[Sub Process Name]]')"><code>[[Sub Process]]</code> <span>Sub-Process</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('[call: Activity Name]')"><code>[call: Name]</code> <span>Call Activity</span><span class="insert-hint">click to insert</span></div>
+                        </div>
+                    </div>
+
+                    <!-- GATEWAYS SECTION -->
+                    <div class="legend-section">
+                        <div class="legend-section-title">Gateways</div>
+                        <div class="legend-grid">
+                            <div class="legend-item" onclick="insertAtCursor('<Decision?>')"><code>&lt;Decision?&gt;</code> <span>Exclusive (XOR)</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('<+Parallel>')"><code>&lt;+Split&gt;</code> <span>Parallel (AND)</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('<o Choice>')"><code>&lt;o Choice&gt;</code> <span>Inclusive (OR)</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('<* Complex>')"><code>&lt;* Complex&gt;</code> <span>Complex Gateway</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('<@ Event>')"><code>&lt;@ Event&gt;</code> <span>Event-Based</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor('<@+ Parallel Event>')"><code>&lt;@+ Parallel Event&gt;</code> <span>Parallel Event-Based</span><span class="insert-hint">click to insert</span></div>
+                        </div>
+                    </div>
+
+                    <!-- DATA & ARTIFACTS SECTION -->
+                    <div class="legend-section legend-complete">
+                        <div class="legend-section-title">Data & Artifacts</div>
+                        <div class="legend-grid">
+                            <div class="legend-item" onclick="insertAtCursor('{data: Data Name}')"><code>{data: Name}</code> <span>Data Object</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('{store: Store Name}')"><code>{store: Name}</code> <span>Data Store</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor('// Comment text')"><code>// Comment text</code> <span>Text Annotation</span><span class="insert-hint">click to insert</span></div>
+                        </div>
+                    </div>
+
+                    <!-- CONNECTIONS SECTION -->
+                    <div class="legend-section">
+                        <div class="legend-section-title">Connections</div>
+                        <div class="legend-grid">
+                            <div class="legend-item" onclick="insertAtCursor(' -> ')"><code>-></code> <span>Sequence Flow</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item" onclick="insertAtCursor(' |Yes| ')"><code>|Yes|</code> <span>Condition Label</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor(' -> ')"><code>~~></code> <span>Message Flow</span><span class="insert-hint">click to insert</span></div>
+                            <div class="legend-item legend-complete" onclick="insertAtCursor(' -> ')"><code>--></code> <span>Association</span><span class="insert-hint">click to insert</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -716,6 +896,7 @@
     <script>
         // State
         let currentMode = 'mermaid';
+        let legendMode = 'simple';
         let zoomLevel = 1;
         let bpmnViewer = null;
         let debounceTimer = null;
@@ -732,80 +913,115 @@
     C --> F[Deploy]
     F --> G[End]`,
 
-            sequence: `sequenceDiagram
-    participant U as User
-    participant C as Client
-    participant S as Server
-    participant D as Database
-
-    U->>C: Click submit
-    C->>S: POST /api/data
-    S->>D: INSERT query
-    D-->>S: Success
-    S-->>C: 200 OK
-    C-->>U: Show confirmation`,
-
-            state: `stateDiagram-v2
-    [*] --> Draft
-    Draft --> Review: Submit
-    Review --> Draft: Request changes
-    Review --> Approved: Approve
-    Review --> Rejected: Reject
-    Approved --> Published: Publish
-    Published --> [*]
-    Rejected --> [*]`,
-
-            erDiagram: `erDiagram
-    CUSTOMER ||--o{ ORDER : places
-    ORDER ||--|{ LINE_ITEM : contains
-    CUSTOMER {
-        int id PK
-        string name
-        string email
-    }
-    ORDER {
-        int id PK
-        date created
-        string status
-    }
-    LINE_ITEM {
-        int quantity
-        float price
-    }
-    PRODUCT ||--o{ LINE_ITEM : "ordered in"
-    PRODUCT {
-        int id PK
-        string name
-        float price
-    }`,
-
-            gantt: `gantt
-    title Project Timeline
-    dateFormat YYYY-MM-DD
-    section Planning
-        Requirements    :a1, 2024-01-01, 14d
-        Design          :a2, after a1, 10d
-    section Development
-        Backend         :b1, after a2, 21d
-        Frontend        :b2, after a2, 21d
-    section Testing
-        Integration     :c1, after b1, 7d
-        UAT             :c2, after c1, 7d
-    section Deployment
-        Release         :d1, after c2, 3d`,
-
-            'bpmn-order': `(start) -> [Receive Order] -> <In Stock?>
+            'bpmn-simple': `(start) -> [Receive Order] -> <In Stock?>
 <In Stock?> -> |Yes| [Pack Items]
 <In Stock?> -> |No| [Reorder Stock] -> [Wait for Delivery] -> [Pack Items]
 [Pack Items] -> [Ship Order] -> (end)`,
 
-            'bpmn-approval': `(start) -> [Submit Request] -> <Amount > $1000?>
-<Amount > $1000?> -> |No| [Auto Approve] -> [Process Payment]
-<Amount > $1000?> -> |Yes| [Manager Review] -> <Approved?>
-<Approved?> -> |Yes| [Process Payment]
-<Approved?> -> |No| [Send Rejection] -> (end)
-[Process Payment] -> (end)`
+            'bpmn-gateways': `(start) -> <Decision?>
+<Decision?> -> |Path A| [Task A]
+<Decision?> -> |Path B| [Task B]
+[Task A] -> <+Merge>
+[Task B] -> <+Merge>
+<+Merge> -> <o Inclusive?>
+<o Inclusive?> -> |Option 1| [Option Task 1]
+<o Inclusive?> -> |Option 2| [Option Task 2]
+[Option Task 1] -> <o Join>
+[Option Task 2] -> <o Join>
+<o Join> -> (end)`,
+
+            'bpmn-events': `(start) -> [Initial Task]
+[Initial Task] -> (timer) -> [After Wait]
+[After Wait] -> <Check Result?>
+<Check Result?> -> |Success| [user: Process Result] -> (end)
+<Check Result?> -> |Failure| [Log Error] -> (error)`,
+
+            'bpmn-tasks': `(start) -> [user: Review Request]
+[user: Review Request] -> [service: Validate Data]
+[service: Validate Data] -> [script: Transform Data]
+[script: Transform Data] -> [rule: Apply Business Rules]
+[rule: Apply Business Rules] -> [send: Send Notification]
+[send: Send Notification] -> [receive: Wait for Response]
+[receive: Wait for Response] -> [manual: Physical Inspection]
+[manual: Physical Inspection] -> (end)`,
+
+            'bpmn-complete': `// Complete BPMN 2.0 Demo
+(start:message) -> [user: Receive Request]
+[user: Receive Request] -> <+Parallel Split>
+<+Parallel Split> -> [service: Validate] -> (timer) -> [Check Status]
+<+Parallel Split> -> [script: Log Request]
+[Check Status] -> <Approved?>
+<Approved?> -> |Yes| [rule: Apply Policy]
+<Approved?> -> |No| (throw:escalation) -> [Handle Escalation] -> (end:escalation)
+[rule: Apply Policy] -> <o Options>
+<o Options> -> |Full| [send: Full Notification]
+<o Options> -> |Partial| [send: Partial Notification]
+[send: Full Notification] -> <o Merge>
+[send: Partial Notification] -> <o Merge>
+<o Merge> -> <+Parallel Join>
+[script: Log Request] -> <+Parallel Join>
+<+Parallel Join> -> [receive: Wait Confirmation]
+[receive: Wait Confirmation] -> [manual: Final Review]
+[manual: Final Review] -> (terminate)`
         };
+
+        // BPMN Element Type Mappings
+        const BPMN_ELEMENTS = {
+            // Start Events
+            '(start)': { type: 'startEvent', subType: null },
+            '(start:message)': { type: 'startEvent', subType: 'messageEventDefinition' },
+            '(start:timer)': { type: 'startEvent', subType: 'timerEventDefinition' },
+            '(start:signal)': { type: 'startEvent', subType: 'signalEventDefinition' },
+            '(start:conditional)': { type: 'startEvent', subType: 'conditionalEventDefinition' },
+            '(start:multiple)': { type: 'startEvent', subType: 'multipleEventDefinition' },
+            
+            // Intermediate Catch Events
+            '(timer)': { type: 'intermediateCatchEvent', subType: 'timerEventDefinition' },
+            '(catch:message)': { type: 'intermediateCatchEvent', subType: 'messageEventDefinition' },
+            '(catch:timer)': { type: 'intermediateCatchEvent', subType: 'timerEventDefinition' },
+            '(catch:signal)': { type: 'intermediateCatchEvent', subType: 'signalEventDefinition' },
+            '(catch:conditional)': { type: 'intermediateCatchEvent', subType: 'conditionalEventDefinition' },
+            '(catch:link)': { type: 'intermediateCatchEvent', subType: 'linkEventDefinition' },
+            
+            // Intermediate Throw Events
+            '(throw:message)': { type: 'intermediateThrowEvent', subType: 'messageEventDefinition' },
+            '(throw:signal)': { type: 'intermediateThrowEvent', subType: 'signalEventDefinition' },
+            '(throw:escalation)': { type: 'intermediateThrowEvent', subType: 'escalationEventDefinition' },
+            '(throw:compensation)': { type: 'intermediateThrowEvent', subType: 'compensateEventDefinition' },
+            '(throw:link)': { type: 'intermediateThrowEvent', subType: 'linkEventDefinition' },
+            
+            // End Events
+            '(end)': { type: 'endEvent', subType: null },
+            '(error)': { type: 'endEvent', subType: 'errorEventDefinition' },
+            '(end:message)': { type: 'endEvent', subType: 'messageEventDefinition' },
+            '(end:signal)': { type: 'endEvent', subType: 'signalEventDefinition' },
+            '(end:escalation)': { type: 'endEvent', subType: 'escalationEventDefinition' },
+            '(end:compensation)': { type: 'endEvent', subType: 'compensateEventDefinition' },
+            '(end:cancel)': { type: 'endEvent', subType: 'cancelEventDefinition' },
+            '(terminate)': { type: 'endEvent', subType: 'terminateEventDefinition' },
+        };
+
+        // Gateway patterns
+        const GATEWAY_PATTERNS = [
+            { prefix: '<+', type: 'parallelGateway' },
+            { prefix: '<o', type: 'inclusiveGateway' },
+            { prefix: '<*', type: 'complexGateway' },
+            { prefix: '<@+', type: 'eventBasedGateway', parallelMultiple: true },
+            { prefix: '<@', type: 'eventBasedGateway' },
+            { prefix: '<', type: 'exclusiveGateway' }, // Default - must be last
+        ];
+
+        // Task type patterns
+        const TASK_PATTERNS = [
+            { prefix: 'user:', type: 'userTask' },
+            { prefix: 'service:', type: 'serviceTask' },
+            { prefix: 'script:', type: 'scriptTask' },
+            { prefix: 'rule:', type: 'businessRuleTask' },
+            { prefix: 'send:', type: 'sendTask' },
+            { prefix: 'receive:', type: 'receiveTask' },
+            { prefix: 'manual:', type: 'manualTask' },
+            { prefix: 'call:', type: 'callActivity' },
+        ];
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -813,11 +1029,9 @@
             initMermaid();
             initResizer();
             
-            // Load default example
             document.getElementById('codeEditor').value = examples.flowchart;
             renderDiagram();
 
-            // Live preview on input
             document.getElementById('codeEditor').addEventListener('input', () => {
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(renderDiagram, 300);
@@ -840,12 +1054,27 @@
                 document.documentElement.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 
-                // Re-render with new theme
                 if (currentMode === 'mermaid') {
                     initMermaid();
                     renderDiagram();
                 }
             });
+        }
+
+        // Legend mode toggle
+        function setLegendMode(mode) {
+            legendMode = mode;
+            const help = document.getElementById('bpmnHelp');
+            const btns = document.querySelectorAll('.legend-toggle-btn');
+            
+            btns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'complete') {
+                help.classList.add('complete');
+            } else {
+                help.classList.remove('complete');
+            }
         }
 
         // Mermaid
@@ -871,15 +1100,13 @@
             document.getElementById('mermaid-output').style.display = mode === 'mermaid' ? 'block' : 'none';
             document.getElementById('bpmn-container').style.display = mode === 'bpmn' ? 'block' : 'none';
 
-            // Toggle body class for export menu
             document.body.classList.toggle('bpmn-mode', mode === 'bpmn');
 
-            // Load appropriate example
             const editor = document.getElementById('codeEditor');
-            if (mode === 'mermaid' && editor.value.includes('(start)')) {
+            if (mode === 'mermaid' && (editor.value.includes('(start)') || editor.value.includes('(end)'))) {
                 editor.value = examples.flowchart;
-            } else if (mode === 'bpmn' && !editor.value.includes('(start)')) {
-                editor.value = examples['bpmn-order'];
+            } else if (mode === 'bpmn' && !editor.value.includes('(start)') && !editor.value.includes('(end)')) {
+                editor.value = examples['bpmn-simple'];
             }
 
             renderDiagram();
@@ -921,7 +1148,7 @@
             
             try {
                 const xml = convertToBPMNXml(code);
-                lastBpmnXml = xml; // Store for export
+                lastBpmnXml = xml;
                 
                 if (!bpmnViewer) {
                     bpmnViewer = new BpmnJS({ container: container });
@@ -940,22 +1167,173 @@
             }
         }
 
-        // Convert simple DSL to BPMN XML with dagre layout
+        // Parse element from DSL part
+        function parseElement(part) {
+            let type = 'task';
+            let subType = null;
+            let name = part;
+            let width = 100;
+            let height = 80;
+            let taskType = null;
+
+            // Check for comments/annotations
+            if (part.startsWith('//')) {
+                return {
+                    type: 'textAnnotation',
+                    name: part.slice(2).trim(),
+                    width: 120,
+                    height: 50,
+                    subType: null,
+                    taskType: null
+                };
+            }
+
+            // Check for data objects
+            if (part.startsWith('{data:') && part.endsWith('}')) {
+                return {
+                    type: 'dataObjectReference',
+                    name: part.slice(6, -1).trim(),
+                    width: 36,
+                    height: 50,
+                    subType: null,
+                    taskType: null
+                };
+            }
+
+            // Check for data stores
+            if (part.startsWith('{store:') && part.endsWith('}')) {
+                return {
+                    type: 'dataStoreReference',
+                    name: part.slice(7, -1).trim(),
+                    width: 50,
+                    height: 50,
+                    subType: null,
+                    taskType: null
+                };
+            }
+
+            // Check for known event patterns
+            const lowerPart = part.toLowerCase();
+            for (const [pattern, config] of Object.entries(BPMN_ELEMENTS)) {
+                if (lowerPart === pattern.toLowerCase()) {
+                    return {
+                        type: config.type,
+                        subType: config.subType,
+                        name: '',
+                        width: 36,
+                        height: 36,
+                        taskType: null
+                    };
+                }
+            }
+
+            // Check for gateways
+            if (part.startsWith('<') && part.endsWith('>')) {
+                const gatewayContent = part.slice(1, -1);
+                
+                for (const gw of GATEWAY_PATTERNS) {
+                    const checkPrefix = gw.prefix.slice(1); // Remove leading <
+                    if (gatewayContent.startsWith(checkPrefix)) {
+                        return {
+                            type: gw.type,
+                            name: gatewayContent.slice(checkPrefix.length).trim(),
+                            width: 50,
+                            height: 50,
+                            subType: gw.parallelMultiple ? 'parallelMultiple' : null,
+                            taskType: null
+                        };
+                    }
+                }
+                
+                // Default exclusive gateway
+                return {
+                    type: 'exclusiveGateway',
+                    name: gatewayContent,
+                    width: 50,
+                    height: 50,
+                    subType: null,
+                    taskType: null
+                };
+            }
+
+            // Check for sub-processes
+            if (part.startsWith('[[') && part.endsWith(']]')) {
+                return {
+                    type: 'subProcess',
+                    name: part.slice(2, -2).trim(),
+                    width: 120,
+                    height: 100,
+                    subType: null,
+                    taskType: null
+                };
+            }
+
+            // Check for tasks with type prefix
+            if (part.startsWith('[') && part.endsWith(']')) {
+                let taskContent = part.slice(1, -1).trim();
+                let detectedTaskType = 'task';
+                
+                for (const tp of TASK_PATTERNS) {
+                    if (taskContent.toLowerCase().startsWith(tp.prefix.toLowerCase())) {
+                        detectedTaskType = tp.type;
+                        taskContent = taskContent.slice(tp.prefix.length).trim();
+                        break;
+                    }
+                }
+                
+                return {
+                    type: detectedTaskType,
+                    name: taskContent,
+                    width: 100,
+                    height: 80,
+                    subType: null,
+                    taskType: detectedTaskType
+                };
+            }
+
+            // Default task
+            return {
+                type: 'task',
+                name: part,
+                width: 100,
+                height: 80,
+                subType: null,
+                taskType: null
+            };
+        }
+
+        // Convert DSL to BPMN XML
         function convertToBPMNXml(code) {
-            const lines = code.split('\n').filter(l => l.trim());
+            const lines = code.split('\n').filter(l => l.trim() && !l.trim().startsWith('//'));
             const elements = new Map();
             const flows = [];
+            const annotations = [];
             let elementId = 0;
 
             // Parse all elements and flows
             lines.forEach(line => {
-                const parts = line.split('->').map(p => p.trim()).filter(p => p);
+                // Handle annotations separately
+                if (line.trim().startsWith('//')) {
+                    annotations.push({
+                        id: `Annotation_${++elementId}`,
+                        text: line.trim().slice(2).trim()
+                    });
+                    return;
+                }
+
+                // Normalize all connector types to -> for parsing
+                // Supports: -> (sequence), ~~> (message), --> (association)
+                let normalizedLine = line
+                    .replace(/~~>/g, '->')
+                    .replace(/-->/g, '->');
+
+                const parts = normalizedLine.split('->').map(p => p.trim()).filter(p => p);
                 
                 for (let i = 0; i < parts.length; i++) {
                     let part = parts[i];
                     let condition = null;
                     
-                    // Check for condition like |Yes| or |No|
+                    // Check for condition
                     const condMatch = part.match(/^\|([^|]+)\|\s*(.+)$/);
                     if (condMatch) {
                         condition = condMatch[1];
@@ -965,48 +1343,17 @@
                     // Create element if not exists
                     if (!elements.has(part)) {
                         elementId++;
-                        let type = 'task';
-                        let name = part;
-                        let width = 100;
-                        let height = 80;
-                        
-                        if (part === '(start)') {
-                            type = 'startEvent';
-                            name = '';
-                            width = 36;
-                            height = 36;
-                        } else if (part === '(end)') {
-                            type = 'endEvent';
-                            name = '';
-                            width = 36;
-                            height = 36;
-                        } else if (part === '(timer)') {
-                            type = 'intermediateCatchEvent';
-                            name = 'Timer';
-                            width = 36;
-                            height = 36;
-                        } else if (part === '(error)') {
-                            type = 'endEvent';
-                            name = 'Error';
-                            width = 36;
-                            height = 36;
-                        } else if (part.startsWith('<') && part.endsWith('>')) {
-                            type = 'exclusiveGateway';
-                            name = part.slice(1, -1);
-                            width = 50;
-                            height = 50;
-                        } else if (part.startsWith('[') && part.endsWith(']')) {
-                            type = 'task';
-                            name = part.slice(1, -1);
-                        }
+                        const parsed = parseElement(part);
                         
                         elements.set(part, { 
                             id: `Element_${elementId}`, 
-                            type, 
-                            name,
+                            type: parsed.type,
+                            subType: parsed.subType,
+                            taskType: parsed.taskType,
+                            name: parsed.name,
                             key: part,
-                            width,
-                            height
+                            width: parsed.width,
+                            height: parsed.height
                         });
                     }
                     
@@ -1038,15 +1385,15 @@
             // Use dagre for layout
             const g = new dagre.graphlib.Graph();
             g.setGraph({
-                rankdir: 'LR',      // Left to right
-                nodesep: 60,        // Horizontal separation between nodes
-                ranksep: 80,        // Vertical separation between ranks
+                rankdir: 'LR',
+                nodesep: 60,
+                ranksep: 80,
                 marginx: 50,
                 marginy: 50
             });
             g.setDefaultEdgeLabel(() => ({}));
 
-            // Add nodes to dagre
+            // Add nodes
             elements.forEach((el, key) => {
                 g.setNode(key, { 
                     width: el.width, 
@@ -1055,7 +1402,7 @@
                 });
             });
 
-            // Add edges to dagre
+            // Add edges
             flows.forEach(flow => {
                 g.setEdge(flow.sourceKey, flow.targetKey);
             });
@@ -1068,7 +1415,6 @@
             g.nodes().forEach(key => {
                 const node = g.node(key);
                 if (node) {
-                    // dagre gives center positions, convert to top-left
                     positions.set(key, {
                         x: node.x - node.width / 2,
                         y: node.y - node.height / 2,
@@ -1085,37 +1431,122 @@
 
             elements.forEach((el, key) => {
                 const pos = positions.get(key) || { x: 100, y: 100 };
+                const eventDefinition = el.subType ? `<bpmn:${el.subType}/>` : '';
                 
-                if (el.type === 'startEvent') {
-                    processContent += `<bpmn:startEvent id="${el.id}" name="${el.name}"/>\n`;
-                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
-                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="36" height="36"/>
-                    </bpmndi:BPMNShape>\n`;
-                } else if (el.type === 'endEvent') {
-                    processContent += `<bpmn:endEvent id="${el.id}" name="${el.name}"/>\n`;
-                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
-                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="36" height="36"/>
-                    </bpmndi:BPMNShape>\n`;
-                } else if (el.type === 'exclusiveGateway') {
-                    processContent += `<bpmn:exclusiveGateway id="${el.id}" name="${el.name}"/>\n`;
-                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}" isMarkerVisible="true">
-                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="50" height="50"/>
-                        <bpmndi:BPMNLabel><dc:Bounds x="${pos.x - 5}" y="${pos.y + 58}" width="60" height="14"/></bpmndi:BPMNLabel>
-                    </bpmndi:BPMNShape>\n`;
-                } else if (el.type === 'intermediateCatchEvent') {
-                    processContent += `<bpmn:intermediateCatchEvent id="${el.id}" name="${el.name}"><bpmn:timerEventDefinition/></bpmn:intermediateCatchEvent>\n`;
-                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
-                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="36" height="36"/>
-                    </bpmndi:BPMNShape>\n`;
-                } else {
-                    processContent += `<bpmn:task id="${el.id}" name="${el.name}"/>\n`;
-                    shapeContent += `<bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}">
-                        <dc:Bounds x="${pos.x}" y="${pos.y}" width="100" height="80"/>
-                    </bpmndi:BPMNShape>\n`;
+                // Process content based on type
+                switch (el.type) {
+                    case 'startEvent':
+                        processContent += `<bpmn:startEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:startEvent>\n`;
+                        shapeContent += generateShape(el.id, pos, 36, 36);
+                        break;
+                        
+                    case 'endEvent':
+                        processContent += `<bpmn:endEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:endEvent>\n`;
+                        shapeContent += generateShape(el.id, pos, 36, 36);
+                        break;
+                        
+                    case 'intermediateCatchEvent':
+                        processContent += `<bpmn:intermediateCatchEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:intermediateCatchEvent>\n`;
+                        shapeContent += generateShape(el.id, pos, 36, 36);
+                        break;
+                        
+                    case 'intermediateThrowEvent':
+                        processContent += `<bpmn:intermediateThrowEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:intermediateThrowEvent>\n`;
+                        shapeContent += generateShape(el.id, pos, 36, 36);
+                        break;
+                        
+                    case 'exclusiveGateway':
+                        processContent += `<bpmn:exclusiveGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateGatewayShape(el.id, pos, el.name);
+                        break;
+                        
+                    case 'parallelGateway':
+                        processContent += `<bpmn:parallelGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateGatewayShape(el.id, pos, el.name);
+                        break;
+                        
+                    case 'inclusiveGateway':
+                        processContent += `<bpmn:inclusiveGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateGatewayShape(el.id, pos, el.name);
+                        break;
+                        
+                    case 'complexGateway':
+                        processContent += `<bpmn:complexGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateGatewayShape(el.id, pos, el.name);
+                        break;
+                        
+                    case 'eventBasedGateway':
+                        processContent += `<bpmn:eventBasedGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateGatewayShape(el.id, pos, el.name);
+                        break;
+                        
+                    case 'userTask':
+                        processContent += `<bpmn:userTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'serviceTask':
+                        processContent += `<bpmn:serviceTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'scriptTask':
+                        processContent += `<bpmn:scriptTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'businessRuleTask':
+                        processContent += `<bpmn:businessRuleTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'sendTask':
+                        processContent += `<bpmn:sendTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'receiveTask':
+                        processContent += `<bpmn:receiveTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'manualTask':
+                        processContent += `<bpmn:manualTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'callActivity':
+                        processContent += `<bpmn:callActivity id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
+                        break;
+                        
+                    case 'subProcess':
+                        processContent += `<bpmn:subProcess id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 120, 100, true);
+                        break;
+                        
+                    case 'dataObjectReference':
+                        processContent += `<bpmn:dataObjectReference id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 36, 50);
+                        break;
+                        
+                    case 'dataStoreReference':
+                        processContent += `<bpmn:dataStoreReference id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 50, 50);
+                        break;
+                        
+                    case 'textAnnotation':
+                        processContent += `<bpmn:textAnnotation id="${el.id}"><bpmn:text>${escapeXml(el.name)}</bpmn:text></bpmn:textAnnotation>\n`;
+                        shapeContent += generateShape(el.id, pos, 120, 50);
+                        break;
+                        
+                    default:
+                        processContent += `<bpmn:task id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
+                        shapeContent += generateShape(el.id, pos, 100, 80);
                 }
             });
 
-            // Generate edges using dagre's edge points
+            // Generate edges
             flows.forEach(flow => {
                 const sourceEl = elements.get(flow.sourceKey);
                 const targetEl = elements.get(flow.targetKey);
@@ -1124,19 +1555,16 @@
                 
                 if (!sp || !tp || !sourceEl || !targetEl) return;
                 
-                // Get edge points from dagre
                 const edge = g.edge(flow.sourceKey, flow.targetKey);
                 
-                processContent += `<bpmn:sequenceFlow id="${flow.id}" name="${flow.name}" sourceRef="${flow.sourceRef}" targetRef="${flow.targetRef}"/>\n`;
+                processContent += `<bpmn:sequenceFlow id="${flow.id}" name="${escapeXml(flow.name)}" sourceRef="${flow.sourceRef}" targetRef="${flow.targetRef}"/>\n`;
                 
-                // Build waypoints
                 let waypointsXml = '';
                 if (edge && edge.points && edge.points.length > 0) {
                     edge.points.forEach(pt => {
                         waypointsXml += `<di:waypoint x="${Math.round(pt.x)}" y="${Math.round(pt.y)}"/>\n`;
                     });
                 } else {
-                    // Fallback: direct line
                     const sx = sp.x + sp.width;
                     const sy = sp.y + sp.height / 2;
                     const tx = tp.x;
@@ -1144,7 +1572,6 @@
                     waypointsXml = `<di:waypoint x="${sx}" y="${sy}"/>\n<di:waypoint x="${tx}" y="${ty}"/>\n`;
                 }
                 
-                // Label for conditions
                 let labelXml = '';
                 if (flow.name && edge && edge.points && edge.points.length >= 2) {
                     const midIdx = Math.floor(edge.points.length / 2);
@@ -1175,6 +1602,29 @@
 </bpmn:definitions>`;
         }
 
+        function generateShape(id, pos, width, height, isExpanded = false) {
+            const expanded = isExpanded ? ' isExpanded="false"' : '';
+            return `<bpmndi:BPMNShape id="${id}_di" bpmnElement="${id}"${expanded}>
+                <dc:Bounds x="${Math.round(pos.x)}" y="${Math.round(pos.y)}" width="${width}" height="${height}"/>
+            </bpmndi:BPMNShape>\n`;
+        }
+
+        function generateGatewayShape(id, pos, name) {
+            return `<bpmndi:BPMNShape id="${id}_di" bpmnElement="${id}" isMarkerVisible="true">
+                <dc:Bounds x="${Math.round(pos.x)}" y="${Math.round(pos.y)}" width="50" height="50"/>
+                <bpmndi:BPMNLabel><dc:Bounds x="${Math.round(pos.x) - 5}" y="${Math.round(pos.y) + 58}" width="60" height="14"/></bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>\n`;
+        }
+
+        function escapeXml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&apos;');
+        }
+
         // Load example
         function loadExample(name) {
             closeExamples();
@@ -1189,7 +1639,7 @@
             renderDiagram();
         }
 
-        // Examples dropdown
+        // Dropdown handlers
         function toggleExamples() {
             document.getElementById('examplesMenu').classList.toggle('open');
         }
@@ -1199,12 +1649,8 @@
         }
 
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.examples-dropdown')) {
-                closeExamples();
-            }
-            if (!e.target.closest('.export-dropdown')) {
-                closeExportMenu();
-            }
+            if (!e.target.closest('.examples-dropdown')) closeExamples();
+            if (!e.target.closest('.export-dropdown')) closeExportMenu();
         });
 
         // File handling
@@ -1217,7 +1663,6 @@
                 const content = e.target.result;
                 document.getElementById('codeEditor').value = content;
                 
-                // Auto-detect mode
                 if (file.name.endsWith('.bpmn') || file.name.endsWith('.xml') || content.includes('bpmn:')) {
                     setMode('bpmn');
                 } else {
@@ -1230,7 +1675,7 @@
             event.target.value = '';
         }
 
-        // Export menu
+        // Export
         function toggleExportMenu() {
             document.getElementById('exportMenu').classList.toggle('open');
             closeExamples();
@@ -1240,7 +1685,6 @@
             document.getElementById('exportMenu').classList.remove('open');
         }
 
-        // Export SVG
         async function exportSVG() {
             closeExportMenu();
             
@@ -1248,17 +1692,10 @@
             
             if (currentMode === 'mermaid') {
                 const svg = document.querySelector('#mermaid-output svg');
-                if (!svg) {
-                    alert('No diagram to export');
-                    return;
-                }
+                if (!svg) { alert('No diagram to export'); return; }
                 svgContent = new XMLSerializer().serializeToString(svg);
             } else {
-                // Use bpmn-js's saveSVG method for proper export
-                if (!bpmnViewer) {
-                    alert('No diagram to export');
-                    return;
-                }
+                if (!bpmnViewer) { alert('No diagram to export'); return; }
                 try {
                     const result = await bpmnViewer.saveSVG();
                     svgContent = result.svg;
@@ -1272,7 +1709,6 @@
             downloadFile(svgContent, `diagram-${Date.now()}.svg`, 'image/svg+xml');
         }
 
-        // Export BPMN XML
         function exportBPMN() {
             closeExportMenu();
             
@@ -1289,7 +1725,6 @@
             downloadFile(lastBpmnXml, `process-${Date.now()}.bpmn`, 'application/xml');
         }
 
-        // Helper to download file
         function downloadFile(content, filename, mimeType) {
             const blob = new Blob([content], { type: mimeType });
             const url = URL.createObjectURL(blob);
@@ -1306,12 +1741,45 @@
             navigator.clipboard.writeText(editor.value);
         }
 
+        // Insert text at cursor position in editor
+        function insertAtCursor(text) {
+            const editor = document.getElementById('codeEditor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const value = editor.value;
+            
+            // Insert the text at cursor position
+            editor.value = value.substring(0, start) + text + value.substring(end);
+            
+            // Move cursor to end of inserted text
+            const newCursorPos = start + text.length;
+            editor.selectionStart = newCursorPos;
+            editor.selectionEnd = newCursorPos;
+            
+            // Focus the editor
+            editor.focus();
+            
+            // Trigger re-render with debounce
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(renderDiagram, 300);
+            
+            // Visual feedback - brief highlight
+            showInsertFeedback();
+        }
+
+        // Show brief visual feedback when inserting
+        function showInsertFeedback() {
+            const editor = document.getElementById('codeEditor');
+            editor.style.boxShadow = '0 0 0 2px var(--color-accent)';
+            setTimeout(() => {
+                editor.style.boxShadow = '';
+            }, 200);
+        }
+
         function clearEditor() {
             document.getElementById('codeEditor').value = '';
             document.getElementById('mermaid-output').innerHTML = '';
-            if (bpmnViewer) {
-                bpmnViewer.clear();
-            }
+            if (bpmnViewer) bpmnViewer.clear();
         }
 
         // Zoom

@@ -3,268 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mermaid + BPMN 2.0 Editor | Simon Vegelahn</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bpmn-js@17.2.0/dist/bpmn-viewer.production.min.js"></script>
+    <title>Mermaid + BPMN 2.0 Editor | Simon Vegelahn</title>
+    <script src="https://cdn.jsdelivr.net/npm/bpmn-js@17.2.0/dist/bpmn-navigated-viewer.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap');
-
         :root {
-            --color-bg-hero: #0a0a0a;
-            --color-bg-secondary: #111113;
-            --color-bg-card: #161618;
-            --color-bg-input: #1a1a1d;
-            --color-text: #fafafa;
-            --color-text-secondary: #b0b0b0;
-            --color-text-muted: #606060;
-            --color-accent: #3b82f6;
-            --color-accent-hover: #60a5fa;
-            --color-border: #262626;
-            --color-border-subtle: #1f1f1f;
-            --color-success: #22c55e;
-            --color-warning: #f59e0b;
-            --color-error: #ef4444;
-            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-input: #0d1117;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
 
         [data-theme="light"] {
-            --color-bg-hero: #ffffff;
-            --color-bg-secondary: #f5f5f7;
-            --color-bg-card: #ffffff;
-            --color-bg-input: #f8f8fa;
-            --color-text: #0a0a0a;
-            --color-text-secondary: #525252;
-            --color-text-muted: #8a8a8a;
-            --color-accent: #2563eb;
-            --color-accent-hover: #1d4ed8;
-            --color-border: #e5e5e5;
-            --color-border-subtle: #ebebeb;
-            --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --bg-tertiary: #eaeef2;
+            --bg-input: #ffffff;
+            --text-primary: #1f2328;
+            --text-secondary: #656d76;
+            --text-muted: #8c959f;
+            --border: #d0d7de;
+            --accent: #0969da;
+            --accent-hover: #0550ae;
+            --shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
+        html, body { height: 100%; overflow: hidden; }
 
         body {
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--color-bg-hero);
-            color: var(--color-text);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         /* Header */
         .header {
-            height: 56px;
-            background: var(--color-bg-secondary);
-            border-bottom: 1px solid var(--color-border);
+            height: 52px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem;
+            padding: 0 16px;
+            flex-shrink: 0;
         }
 
         .header-left {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 12px;
         }
 
-        .header-logo {
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: var(--color-text);
-            text-decoration: none;
+        .logo {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
         }
 
-        .header-logo:hover { color: var(--color-accent); }
-
-        .logo-icon {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--color-accent), #8b5cf6);
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), #a371f7);
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .logo-icon svg {
-            width: 14px;
-            height: 14px;
-            color: white;
-        }
+        .logo-mark svg { width: 16px; height: 16px; color: white; }
 
-        .header-divider {
-            width: 1px;
-            height: 24px;
-            background: var(--color-border);
-        }
-
-        .header-title {
-            font-size: 0.875rem;
-            color: var(--color-text-secondary);
-        }
-
-        .header-center {
-            display: flex;
-            gap: 0.25rem;
-            background: var(--color-bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 0.25rem;
-        }
-
-        .mode-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.8125rem;
+        .version-badge {
+            font-size: 10px;
             font-weight: 500;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            color: var(--color-text-secondary);
-            font-family: inherit;
-            transition: all 0.15s ease;
+            padding: 2px 6px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
         }
 
-        .mode-btn:hover { color: var(--color-text); }
-
-        .mode-btn.active {
-            background: var(--color-accent);
-            color: white;
-        }
-
-        .header-right {
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 8px;
         }
 
         .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.8125rem;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid var(--color-border);
-            background: var(--color-bg-card);
-            color: var(--color-text-secondary);
-            font-family: inherit;
-            transition: all 0.15s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.375rem;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
         }
 
         .btn:hover {
-            background: var(--color-bg-secondary);
-            color: var(--color-text);
+            background: var(--border);
+            color: var(--text-primary);
         }
 
         .btn svg { width: 16px; height: 16px; }
 
         .btn-primary {
-            background: var(--color-accent);
-            border-color: var(--color-accent);
+            background: var(--accent);
+            border-color: var(--accent);
             color: white;
         }
 
         .btn-primary:hover {
-            background: var(--color-accent-hover);
-            border-color: var(--color-accent-hover);
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
         }
 
-        .theme-toggle {
-            width: 36px;
-            height: 36px;
+        .btn-icon {
+            width: 32px;
+            height: 32px;
             padding: 0;
-            display: flex;
-            align-items: center;
             justify-content: center;
         }
 
-        .theme-toggle .icon-moon { display: none; }
-        [data-theme="light"] .theme-toggle .icon-sun { display: none; }
-        [data-theme="light"] .theme-toggle .icon-moon { display: block; }
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
 
-        /* Main Layout */
-        .main {
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            min-width: 200px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown-menu.open { display: block; }
+
+        .dropdown-item {
             display: flex;
-            height: calc(100vh - 56px);
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .dropdown-item svg { width: 16px; height: 16px; opacity: 0.7; }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
         }
 
         /* Editor Panel */
         .editor-panel {
-            width: 45%;
-            min-width: 300px;
+            width: 50%;
+            min-width: 400px;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--color-border);
-            background: var(--color-bg-card);
+            border-right: 1px solid var(--border);
+            background: var(--bg-secondary);
         }
 
-        .editor-header {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-border);
+        .panel-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-tertiary);
         }
 
-        .editor-tabs {
+        .panel-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .panel-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 4px;
         }
 
-        .editor-tab {
-            padding: 0.375rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            color: var(--color-text-muted);
-            font-family: inherit;
-        }
-
-        .editor-tab:hover { color: var(--color-text-secondary); }
-
-        .editor-tab.active {
-            background: var(--color-bg-secondary);
-            color: var(--color-text);
-        }
-
-        .editor-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .editor-action {
-            padding: 0.375rem;
-            border-radius: 4px;
-            border: none;
-            background: transparent;
-            color: var(--color-text-muted);
-            cursor: pointer;
+        .panel-action {
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 4px;
         }
 
-        .editor-action:hover {
-            background: var(--color-bg-secondary);
-            color: var(--color-text);
-        }
+        .panel-action:hover { background: var(--border); color: var(--text-primary); }
+        .panel-action svg { width: 14px; height: 14px; }
 
-        .editor-action svg { width: 16px; height: 16px; }
-
-        .editor-content {
+        .editor-container {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -273,1097 +252,1025 @@
 
         .code-editor {
             flex: 1;
-            padding: 1rem;
-            background: var(--color-bg-input);
+            padding: 12px;
+            background: var(--bg-input);
             border: none;
             resize: none;
-            font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace;
-            font-size: 0.8125rem;
-            line-height: 1.7;
-            color: var(--color-text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-primary);
             outline: none;
-            transition: box-shadow 0.15s ease;
+            overflow: auto;
         }
 
-        .code-editor::placeholder { color: var(--color-text-muted); }
+        .code-editor::placeholder { color: var(--text-muted); }
+
+        /* Reference Panel */
+        .reference-panel {
+            border-top: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            max-height: 45%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reference-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .reference-tabs {
+            display: flex;
+            gap: 2px;
+        }
+
+        .reference-tab {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .reference-tab:hover { color: var(--text-secondary); }
+        .reference-tab.active { background: var(--accent); color: white; }
+
+        .reference-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .ref-section {
+            margin-bottom: 16px;
+        }
+
+        .ref-section:last-child { margin-bottom: 0; }
+
+        .ref-section-title {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 4px;
+        }
+
+        .ref-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .ref-item:hover { background: var(--bg-secondary); }
+        .ref-item:active { transform: scale(0.98); }
+
+        .ref-item code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            padding: 2px 6px;
+            background: var(--bg-input);
+            border-radius: 3px;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
+        .ref-item:hover code { background: var(--accent); color: white; }
+
+        .ref-item span {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
 
         /* Preview Panel */
         .preview-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: var(--color-bg-hero);
-            overflow: hidden;
+            background: var(--bg-primary);
         }
 
-        .preview-header {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-border);
+        .preview-toolbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: var(--color-bg-card);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
         }
 
-        .preview-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--color-text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .preview-zoom {
+        .zoom-controls {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 4px;
         }
 
         .zoom-btn {
             width: 28px;
             height: 28px;
-            border-radius: 4px;
-            border: 1px solid var(--color-border);
-            background: var(--color-bg-secondary);
-            color: var(--color-text-secondary);
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
         }
 
-        .zoom-btn:hover {
-            background: var(--color-bg-card);
-            color: var(--color-text);
-        }
+        .zoom-btn:hover { background: var(--border); color: var(--text-primary); }
 
         .zoom-level {
-            font-size: 0.75rem;
-            color: var(--color-text-muted);
-            min-width: 40px;
+            font-size: 12px;
+            color: var(--text-muted);
+            min-width: 50px;
             text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
         }
 
-        .preview-content {
-            flex: 1;
-            overflow: auto;
+        /* Navigation Controls */
+        .nav-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            z-index: 100;
+        }
+
+        .nav-row {
+            display: flex;
+            gap: 2px;
+        }
+
+        .nav-btn {
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.15s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .preview-content.align-start {
-            align-items: flex-start;
-            justify-content: flex-start;
+        .nav-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--accent);
         }
 
-        #mermaid-output {
+        .nav-btn:active {
+            transform: scale(0.95);
+            background: var(--accent);
+            color: white;
+        }
+
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .nav-center {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            border-radius: 6px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .nav-center:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .preview-container {
+            flex: 1;
+            overflow: auto;
             background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-card);
-            transform-origin: center center;
-            transition: transform 0.2s ease;
+            position: relative;
         }
 
-        #mermaid-output svg {
-            max-width: 100%;
-            height: auto;
-        }
-
-        #bpmn-container {
+        #bpmn-canvas {
             width: 100%;
             height: 100%;
-            background: white;
-            border-radius: 8px;
+            min-height: 500px;
+            cursor: grab;
+        }
+        
+        #bpmn-canvas:active {
+            cursor: grabbing;
         }
 
         .preview-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin: 24px;
+            padding: 16px;
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
             border-radius: 8px;
-            padding: 1rem 1.5rem;
-            color: #ef4444;
-            font-size: 0.875rem;
-            max-width: 500px;
+            color: var(--error);
         }
 
         .preview-error-title {
             font-weight: 600;
-            margin-bottom: 0.25rem;
+            margin-bottom: 4px;
         }
 
         .preview-error-message {
-            font-family: monospace;
-            font-size: 0.8125rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
             opacity: 0.9;
         }
 
-        /* Dropdown menus */
-        .examples-dropdown, .export-dropdown {
-            position: relative;
-        }
-
-        .examples-menu, .export-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            margin-top: 0.5rem;
-            background: var(--color-bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            box-shadow: var(--shadow-card);
-            min-width: 220px;
-            z-index: 100;
-            display: none;
-        }
-
-        .export-menu { left: auto; right: 0; }
-
-        .examples-menu.open, .export-menu.open { display: block; }
-
-        .examples-menu-item, .export-menu-item {
-            padding: 0.625rem 1rem;
-            font-size: 0.8125rem;
-            color: var(--color-text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border-bottom: 1px solid var(--color-border-subtle);
-        }
-
-        .examples-menu-item:last-child, .export-menu-item:last-child { border-bottom: none; }
-
-        .examples-menu-item:hover, .export-menu-item:hover {
-            background: var(--color-bg-secondary);
-            color: var(--color-text);
-        }
-
-        .examples-menu-item-icon, .export-menu-item-icon {
-            width: 18px;
-            height: 18px;
-            color: var(--color-text-muted);
-        }
-
-        .export-hint {
-            margin-left: auto;
-            font-size: 0.6875rem;
-            color: var(--color-text-muted);
-        }
-
-        .export-menu-item.bpmn-only { display: none; }
-        body.bpmn-mode .export-menu-item.bpmn-only { display: flex; }
-
-        .file-input { display: none; }
-
-        /* Resize handle */
+        /* Resize Handle */
         .resize-handle {
             width: 4px;
-            background: var(--color-border);
+            background: var(--border);
             cursor: col-resize;
-            transition: background 0.15s ease;
+            transition: background 0.15s;
+            flex-shrink: 0;
         }
 
-        .resize-handle:hover { background: var(--color-accent); }
+        .resize-handle:hover { background: var(--accent); }
 
-        /* BPMN Help Panel */
-        .bpmn-help {
-            border-top: 1px solid var(--color-border);
-            background: var(--color-bg-secondary);
-            font-size: 0.75rem;
-            color: var(--color-text-muted);
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .bpmn-help-header {
+        /* Status Bar */
+        .status-bar {
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-border);
-            position: sticky;
-            top: 0;
-            background: var(--color-bg-secondary);
-            z-index: 10;
+            padding: 0 12px;
+            font-size: 11px;
+            color: var(--text-muted);
         }
 
-        .bpmn-help-title {
-            font-weight: 600;
-            color: var(--color-text-secondary);
-            font-size: 0.8125rem;
-        }
-
-        .legend-toggle {
-            display: flex;
-            gap: 0.25rem;
-            background: var(--color-bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            padding: 0.125rem;
-        }
-
-        .legend-toggle-btn {
-            padding: 0.25rem 0.5rem;
-            border-radius: 3px;
-            font-size: 0.6875rem;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            color: var(--color-text-muted);
-            font-family: inherit;
-            transition: all 0.15s ease;
-        }
-
-        .legend-toggle-btn:hover { color: var(--color-text-secondary); }
-
-        .legend-toggle-btn.active {
-            background: var(--color-accent);
-            color: white;
-        }
-
-        .bpmn-help-content {
-            padding: 0.75rem 1rem;
-        }
-
-        .legend-section {
-            margin-bottom: 1rem;
-        }
-
-        .legend-section:last-child { margin-bottom: 0; }
-
-        .legend-section-title {
-            font-weight: 600;
-            color: var(--color-text-secondary);
-            margin-bottom: 0.5rem;
-            font-size: 0.6875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .legend-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 0.375rem;
-        }
-
-        .legend-item {
+        .status-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.375rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            margin: 0.125rem 0;
+            gap: 6px;
         }
 
-        .legend-item:hover {
-            background: var(--color-bg-card);
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
         }
 
-        .legend-item:active {
-            transform: scale(0.98);
-        }
+        .status-dot.error { background: var(--error); }
 
-        .legend-item code {
-            background: var(--color-bg-input);
-            padding: 0.125rem 0.375rem;
-            border-radius: 3px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6875rem;
-            color: var(--color-accent);
-            white-space: nowrap;
-            transition: all 0.15s ease;
-        }
+        /* Theme toggle icons */
+        .theme-toggle .icon-moon { display: none; }
+        [data-theme="light"] .theme-toggle .icon-sun { display: none; }
+        [data-theme="light"] .theme-toggle .icon-moon { display: block; }
 
-        .legend-item:hover code {
-            background: var(--color-accent);
-            color: white;
-        }
-
-        .legend-item span {
-            color: var(--color-text-secondary);
-            font-size: 0.6875rem;
-        }
-
-        .legend-item:hover span {
-            color: var(--color-text);
-        }
-
-        .insert-hint {
-            margin-left: auto;
-            font-size: 0.5625rem;
-            color: var(--color-text-muted);
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            font-size: 13px;
+            color: var(--text-primary);
             opacity: 0;
-            transition: opacity 0.15s ease;
+            transition: all 0.3s ease;
+            z-index: 10000;
         }
 
-        .legend-item:hover .insert-hint {
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
 
-        .legend-complete { display: none; }
-        .bpmn-help.complete .legend-complete { display: block; }
-        .bpmn-help.complete .legend-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main { flex-direction: column; }
-            .editor-panel {
-                width: 100%;
-                height: 50%;
-                border-right: none;
-                border-bottom: 1px solid var(--color-border);
-            }
-            .resize-handle { display: none; }
-        }
+        /* File input */
+        .file-input { display: none; }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-left">
-            <a href="#" class="header-logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M12 3v18M3 12h18"/>
-                    </svg>
-                </div>
-                BPMN Editor
-            </a>
-            <div class="header-divider"></div>
-            <span class="header-title">Full BPMN 2.0 Support</span>
-        </div>
-
-        <div class="header-center">
-            <button class="mode-btn active" id="mermaidModeBtn" onclick="setMode('mermaid')">Mermaid</button>
-            <button class="mode-btn" id="bpmnModeBtn" onclick="setMode('bpmn')">BPMN</button>
-        </div>
-
-        <div class="header-right">
-            <div class="examples-dropdown">
-                <button class="btn" onclick="toggleExamples()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                    </svg>
-                    Examples
-                </button>
-                <div class="examples-menu" id="examplesMenu">
-                    <div class="examples-menu-item" onclick="loadExample('flowchart')">
-                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="app">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-mark">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <path d="M12 8v8M8 12h8"/>
+                            <path d="M9 9h6v6H9z"/>
                         </svg>
-                        Mermaid Flowchart
                     </div>
-                    <div class="examples-menu-item" onclick="loadExample('bpmn-simple')">
-                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="5" cy="12" r="2"/>
-                            <rect x="10" y="8" width="8" height="8" rx="1"/>
-                            <circle cx="23" cy="12" r="2" fill="currentColor"/>
-                        </svg>
-                        BPMN: Simple Flow
-                    </div>
-                    <div class="examples-menu-item" onclick="loadExample('bpmn-gateways')">
-                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="6" y="6" width="12" height="12" rx="1" transform="rotate(45 12 12)"/>
-                        </svg>
-                        BPMN: All Gateways
-                    </div>
-                    <div class="examples-menu-item" onclick="loadExample('bpmn-events')">
-                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="9"/>
-                            <circle cx="12" cy="12" r="6"/>
-                        </svg>
-                        BPMN: Event Types
-                    </div>
-                    <div class="examples-menu-item" onclick="loadExample('bpmn-tasks')">
-                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="6" width="18" height="12" rx="2"/>
-                            <path d="M8 10h8M8 14h4"/>
-                        </svg>
-                        BPMN: Task Types
-                    </div>
-                    <div class="examples-menu-item" onclick="loadExample('bpmn-complete')">
-                        <svg class="examples-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                        BPMN: Complete Demo
-                    </div>
+                    <span>BPMN 2.0 Editor</span>
                 </div>
+                <span class="version-badge">Full Spec</span>
             </div>
 
-            <label class="btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                Load File
-                <input type="file" class="file-input" id="fileInput" accept=".mermaid,.mmd,.bpmn,.xml,.txt" onchange="loadFile(event)">
-            </label>
+            <div class="header-actions">
+                <div class="dropdown">
+                    <button class="btn" onclick="toggleDropdown('examplesMenu')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                        Examples
+                    </button>
+                    <div class="dropdown-menu" id="examplesMenu">
+                        <div class="dropdown-item" onclick="loadExample('simple')">Simple Process</div>
+                        <div class="dropdown-item" onclick="loadExample('gateways')">All Gateways</div>
+                        <div class="dropdown-item" onclick="loadExample('events')">Event Types</div>
+                        <div class="dropdown-item" onclick="loadExample('tasks')">Task Types</div>
+                        <div class="dropdown-item" onclick="loadExample('pools')">Pools & Lanes</div>
+                        <div class="dropdown-item" onclick="loadExample('complete')">Complete Demo</div>
+                    </div>
+                </div>
 
-            <div class="export-dropdown">
-                <button class="btn btn-primary" onclick="toggleExportMenu()">
+                <label class="btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Export
+                    Import
+                    <input type="file" class="file-input" id="fileInput" accept=".bpmn,.xml,.txt" onchange="importFile(event)">
+                </label>
+
+                <div class="dropdown">
+                    <button class="btn btn-primary" onclick="toggleDropdown('exportMenu')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Export
+                    </button>
+                    <div class="dropdown-menu" id="exportMenu">
+                        <div class="dropdown-item" onclick="exportBPMN()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            BPMN 2.0 XML (Signavio)
+                        </div>
+                        <div class="dropdown-item" onclick="exportSVG()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            SVG Image
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-icon theme-toggle" onclick="toggleTheme()">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
                 </button>
-                <div class="export-menu" id="exportMenu">
-                    <div class="export-menu-item" onclick="exportSVG()">
-                        <svg class="export-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <path d="M7 12l3-3 2 2 5-5"/>
-                        </svg>
-                        Export as SVG
-                        <span class="export-hint">Image</span>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="editor-panel" id="editorPanel">
+                <div class="panel-header">
+                    <span class="panel-title">DSL Editor</span>
+                    <div class="panel-actions">
+                        <button class="panel-action" onclick="copyCode()" title="Copy">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                        <button class="panel-action" onclick="clearEditor()" title="Clear">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
                     </div>
-                    <div class="export-menu-item bpmn-only" onclick="exportBPMN()">
-                        <svg class="export-menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                        </svg>
-                        Export as BPMN
-                        <span class="export-hint">Signavio compatible</span>
+                </div>
+                
+                <div class="editor-container">
+                    <textarea class="code-editor" id="codeEditor" placeholder="Enter BPMN DSL code here..." spellcheck="false"></textarea>
+                </div>
+
+                <div class="reference-panel" id="referencePanel">
+                    <div class="reference-header">
+                        <span class="panel-title">Syntax Reference</span>
+                        <div class="reference-tabs">
+                            <button class="reference-tab active" onclick="setRefTab('events')">Events</button>
+                            <button class="reference-tab" onclick="setRefTab('activities')">Activities</button>
+                            <button class="reference-tab" onclick="setRefTab('gateways')">Gateways</button>
+                            <button class="reference-tab" onclick="setRefTab('data')">Data</button>
+                            <button class="reference-tab" onclick="setRefTab('pools')">Pools</button>
+                        </div>
+                    </div>
+                    <div class="reference-content" id="referenceContent">
+                        <!-- Content injected by JS -->
                     </div>
                 </div>
             </div>
 
-            <button class="btn theme-toggle" id="themeToggle">
-                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="5"/>
-                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                </svg>
-                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                </svg>
-            </button>
-        </div>
-    </header>
+            <div class="resize-handle" id="resizeHandle"></div>
 
-    <main class="main">
-        <div class="editor-panel" id="editorPanel">
-            <div class="editor-header">
-                <div class="editor-tabs">
-                    <button class="editor-tab active">Code</button>
+            <div class="preview-panel">
+                <div class="preview-toolbar">
+                    <span class="panel-title">Preview</span>
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="zoomOut()">−</button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                        <button class="zoom-btn" onclick="zoomIn()">+</button>
+                        <button class="zoom-btn" onclick="fitView()" title="Fit to view">⊡</button>
+                    </div>
                 </div>
-                <div class="editor-actions">
-                    <button class="editor-action" onclick="copyCode()" title="Copy code">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                        </svg>
-                    </button>
-                    <button class="editor-action" onclick="clearEditor()" title="Clear">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                    </button>
+                <div class="preview-container">
+                    <div id="bpmn-canvas"></div>
+                    
+                    <!-- Navigation Controls -->
+                    <div class="nav-controls">
+                        <div class="nav-row">
+                            <button class="nav-btn" onclick="panCanvas(0, -80)" title="Pan Up">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 19V5M5 12l7-7 7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="nav-row">
+                            <button class="nav-btn" onclick="panCanvas(-80, 0)" title="Pan Left">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 5l-7 7 7 7"/>
+                                </svg>
+                            </button>
+                            <button class="nav-center" onclick="resetView()" title="Reset View">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>
+                                </svg>
+                            </button>
+                            <button class="nav-btn" onclick="panCanvas(80, 0)" title="Pan Right">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="nav-row">
+                            <button class="nav-btn" onclick="panCanvas(0, 80)" title="Pan Down">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="editor-content">
-                <textarea 
-                    class="code-editor" 
-                    id="codeEditor" 
-                    placeholder="Enter your diagram code here..."
-                    spellcheck="false"
-                ></textarea>
+        </main>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Ready</span>
             </div>
-            
-            <!-- BPMN Legend Panel -->
-            <div class="bpmn-help" id="bpmnHelp" style="display: none;">
-                <div class="bpmn-help-header">
-                    <div class="bpmn-help-title">BPMN 2.0 Syntax Reference</div>
-                    <div class="legend-toggle">
-                        <button class="legend-toggle-btn active" onclick="setLegendMode('simple')">Simple</button>
-                        <button class="legend-toggle-btn" onclick="setLegendMode('complete')">Complete</button>
-                    </div>
-                </div>
-                <div class="bpmn-help-content">
-                    <!-- EVENTS SECTION -->
-                    <div class="legend-section">
-                        <div class="legend-section-title">Events</div>
-                        <div class="legend-grid">
-                            <div class="legend-item" onclick="insertAtCursor('(start)')"><code>(start)</code> <span>Start Event</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('(end)')"><code>(end)</code> <span>End Event</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:message)')"><code>(start:message)</code> <span>Message Start</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:timer)')"><code>(start:timer)</code> <span>Timer Start</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:signal)')"><code>(start:signal)</code> <span>Signal Start</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(start:conditional)')"><code>(start:conditional)</code> <span>Conditional Start</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('(timer)')"><code>(timer)</code> <span>Timer Intermediate</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:message)')"><code>(catch:message)</code> <span>Message Catch</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:signal)')"><code>(catch:signal)</code> <span>Signal Catch</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:conditional)')"><code>(catch:conditional)</code> <span>Conditional Catch</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(catch:link)')"><code>(catch:link)</code> <span>Link Catch</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:message)')"><code>(throw:message)</code> <span>Message Throw</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:signal)')"><code>(throw:signal)</code> <span>Signal Throw</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:escalation)')"><code>(throw:escalation)</code> <span>Escalation Throw</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:compensation)')"><code>(throw:compensation)</code> <span>Compensation Throw</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(throw:link)')"><code>(throw:link)</code> <span>Link Throw</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('(error)')"><code>(error)</code> <span>Error End</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:message)')"><code>(end:message)</code> <span>Message End</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:signal)')"><code>(end:signal)</code> <span>Signal End</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:escalation)')"><code>(end:escalation)</code> <span>Escalation End</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:compensation)')"><code>(end:compensation)</code> <span>Compensation End</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(end:cancel)')"><code>(end:cancel)</code> <span>Cancel End</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('(terminate)')"><code>(terminate)</code> <span>Terminate End</span><span class="insert-hint">click to insert</span></div>
-                        </div>
-                    </div>
-
-                    <!-- ACTIVITIES SECTION -->
-                    <div class="legend-section">
-                        <div class="legend-section-title">Activities</div>
-                        <div class="legend-grid">
-                            <div class="legend-item" onclick="insertAtCursor('[Task Name]')"><code>[Task Name]</code> <span>Task (Generic)</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('[user: Task Name]')"><code>[user: Name]</code> <span>User Task</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('[service: Task Name]')"><code>[service: Name]</code> <span>Service Task</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('[script: Task Name]')"><code>[script: Name]</code> <span>Script Task</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('[rule: Task Name]')"><code>[rule: Name]</code> <span>Business Rule Task</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('[send: Task Name]')"><code>[send: Name]</code> <span>Send Task</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('[receive: Task Name]')"><code>[receive: Name]</code> <span>Receive Task</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('[manual: Task Name]')"><code>[manual: Name]</code> <span>Manual Task</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('[[Sub Process Name]]')"><code>[[Sub Process]]</code> <span>Sub-Process</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('[call: Activity Name]')"><code>[call: Name]</code> <span>Call Activity</span><span class="insert-hint">click to insert</span></div>
-                        </div>
-                    </div>
-
-                    <!-- GATEWAYS SECTION -->
-                    <div class="legend-section">
-                        <div class="legend-section-title">Gateways</div>
-                        <div class="legend-grid">
-                            <div class="legend-item" onclick="insertAtCursor('<Decision?>')"><code>&lt;Decision?&gt;</code> <span>Exclusive (XOR)</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('<+Parallel>')"><code>&lt;+Split&gt;</code> <span>Parallel (AND)</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('<o Choice>')"><code>&lt;o Choice&gt;</code> <span>Inclusive (OR)</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('<* Complex>')"><code>&lt;* Complex&gt;</code> <span>Complex Gateway</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('<@ Event>')"><code>&lt;@ Event&gt;</code> <span>Event-Based</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor('<@+ Parallel Event>')"><code>&lt;@+ Parallel Event&gt;</code> <span>Parallel Event-Based</span><span class="insert-hint">click to insert</span></div>
-                        </div>
-                    </div>
-
-                    <!-- DATA & ARTIFACTS SECTION -->
-                    <div class="legend-section legend-complete">
-                        <div class="legend-section-title">Data & Artifacts</div>
-                        <div class="legend-grid">
-                            <div class="legend-item" onclick="insertAtCursor('{data: Data Name}')"><code>{data: Name}</code> <span>Data Object</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('{store: Store Name}')"><code>{store: Name}</code> <span>Data Store</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor('// Comment text')"><code>// Comment text</code> <span>Text Annotation</span><span class="insert-hint">click to insert</span></div>
-                        </div>
-                    </div>
-
-                    <!-- CONNECTIONS SECTION -->
-                    <div class="legend-section">
-                        <div class="legend-section-title">Connections</div>
-                        <div class="legend-grid">
-                            <div class="legend-item" onclick="insertAtCursor(' -> ')"><code>-></code> <span>Sequence Flow</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item" onclick="insertAtCursor(' |Yes| ')"><code>|Yes|</code> <span>Condition Label</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor(' -> ')"><code>~~></code> <span>Message Flow</span><span class="insert-hint">click to insert</span></div>
-                            <div class="legend-item legend-complete" onclick="insertAtCursor(' -> ')"><code>--></code> <span>Association</span><span class="insert-hint">click to insert</span></div>
-                        </div>
-                    </div>
-                </div>
+            <div class="status-item">
+                <span id="elementCount">0 elements</span>
             </div>
         </div>
+    </div>
 
-        <div class="resize-handle" id="resizeHandle"></div>
-
-        <div class="preview-panel">
-            <div class="preview-header">
-                <span class="preview-title">Preview</span>
-                <div class="preview-zoom">
-                    <button class="zoom-btn" onclick="zoomOut()">−</button>
-                    <span class="zoom-level" id="zoomLevel">100%</span>
-                    <button class="zoom-btn" onclick="zoomIn()">+</button>
-                    <button class="zoom-btn" onclick="resetZoom()" title="Reset">⟲</button>
-                </div>
-            </div>
-            <div class="preview-content" id="previewContent">
-                <div id="mermaid-output"></div>
-                <div id="bpmn-container" style="display: none;"></div>
-            </div>
-        </div>
-    </main>
+    <div class="toast" id="toast"></div>
 
     <script>
-        // State
-        let currentMode = 'mermaid';
-        let legendMode = 'simple';
-        let zoomLevel = 1;
+        // ============================================================
+        // STATE
+        // ============================================================
         let bpmnViewer = null;
-        let debounceTimer = null;
         let lastBpmnXml = null;
+        let debounceTimer = null;
+        let zoomLevel = 1;
+        let currentRefTab = 'events';
 
-        // Examples
-        const examples = {
-            flowchart: `flowchart TD
-    A[Start] --> B{Is it working?}
-    B -->|Yes| C[Great!]
-    B -->|No| D[Debug]
-    D --> E[Fix the code]
-    E --> B
-    C --> F[Deploy]
-    F --> G[End]`,
+        // ============================================================
+        // BPMN 2.0 COMPLETE ELEMENT DEFINITIONS
+        // ============================================================
+        
+        // All Start Event Types
+        const START_EVENTS = {
+            '(start)': { type: 'startEvent', trigger: null, label: 'None Start' },
+            '(start:message)': { type: 'startEvent', trigger: 'messageEventDefinition', label: 'Message Start' },
+            '(start:timer)': { type: 'startEvent', trigger: 'timerEventDefinition', label: 'Timer Start' },
+            '(start:conditional)': { type: 'startEvent', trigger: 'conditionalEventDefinition', label: 'Conditional Start' },
+            '(start:signal)': { type: 'startEvent', trigger: 'signalEventDefinition', label: 'Signal Start' },
+            '(start:multiple)': { type: 'startEvent', trigger: 'multipleEventDefinition', label: 'Multiple Start' },
+            '(start:parallel)': { type: 'startEvent', trigger: 'parallelMultipleEventDefinition', label: 'Parallel Multiple Start' },
+            '(start:error)': { type: 'startEvent', trigger: 'errorEventDefinition', label: 'Error Start (Event Sub)' },
+            '(start:escalation)': { type: 'startEvent', trigger: 'escalationEventDefinition', label: 'Escalation Start (Event Sub)' },
+            '(start:compensation)': { type: 'startEvent', trigger: 'compensateEventDefinition', label: 'Compensation Start (Event Sub)' },
+        };
 
-            'bpmn-simple': `(start) -> [Receive Order] -> <In Stock?>
-<In Stock?> -> |Yes| [Pack Items]
-<In Stock?> -> |No| [Reorder Stock] -> [Wait for Delivery] -> [Pack Items]
-[Pack Items] -> [Ship Order] -> (end)`,
+        // All Intermediate Catch Events
+        const CATCH_EVENTS = {
+            '(catch:message)': { type: 'intermediateCatchEvent', trigger: 'messageEventDefinition', label: 'Message Catch' },
+            '(catch:timer)': { type: 'intermediateCatchEvent', trigger: 'timerEventDefinition', label: 'Timer Catch' },
+            '(timer)': { type: 'intermediateCatchEvent', trigger: 'timerEventDefinition', label: 'Timer (shorthand)' },
+            '(catch:conditional)': { type: 'intermediateCatchEvent', trigger: 'conditionalEventDefinition', label: 'Conditional Catch' },
+            '(catch:signal)': { type: 'intermediateCatchEvent', trigger: 'signalEventDefinition', label: 'Signal Catch' },
+            '(catch:link)': { type: 'intermediateCatchEvent', trigger: 'linkEventDefinition', label: 'Link Catch' },
+            '(catch:multiple)': { type: 'intermediateCatchEvent', trigger: 'multipleEventDefinition', label: 'Multiple Catch' },
+            '(catch:parallel)': { type: 'intermediateCatchEvent', trigger: 'parallelMultipleEventDefinition', label: 'Parallel Multiple Catch' },
+        };
 
-            'bpmn-gateways': `(start) -> <Decision?>
-<Decision?> -> |Path A| [Task A]
-<Decision?> -> |Path B| [Task B]
-[Task A] -> <+Merge>
-[Task B] -> <+Merge>
-<+Merge> -> <o Inclusive?>
-<o Inclusive?> -> |Option 1| [Option Task 1]
-<o Inclusive?> -> |Option 2| [Option Task 2]
-[Option Task 1] -> <o Join>
-[Option Task 2] -> <o Join>
-<o Join> -> (end)`,
+        // All Intermediate Throw Events
+        const THROW_EVENTS = {
+            '(throw)': { type: 'intermediateThrowEvent', trigger: null, label: 'None Throw' },
+            '(throw:message)': { type: 'intermediateThrowEvent', trigger: 'messageEventDefinition', label: 'Message Throw' },
+            '(throw:signal)': { type: 'intermediateThrowEvent', trigger: 'signalEventDefinition', label: 'Signal Throw' },
+            '(throw:escalation)': { type: 'intermediateThrowEvent', trigger: 'escalationEventDefinition', label: 'Escalation Throw' },
+            '(throw:compensation)': { type: 'intermediateThrowEvent', trigger: 'compensateEventDefinition', label: 'Compensation Throw' },
+            '(throw:link)': { type: 'intermediateThrowEvent', trigger: 'linkEventDefinition', label: 'Link Throw' },
+            '(throw:multiple)': { type: 'intermediateThrowEvent', trigger: 'multipleEventDefinition', label: 'Multiple Throw' },
+        };
 
-            'bpmn-events': `(start) -> [Initial Task]
-[Initial Task] -> (timer) -> [After Wait]
-[After Wait] -> <Check Result?>
-<Check Result?> -> |Success| [user: Process Result] -> (end)
-<Check Result?> -> |Failure| [Log Error] -> (error)`,
+        // All End Event Types
+        const END_EVENTS = {
+            '(end)': { type: 'endEvent', trigger: null, label: 'None End' },
+            '(end:message)': { type: 'endEvent', trigger: 'messageEventDefinition', label: 'Message End' },
+            '(end:signal)': { type: 'endEvent', trigger: 'signalEventDefinition', label: 'Signal End' },
+            '(end:error)': { type: 'endEvent', trigger: 'errorEventDefinition', label: 'Error End' },
+            '(error)': { type: 'endEvent', trigger: 'errorEventDefinition', label: 'Error (shorthand)' },
+            '(end:escalation)': { type: 'endEvent', trigger: 'escalationEventDefinition', label: 'Escalation End' },
+            '(end:cancel)': { type: 'endEvent', trigger: 'cancelEventDefinition', label: 'Cancel End' },
+            '(end:compensation)': { type: 'endEvent', trigger: 'compensateEventDefinition', label: 'Compensation End' },
+            '(end:terminate)': { type: 'endEvent', trigger: 'terminateEventDefinition', label: 'Terminate End' },
+            '(terminate)': { type: 'endEvent', trigger: 'terminateEventDefinition', label: 'Terminate (shorthand)' },
+            '(end:multiple)': { type: 'endEvent', trigger: 'multipleEventDefinition', label: 'Multiple End' },
+        };
 
-            'bpmn-tasks': `(start) -> [user: Review Request]
+        // Boundary Events (attached to tasks)
+        const BOUNDARY_TRIGGERS = {
+            'message': 'messageEventDefinition',
+            'timer': 'timerEventDefinition',
+            'conditional': 'conditionalEventDefinition',
+            'signal': 'signalEventDefinition',
+            'error': 'errorEventDefinition',
+            'escalation': 'escalationEventDefinition',
+            'cancel': 'cancelEventDefinition',
+            'compensation': 'compensateEventDefinition',
+            'multiple': 'multipleEventDefinition',
+            'parallel': 'parallelMultipleEventDefinition',
+        };
+
+        // All Task Types
+        const TASK_TYPES = {
+            '': { type: 'task', label: 'Abstract Task' },
+            'task:': { type: 'task', label: 'Task' },
+            'user:': { type: 'userTask', label: 'User Task' },
+            'service:': { type: 'serviceTask', label: 'Service Task' },
+            'script:': { type: 'scriptTask', label: 'Script Task' },
+            'rule:': { type: 'businessRuleTask', label: 'Business Rule Task' },
+            'send:': { type: 'sendTask', label: 'Send Task' },
+            'receive:': { type: 'receiveTask', label: 'Receive Task' },
+            'manual:': { type: 'manualTask', label: 'Manual Task' },
+        };
+
+        // Sub-Process Types
+        const SUBPROCESS_TYPES = {
+            'sub:': { type: 'subProcess', label: 'Sub-Process' },
+            'event-sub:': { type: 'subProcess', triggeredByEvent: true, label: 'Event Sub-Process' },
+            'transaction:': { type: 'transaction', label: 'Transaction' },
+            'adhoc:': { type: 'adHocSubProcess', label: 'Ad-Hoc Sub-Process' },
+            'call:': { type: 'callActivity', label: 'Call Activity' },
+        };
+
+        // Task Markers
+        const TASK_MARKERS = {
+            '~loop': { loopCharacteristics: 'standardLoopCharacteristics', label: 'Loop' },
+            '~parallel': { loopCharacteristics: 'multiInstanceLoopCharacteristics', isSequential: false, label: 'Parallel MI' },
+            '~sequential': { loopCharacteristics: 'multiInstanceLoopCharacteristics', isSequential: true, label: 'Sequential MI' },
+            '~compensation': { isForCompensation: true, label: 'Compensation' },
+        };
+
+        // All Gateway Types
+        const GATEWAY_TYPES = {
+            '<': { type: 'exclusiveGateway', label: 'Exclusive (XOR)' },
+            '<x': { type: 'exclusiveGateway', label: 'Exclusive (XOR)' },
+            '<+': { type: 'parallelGateway', label: 'Parallel (AND)' },
+            '<o': { type: 'inclusiveGateway', label: 'Inclusive (OR)' },
+            '<*': { type: 'complexGateway', label: 'Complex' },
+            '<@': { type: 'eventBasedGateway', label: 'Event-Based' },
+            '<@+': { type: 'eventBasedGateway', instantiate: true, label: 'Event-Based (Instantiating)' },
+            '<@x': { type: 'eventBasedGateway', exclusive: true, label: 'Exclusive Event-Based' },
+        };
+
+        // Data Elements
+        const DATA_TYPES = {
+            '{data:': { type: 'dataObjectReference', label: 'Data Object' },
+            '{input:': { type: 'dataInput', label: 'Data Input' },
+            '{output:': { type: 'dataOutput', label: 'Data Output' },
+            '{store:': { type: 'dataStoreReference', label: 'Data Store' },
+            '{collection:': { type: 'dataObjectReference', isCollection: true, label: 'Data Collection' },
+        };
+
+        // Merge all events for parsing
+        const ALL_EVENTS = { ...START_EVENTS, ...CATCH_EVENTS, ...THROW_EVENTS, ...END_EVENTS };
+
+        // ============================================================
+        // REFERENCE PANEL DATA
+        // ============================================================
+        const REFERENCE_DATA = {
+            events: {
+                'Start Events': [
+                    { code: '(start)', desc: 'None Start' },
+                    { code: '(start:message)', desc: 'Message Start' },
+                    { code: '(start:timer)', desc: 'Timer Start' },
+                    { code: '(start:signal)', desc: 'Signal Start' },
+                    { code: '(start:conditional)', desc: 'Conditional Start' },
+                    { code: '(start:error)', desc: 'Error Start' },
+                    { code: '(start:escalation)', desc: 'Escalation Start' },
+                    { code: '(start:compensation)', desc: 'Compensation Start' },
+                    { code: '(start:multiple)', desc: 'Multiple Start' },
+                    { code: '(start:parallel)', desc: 'Parallel Multiple' },
+                ],
+                'Intermediate Catch': [
+                    { code: '(timer)', desc: 'Timer (shorthand)' },
+                    { code: '(catch:message)', desc: 'Message Catch' },
+                    { code: '(catch:timer)', desc: 'Timer Catch' },
+                    { code: '(catch:signal)', desc: 'Signal Catch' },
+                    { code: '(catch:conditional)', desc: 'Conditional Catch' },
+                    { code: '(catch:link)', desc: 'Link Catch' },
+                    { code: '(catch:multiple)', desc: 'Multiple Catch' },
+                    { code: '(catch:parallel)', desc: 'Parallel Multiple' },
+                ],
+                'Intermediate Throw': [
+                    { code: '(throw)', desc: 'None Throw' },
+                    { code: '(throw:message)', desc: 'Message Throw' },
+                    { code: '(throw:signal)', desc: 'Signal Throw' },
+                    { code: '(throw:escalation)', desc: 'Escalation Throw' },
+                    { code: '(throw:compensation)', desc: 'Compensation Throw' },
+                    { code: '(throw:link)', desc: 'Link Throw' },
+                ],
+                'End Events': [
+                    { code: '(end)', desc: 'None End' },
+                    { code: '(error)', desc: 'Error End' },
+                    { code: '(terminate)', desc: 'Terminate End' },
+                    { code: '(end:message)', desc: 'Message End' },
+                    { code: '(end:signal)', desc: 'Signal End' },
+                    { code: '(end:escalation)', desc: 'Escalation End' },
+                    { code: '(end:cancel)', desc: 'Cancel End' },
+                    { code: '(end:compensation)', desc: 'Compensation End' },
+                ],
+                'Boundary Events': [
+                    { code: '(boundary:timer @TaskId)', desc: 'Timer Boundary' },
+                    { code: '(boundary:message @TaskId)', desc: 'Message Boundary' },
+                    { code: '(boundary:error @TaskId)', desc: 'Error Boundary' },
+                    { code: '(boundary:signal @TaskId)', desc: 'Signal Boundary' },
+                    { code: '(boundary:escalation @TaskId)', desc: 'Escalation Boundary' },
+                    { code: '(boundary!:timer @TaskId)', desc: 'Non-interrupting Timer' },
+                ],
+            },
+            activities: {
+                'Task Types': [
+                    { code: '[Task Name]', desc: 'Abstract Task' },
+                    { code: '[user: Name]', desc: 'User Task' },
+                    { code: '[service: Name]', desc: 'Service Task' },
+                    { code: '[script: Name]', desc: 'Script Task' },
+                    { code: '[rule: Name]', desc: 'Business Rule Task' },
+                    { code: '[send: Name]', desc: 'Send Task' },
+                    { code: '[receive: Name]', desc: 'Receive Task' },
+                    { code: '[manual: Name]', desc: 'Manual Task' },
+                ],
+                'Sub-Processes': [
+                    { code: '[[sub: Name]]', desc: 'Collapsed Sub-Process' },
+                    { code: '[[event-sub: Name]]', desc: 'Event Sub-Process' },
+                    { code: '[[transaction: Name]]', desc: 'Transaction' },
+                    { code: '[[adhoc: Name]]', desc: 'Ad-Hoc Sub-Process' },
+                    { code: '[call: Name]', desc: 'Call Activity' },
+                ],
+                'Task Markers': [
+                    { code: '[user: Name ~loop]', desc: 'With Loop' },
+                    { code: '[service: Name ~parallel]', desc: 'Parallel Multi-Instance' },
+                    { code: '[task: Name ~sequential]', desc: 'Sequential Multi-Instance' },
+                    { code: '[task: Name ~compensation]', desc: 'Compensation Activity' },
+                ],
+            },
+            gateways: {
+                'Gateway Types': [
+                    { code: '<Decision?>', desc: 'Exclusive (XOR)' },
+                    { code: '<x Decision?>', desc: 'Exclusive (explicit)' },
+                    { code: '<+ Split>', desc: 'Parallel (AND)' },
+                    { code: '<o Choice>', desc: 'Inclusive (OR)' },
+                    { code: '<* Complex>', desc: 'Complex Gateway' },
+                    { code: '<@ EventGW>', desc: 'Event-Based Gateway' },
+                    { code: '<@+ Instantiate>', desc: 'Event-Based (Instantiating)' },
+                ],
+                'Connections': [
+                    { code: '->', desc: 'Sequence Flow' },
+                    { code: '|Yes| ->', desc: 'Conditional Flow' },
+                    { code: '|default| ->', desc: 'Default Flow' },
+                    { code: '~~>', desc: 'Message Flow' },
+                    { code: '-->', desc: 'Association' },
+                ],
+            },
+            data: {
+                'Data Objects': [
+                    { code: '{data: Name}', desc: 'Data Object' },
+                    { code: '{input: Name}', desc: 'Data Input' },
+                    { code: '{output: Name}', desc: 'Data Output' },
+                    { code: '{store: Name}', desc: 'Data Store' },
+                    { code: '{collection: Name}', desc: 'Data Collection' },
+                ],
+                'Artifacts': [
+                    { code: '// Comment text', desc: 'Text Annotation' },
+                    { code: '(( Group Name ))', desc: 'Group' },
+                ],
+            },
+            pools: {
+                'Pools & Lanes': [
+                    { code: 'pool "Name" { ... }', desc: 'Pool (Participant)' },
+                    { code: 'lane "Name" { ... }', desc: 'Lane' },
+                    { code: 'pool "Name" collapsed', desc: 'Collapsed Pool (Black Box)' },
+                ],
+                'Message Flows': [
+                    { code: 'Pool1.Task ~~> Pool2.Task', desc: 'Cross-pool Message' },
+                ],
+            },
+        };
+
+        // ============================================================
+        // EXAMPLES
+        // ============================================================
+        const EXAMPLES = {
+            simple: `// Simple Order Process
+(start) -> [Receive Order] -> <In Stock?>
+<In Stock?> -> |Yes| [Pack Items] -> [Ship Order] -> (end)
+<In Stock?> -> |No| [Reorder Stock] -> (timer) -> [Pack Items]`,
+
+            gateways: `// Gateway Types Demo
+(start) -> <Exclusive?>
+<Exclusive?> -> |Path A| [Task A] -> <+ Parallel Split>
+<Exclusive?> -> |Path B| [Task B] -> <+ Parallel Split>
+<+ Parallel Split> -> [Parallel 1]
+<+ Parallel Split> -> [Parallel 2]
+[Parallel 1] -> <+ Parallel Join>
+[Parallel 2] -> <+ Parallel Join>
+<+ Parallel Join> -> <o Inclusive?>
+<o Inclusive?> -> |Option 1| [Option Task 1] -> <o Inclusive Join>
+<o Inclusive?> -> |Option 2| [Option Task 2] -> <o Inclusive Join>
+<o Inclusive Join> -> <@ Event Gateway>
+<@ Event Gateway> -> (catch:message) -> [Handle Message] -> (end)
+<@ Event Gateway> -> (timer) -> [Handle Timeout] -> (end)`,
+
+            events: `// Event Types Demo
+(start:message) -> [user: Process Request]
+[user: Process Request] -> (timer) -> [Check Status]
+[Check Status] -> <Result?>
+<Result?> -> |Success| (throw:signal) -> [Notify Success] -> (end)
+<Result?> -> |Warning| (throw:escalation) -> [Handle Escalation] -> (end:escalation)
+<Result?> -> |Failure| [Log Error] -> (error)`,
+
+            tasks: `// Task Types Demo
+(start) -> [user: Review Request]
 [user: Review Request] -> [service: Validate Data]
-[service: Validate Data] -> [script: Transform Data]
-[script: Transform Data] -> [rule: Apply Business Rules]
-[rule: Apply Business Rules] -> [send: Send Notification]
-[send: Send Notification] -> [receive: Wait for Response]
-[receive: Wait for Response] -> [manual: Physical Inspection]
-[manual: Physical Inspection] -> (end)`,
+[service: Validate Data] -> [script: Transform]
+[script: Transform] -> [rule: Apply Rules]
+[rule: Apply Rules] -> [send: Send Notification]
+[send: Send Notification] -> [receive: Wait Response]
+[receive: Wait Response] -> [manual: Physical Check]
+[manual: Physical Check] -> (end)`,
 
-            'bpmn-complete': `// Complete BPMN 2.0 Demo
+            pools: `// Multi-Pool Process
+pool "Customer" {
+  (start) -> [Submit Order] -> [Wait for Confirmation] -> (end)
+}
+
+pool "Sales" {
+  (start:message) -> [user: Process Order] -> <Approved?>
+  <Approved?> -> |Yes| [send: Confirm Order] -> (end)
+  <Approved?> -> |No| [send: Reject Order] -> (end)
+}`,
+
+            complete: `// Complete BPMN 2.0 Demo
 (start:message) -> [user: Receive Request]
-[user: Receive Request] -> <+Parallel Split>
-<+Parallel Split> -> [service: Validate] -> (timer) -> [Check Status]
-<+Parallel Split> -> [script: Log Request]
-[Check Status] -> <Approved?>
-<Approved?> -> |Yes| [rule: Apply Policy]
-<Approved?> -> |No| (throw:escalation) -> [Handle Escalation] -> (end:escalation)
-[rule: Apply Policy] -> <o Options>
-<o Options> -> |Full| [send: Full Notification]
-<o Options> -> |Partial| [send: Partial Notification]
-[send: Full Notification] -> <o Merge>
-[send: Partial Notification] -> <o Merge>
-<o Merge> -> <+Parallel Join>
-[script: Log Request] -> <+Parallel Join>
-<+Parallel Join> -> [receive: Wait Confirmation]
+[user: Receive Request] -> <+ Parallel>
+<+ Parallel> -> [service: Validate ~parallel] -> <Valid?>
+<+ Parallel> -> [script: Log Request]
+<Valid?> -> |Yes| [rule: Apply Policy] -> <o Options>
+<Valid?> -> |No| (throw:escalation) -> [Handle Error] -> (error)
+<o Options> -> |Full| [send: Full Notification] -> <o Merge>
+<o Options> -> |Partial| [send: Partial Notification] -> <o Merge>
+<o Merge> -> <+ Join>
+[script: Log Request] -> <+ Join>
+<+ Join> -> [receive: Wait Confirmation]
 [receive: Wait Confirmation] -> [manual: Final Review]
-[manual: Final Review] -> (terminate)`
+[manual: Final Review] -> <@ Event Decision>
+<@ Event Decision> -> (catch:message) -> [Process Response] -> (end)
+<@ Event Decision> -> (timer) -> [Handle Timeout] -> (terminate)`,
         };
 
-        // BPMN Element Type Mappings
-        const BPMN_ELEMENTS = {
-            // Start Events
-            '(start)': { type: 'startEvent', subType: null },
-            '(start:message)': { type: 'startEvent', subType: 'messageEventDefinition' },
-            '(start:timer)': { type: 'startEvent', subType: 'timerEventDefinition' },
-            '(start:signal)': { type: 'startEvent', subType: 'signalEventDefinition' },
-            '(start:conditional)': { type: 'startEvent', subType: 'conditionalEventDefinition' },
-            '(start:multiple)': { type: 'startEvent', subType: 'multipleEventDefinition' },
-            
-            // Intermediate Catch Events
-            '(timer)': { type: 'intermediateCatchEvent', subType: 'timerEventDefinition' },
-            '(catch:message)': { type: 'intermediateCatchEvent', subType: 'messageEventDefinition' },
-            '(catch:timer)': { type: 'intermediateCatchEvent', subType: 'timerEventDefinition' },
-            '(catch:signal)': { type: 'intermediateCatchEvent', subType: 'signalEventDefinition' },
-            '(catch:conditional)': { type: 'intermediateCatchEvent', subType: 'conditionalEventDefinition' },
-            '(catch:link)': { type: 'intermediateCatchEvent', subType: 'linkEventDefinition' },
-            
-            // Intermediate Throw Events
-            '(throw:message)': { type: 'intermediateThrowEvent', subType: 'messageEventDefinition' },
-            '(throw:signal)': { type: 'intermediateThrowEvent', subType: 'signalEventDefinition' },
-            '(throw:escalation)': { type: 'intermediateThrowEvent', subType: 'escalationEventDefinition' },
-            '(throw:compensation)': { type: 'intermediateThrowEvent', subType: 'compensateEventDefinition' },
-            '(throw:link)': { type: 'intermediateThrowEvent', subType: 'linkEventDefinition' },
-            
-            // End Events
-            '(end)': { type: 'endEvent', subType: null },
-            '(error)': { type: 'endEvent', subType: 'errorEventDefinition' },
-            '(end:message)': { type: 'endEvent', subType: 'messageEventDefinition' },
-            '(end:signal)': { type: 'endEvent', subType: 'signalEventDefinition' },
-            '(end:escalation)': { type: 'endEvent', subType: 'escalationEventDefinition' },
-            '(end:compensation)': { type: 'endEvent', subType: 'compensateEventDefinition' },
-            '(end:cancel)': { type: 'endEvent', subType: 'cancelEventDefinition' },
-            '(terminate)': { type: 'endEvent', subType: 'terminateEventDefinition' },
-        };
-
-        // Gateway patterns
-        const GATEWAY_PATTERNS = [
-            { prefix: '<+', type: 'parallelGateway' },
-            { prefix: '<o', type: 'inclusiveGateway' },
-            { prefix: '<*', type: 'complexGateway' },
-            { prefix: '<@+', type: 'eventBasedGateway', parallelMultiple: true },
-            { prefix: '<@', type: 'eventBasedGateway' },
-            { prefix: '<', type: 'exclusiveGateway' }, // Default - must be last
-        ];
-
-        // Task type patterns
-        const TASK_PATTERNS = [
-            { prefix: 'user:', type: 'userTask' },
-            { prefix: 'service:', type: 'serviceTask' },
-            { prefix: 'script:', type: 'scriptTask' },
-            { prefix: 'rule:', type: 'businessRuleTask' },
-            { prefix: 'send:', type: 'sendTask' },
-            { prefix: 'receive:', type: 'receiveTask' },
-            { prefix: 'manual:', type: 'manualTask' },
-            { prefix: 'call:', type: 'callActivity' },
-        ];
-
-        // Initialize
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
-            initMermaid();
             initResizer();
+            initViewer();
+            renderReference();
             
-            document.getElementById('codeEditor').value = examples.flowchart;
-            renderDiagram();
+            document.getElementById('codeEditor').value = EXAMPLES.simple;
+            render();
 
             document.getElementById('codeEditor').addEventListener('input', () => {
                 clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(renderDiagram, 300);
+                debounceTimer = setTimeout(render, 400);
+            });
+
+            // Close dropdowns on outside click
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+                }
             });
         });
 
-        // Theme
-        function initTheme() {
-            const toggle = document.getElementById('themeToggle');
-            const saved = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        function initViewer() {
+            bpmnViewer = new BpmnJS({
+                container: '#bpmn-canvas'
+            });
             
-            if (saved === 'light' || (!saved && !prefersDark)) {
+            // Update zoom display when user scrolls to zoom
+            const container = document.getElementById('bpmn-canvas');
+            container.addEventListener('wheel', () => {
+                // Debounce the zoom display update
+                setTimeout(updateZoomDisplay, 50);
+            });
+        }
+
+        // ============================================================
+        // THEME
+        // ============================================================
+        function initTheme() {
+            const saved = localStorage.getItem('bpmn-theme');
+            if (saved === 'light') {
                 document.documentElement.setAttribute('data-theme', 'light');
             }
-
-            toggle.addEventListener('click', () => {
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-                const newTheme = isDark ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                
-                if (currentMode === 'mermaid') {
-                    initMermaid();
-                    renderDiagram();
-                }
-            });
         }
 
-        // Legend mode toggle
-        function setLegendMode(mode) {
-            legendMode = mode;
-            const help = document.getElementById('bpmnHelp');
-            const btns = document.querySelectorAll('.legend-toggle-btn');
+        function toggleTheme() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+            localStorage.setItem('bpmn-theme', isLight ? 'dark' : 'light');
+        }
+
+        // ============================================================
+        // REFERENCE PANEL
+        // ============================================================
+        function renderReference() {
+            const content = document.getElementById('referenceContent');
+            const data = REFERENCE_DATA[currentRefTab];
             
-            btns.forEach(btn => btn.classList.remove('active'));
+            let html = '';
+            for (const [section, items] of Object.entries(data)) {
+                html += `<div class="ref-section">
+                    <div class="ref-section-title">${section}</div>
+                    <div class="ref-grid">
+                        ${items.map(item => `
+                            <div class="ref-item" onclick="insertCode('${escapeHtml(item.code)}')">
+                                <code>${escapeHtml(item.code)}</code>
+                                <span>${item.desc}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+            content.innerHTML = html;
+        }
+
+        function setRefTab(tab) {
+            currentRefTab = tab;
+            document.querySelectorAll('.reference-tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
-            
-            if (mode === 'complete') {
-                help.classList.add('complete');
-            } else {
-                help.classList.remove('complete');
-            }
+            renderReference();
         }
 
-        // Mermaid
-        function initMermaid() {
-            const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-            mermaid.initialize({
-                startOnLoad: false,
-                theme: isDark ? 'dark' : 'default',
-                securityLevel: 'loose',
-                flowchart: { useMaxWidth: true, htmlLabels: true },
-                sequence: { useMaxWidth: true },
-            });
-        }
-
-        // Set mode
-        function setMode(mode) {
-            currentMode = mode;
-            
-            document.getElementById('mermaidModeBtn').classList.toggle('active', mode === 'mermaid');
-            document.getElementById('bpmnModeBtn').classList.toggle('active', mode === 'bpmn');
-            document.getElementById('bpmnHelp').style.display = mode === 'bpmn' ? 'block' : 'none';
-            
-            document.getElementById('mermaid-output').style.display = mode === 'mermaid' ? 'block' : 'none';
-            document.getElementById('bpmn-container').style.display = mode === 'bpmn' ? 'block' : 'none';
-
-            document.body.classList.toggle('bpmn-mode', mode === 'bpmn');
-
+        function insertCode(code) {
             const editor = document.getElementById('codeEditor');
-            if (mode === 'mermaid' && (editor.value.includes('(start)') || editor.value.includes('(end)'))) {
-                editor.value = examples.flowchart;
-            } else if (mode === 'bpmn' && !editor.value.includes('(start)') && !editor.value.includes('(end)')) {
-                editor.value = examples['bpmn-simple'];
-            }
-
-            renderDiagram();
-        }
-
-        // Render
-        async function renderDiagram() {
-            const code = document.getElementById('codeEditor').value.trim();
-            if (!code) return;
-
-            if (currentMode === 'mermaid') {
-                await renderMermaid(code);
-            } else {
-                await renderBPMN(code);
-            }
-        }
-
-        async function renderMermaid(code) {
-            const output = document.getElementById('mermaid-output');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const value = editor.value;
             
-            try {
-                const { svg } = await mermaid.render('mermaid-svg', code);
-                output.innerHTML = svg;
-                output.style.transform = `scale(${zoomLevel})`;
-                document.getElementById('previewContent').classList.remove('align-start');
-            } catch (error) {
-                output.innerHTML = `
-                    <div class="preview-error">
-                        <div class="preview-error-title">Syntax Error</div>
-                        <div class="preview-error-message">${error.message || 'Invalid diagram syntax'}</div>
-                    </div>
-                `;
-            }
-        }
-
-        async function renderBPMN(code) {
-            const container = document.getElementById('bpmn-container');
-            document.getElementById('previewContent').classList.add('align-start');
+            editor.value = value.substring(0, start) + code + value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + code.length;
+            editor.focus();
             
-            try {
-                const xml = convertToBPMNXml(code);
-                lastBpmnXml = xml;
-                
-                if (!bpmnViewer) {
-                    bpmnViewer = new BpmnJS({ container: container });
-                }
-                
-                await bpmnViewer.importXML(xml);
-                bpmnViewer.get('canvas').zoom('fit-viewport');
-            } catch (error) {
-                lastBpmnXml = null;
-                container.innerHTML = `
-                    <div class="preview-error" style="margin: 2rem;">
-                        <div class="preview-error-title">BPMN Error</div>
-                        <div class="preview-error-message">${error.message || 'Invalid BPMN syntax'}</div>
-                    </div>
-                `;
-            }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(render, 400);
+            
+            showToast('Inserted: ' + code);
         }
 
-        // Parse element from DSL part
-        function parseElement(part) {
-            let type = 'task';
-            let subType = null;
-            let name = part;
-            let width = 100;
-            let height = 80;
-            let taskType = null;
-
-            // Check for comments/annotations
-            if (part.startsWith('//')) {
-                return {
-                    type: 'textAnnotation',
-                    name: part.slice(2).trim(),
-                    width: 120,
-                    height: 50,
-                    subType: null,
-                    taskType: null
-                };
-            }
-
-            // Check for data objects
-            if (part.startsWith('{data:') && part.endsWith('}')) {
-                return {
-                    type: 'dataObjectReference',
-                    name: part.slice(6, -1).trim(),
-                    width: 36,
-                    height: 50,
-                    subType: null,
-                    taskType: null
-                };
-            }
-
-            // Check for data stores
-            if (part.startsWith('{store:') && part.endsWith('}')) {
-                return {
-                    type: 'dataStoreReference',
-                    name: part.slice(7, -1).trim(),
-                    width: 50,
-                    height: 50,
-                    subType: null,
-                    taskType: null
-                };
-            }
-
-            // Check for known event patterns
-            const lowerPart = part.toLowerCase();
-            for (const [pattern, config] of Object.entries(BPMN_ELEMENTS)) {
-                if (lowerPart === pattern.toLowerCase()) {
-                    return {
-                        type: config.type,
-                        subType: config.subType,
-                        name: '',
-                        width: 36,
-                        height: 36,
-                        taskType: null
-                    };
-                }
-            }
-
-            // Check for gateways
-            if (part.startsWith('<') && part.endsWith('>')) {
-                const gatewayContent = part.slice(1, -1);
-                
-                for (const gw of GATEWAY_PATTERNS) {
-                    const checkPrefix = gw.prefix.slice(1); // Remove leading <
-                    if (gatewayContent.startsWith(checkPrefix)) {
-                        return {
-                            type: gw.type,
-                            name: gatewayContent.slice(checkPrefix.length).trim(),
-                            width: 50,
-                            height: 50,
-                            subType: gw.parallelMultiple ? 'parallelMultiple' : null,
-                            taskType: null
-                        };
-                    }
-                }
-                
-                // Default exclusive gateway
-                return {
-                    type: 'exclusiveGateway',
-                    name: gatewayContent,
-                    width: 50,
-                    height: 50,
-                    subType: null,
-                    taskType: null
-                };
-            }
-
-            // Check for sub-processes
-            if (part.startsWith('[[') && part.endsWith(']]')) {
-                return {
-                    type: 'subProcess',
-                    name: part.slice(2, -2).trim(),
-                    width: 120,
-                    height: 100,
-                    subType: null,
-                    taskType: null
-                };
-            }
-
-            // Check for tasks with type prefix
-            if (part.startsWith('[') && part.endsWith(']')) {
-                let taskContent = part.slice(1, -1).trim();
-                let detectedTaskType = 'task';
-                
-                for (const tp of TASK_PATTERNS) {
-                    if (taskContent.toLowerCase().startsWith(tp.prefix.toLowerCase())) {
-                        detectedTaskType = tp.type;
-                        taskContent = taskContent.slice(tp.prefix.length).trim();
-                        break;
-                    }
-                }
-                
-                return {
-                    type: detectedTaskType,
-                    name: taskContent,
-                    width: 100,
-                    height: 80,
-                    subType: null,
-                    taskType: detectedTaskType
-                };
-            }
-
-            // Default task
-            return {
-                type: 'task',
-                name: part,
-                width: 100,
-                height: 80,
-                subType: null,
-                taskType: null
-            };
-        }
-
-        // Convert DSL to BPMN XML
-        function convertToBPMNXml(code) {
-            const lines = code.split('\n').filter(l => l.trim() && !l.trim().startsWith('//'));
+        // ============================================================
+        // DSL PARSER
+        // ============================================================
+        function parseDSL(code) {
             const elements = new Map();
             const flows = [];
-            const annotations = [];
+            const pools = [];
+            const lanes = [];
+            const boundaryEvents = [];
             let elementId = 0;
+            
+            // Normalize connectors
+            let normalized = code
+                .replace(/~~>/g, '->')
+                .replace(/-->/g, '->');
+            
+            // Split into lines, filter empty and pure comments
+            const lines = normalized.split('\n')
+                .map(l => l.trim())
+                .filter(l => l && !l.startsWith('//'));
 
-            // Parse all elements and flows
+            // Parse each line
             lines.forEach(line => {
-                // Handle annotations separately
-                if (line.trim().startsWith('//')) {
-                    annotations.push({
-                        id: `Annotation_${++elementId}`,
-                        text: line.trim().slice(2).trim()
-                    });
+                // Skip pool/lane definitions for now (simplified)
+                if (line.startsWith('pool ') || line.startsWith('lane ') || line === '{' || line === '}') {
                     return;
                 }
 
-                // Normalize all connector types to -> for parsing
-                // Supports: -> (sequence), ~~> (message), --> (association)
-                let normalizedLine = line
-                    .replace(/~~>/g, '->')
-                    .replace(/-->/g, '->');
-
-                const parts = normalizedLine.split('->').map(p => p.trim()).filter(p => p);
+                // Split by connector
+                const parts = line.split('->').map(p => p.trim()).filter(p => p);
                 
                 for (let i = 0; i < parts.length; i++) {
                     let part = parts[i];
                     let condition = null;
                     
-                    // Check for condition
+                    // Extract condition label |Yes|
                     const condMatch = part.match(/^\|([^|]+)\|\s*(.+)$/);
                     if (condMatch) {
                         condition = condMatch[1];
                         part = condMatch[2];
                     }
                     
-                    // Create element if not exists
+                    // Parse element
                     if (!elements.has(part)) {
                         elementId++;
-                        const parsed = parseElement(part);
-                        
-                        elements.set(part, { 
-                            id: `Element_${elementId}`, 
-                            type: parsed.type,
-                            subType: parsed.subType,
-                            taskType: parsed.taskType,
-                            name: parsed.name,
-                            key: part,
-                            width: parsed.width,
-                            height: parsed.height
-                        });
+                        const parsed = parseElement(part, elementId);
+                        elements.set(part, parsed);
                     }
                     
-                    // Create flow from previous element
+                    // Create flow
                     if (i > 0) {
                         let sourcePart = parts[i - 1];
-                        const srcCondMatch = sourcePart.match(/^\|([^|]+)\|\s*(.+)$/);
-                        if (srcCondMatch) {
-                            sourcePart = srcCondMatch[2];
-                        }
+                        const srcCond = sourcePart.match(/^\|([^|]+)\|\s*(.+)$/);
+                        if (srcCond) sourcePart = srcCond[2];
                         
                         const source = elements.get(sourcePart);
                         const target = elements.get(part);
@@ -1375,213 +1282,232 @@
                                 targetRef: target.id,
                                 sourceKey: sourcePart,
                                 targetKey: part,
-                                name: condition || ''
+                                name: condition || '',
+                                isDefault: condition === 'default'
                             });
                         }
                     }
                 }
             });
 
-            // Use dagre for layout
+            return { elements, flows, pools, lanes, boundaryEvents };
+        }
+
+        function parseElement(part, id) {
+            const elementId = `Element_${id}`;
+            
+            // Check events
+            const lowerPart = part.toLowerCase();
+            for (const [pattern, config] of Object.entries(ALL_EVENTS)) {
+                if (lowerPart === pattern) {
+                    return {
+                        id: elementId,
+                        key: part,
+                        type: config.type,
+                        trigger: config.trigger,
+                        name: '',
+                        width: 36,
+                        height: 36
+                    };
+                }
+            }
+
+            // Check gateways
+            if (part.startsWith('<') && part.endsWith('>')) {
+                const content = part.slice(1, -1);
+                let gwType = 'exclusiveGateway';
+                let name = content;
+                
+                // Check gateway prefixes
+                for (const [prefix, config] of Object.entries(GATEWAY_TYPES)) {
+                    const checkPrefix = prefix.slice(1); // Remove <
+                    if (content.startsWith(checkPrefix) && checkPrefix !== '') {
+                        gwType = config.type;
+                        name = content.slice(checkPrefix.length).trim();
+                        break;
+                    }
+                }
+                
+                return {
+                    id: elementId,
+                    key: part,
+                    type: gwType,
+                    name: name,
+                    width: 50,
+                    height: 50
+                };
+            }
+
+            // Check sub-processes [[...]]
+            if (part.startsWith('[[') && part.endsWith(']]')) {
+                const content = part.slice(2, -2).trim();
+                let subType = 'subProcess';
+                let name = content;
+                
+                for (const [prefix, config] of Object.entries(SUBPROCESS_TYPES)) {
+                    if (content.toLowerCase().startsWith(prefix)) {
+                        subType = config.type;
+                        name = content.slice(prefix.length).trim();
+                        break;
+                    }
+                }
+                
+                return {
+                    id: elementId,
+                    key: part,
+                    type: subType,
+                    name: name,
+                    width: 120,
+                    height: 80
+                };
+            }
+
+            // Check tasks [...]
+            if (part.startsWith('[') && part.endsWith(']')) {
+                const content = part.slice(1, -1).trim();
+                let taskType = 'task';
+                let name = content;
+                let marker = null;
+                
+                // Check for markers
+                for (const [markerSuffix, markerConfig] of Object.entries(TASK_MARKERS)) {
+                    if (content.endsWith(markerSuffix)) {
+                        marker = markerConfig;
+                        name = content.slice(0, -markerSuffix.length).trim();
+                        break;
+                    }
+                }
+                
+                // Check for call activity (special case - uses single brackets)
+                if (name.toLowerCase().startsWith('call:')) {
+                    return {
+                        id: elementId,
+                        key: part,
+                        type: 'callActivity',
+                        name: name.slice(5).trim(),
+                        marker: marker,
+                        width: 100,
+                        height: 80
+                    };
+                }
+                
+                // Check for task type prefix
+                for (const [prefix, config] of Object.entries(TASK_TYPES)) {
+                    if (prefix && name.toLowerCase().startsWith(prefix)) {
+                        taskType = config.type;
+                        name = name.slice(prefix.length).trim();
+                        break;
+                    }
+                }
+                
+                return {
+                    id: elementId,
+                    key: part,
+                    type: taskType,
+                    name: name,
+                    marker: marker,
+                    width: 100,
+                    height: 80
+                };
+            }
+
+            // Check data objects
+            if (part.startsWith('{') && part.endsWith('}')) {
+                const content = part.slice(1, -1).trim();
+                let dataType = 'dataObjectReference';
+                let name = content;
+                
+                for (const [prefix, config] of Object.entries(DATA_TYPES)) {
+                    const checkPrefix = prefix.slice(1); // Remove {
+                    if (content.toLowerCase().startsWith(checkPrefix)) {
+                        dataType = config.type;
+                        name = content.slice(checkPrefix.length).trim();
+                        break;
+                    }
+                }
+                
+                return {
+                    id: elementId,
+                    key: part,
+                    type: dataType,
+                    name: name,
+                    width: 36,
+                    height: 50
+                };
+            }
+
+            // Check text annotations
+            if (part.startsWith('//')) {
+                return {
+                    id: elementId,
+                    key: part,
+                    type: 'textAnnotation',
+                    name: part.slice(2).trim(),
+                    width: 100,
+                    height: 50
+                };
+            }
+
+            // Default: treat as task
+            return {
+                id: elementId,
+                key: part,
+                type: 'task',
+                name: part,
+                width: 100,
+                height: 80
+            };
+        }
+
+        // ============================================================
+        // BPMN XML GENERATOR
+        // ============================================================
+        function generateBPMNXml(parsed) {
+            const { elements, flows } = parsed;
+            
+            // Layout with dagre
             const g = new dagre.graphlib.Graph();
-            g.setGraph({
-                rankdir: 'LR',
-                nodesep: 60,
-                ranksep: 80,
-                marginx: 50,
-                marginy: 50
-            });
+            g.setGraph({ rankdir: 'LR', nodesep: 60, ranksep: 100, marginx: 50, marginy: 50 });
             g.setDefaultEdgeLabel(() => ({}));
 
-            // Add nodes
             elements.forEach((el, key) => {
-                g.setNode(key, { 
-                    width: el.width, 
-                    height: el.height,
-                    element: el
-                });
+                g.setNode(key, { width: el.width, height: el.height, element: el });
             });
 
-            // Add edges
             flows.forEach(flow => {
                 g.setEdge(flow.sourceKey, flow.targetKey);
             });
 
-            // Calculate layout
             dagre.layout(g);
 
-            // Extract positions
+            // Get positions
             const positions = new Map();
             g.nodes().forEach(key => {
                 const node = g.node(key);
                 if (node) {
                     positions.set(key, {
-                        x: node.x - node.width / 2,
-                        y: node.y - node.height / 2,
+                        x: Math.round(node.x - node.width / 2),
+                        y: Math.round(node.y - node.height / 2),
                         width: node.width,
                         height: node.height
                     });
                 }
             });
 
-            // Generate BPMN XML
+            // Generate XML
             let processContent = '';
             let shapeContent = '';
-            let edgeContent = '';
 
             elements.forEach((el, key) => {
                 const pos = positions.get(key) || { x: 100, y: 100 };
-                const eventDefinition = el.subType ? `<bpmn:${el.subType}/>` : '';
-                
-                // Process content based on type
-                switch (el.type) {
-                    case 'startEvent':
-                        processContent += `<bpmn:startEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:startEvent>\n`;
-                        shapeContent += generateShape(el.id, pos, 36, 36);
-                        break;
-                        
-                    case 'endEvent':
-                        processContent += `<bpmn:endEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:endEvent>\n`;
-                        shapeContent += generateShape(el.id, pos, 36, 36);
-                        break;
-                        
-                    case 'intermediateCatchEvent':
-                        processContent += `<bpmn:intermediateCatchEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:intermediateCatchEvent>\n`;
-                        shapeContent += generateShape(el.id, pos, 36, 36);
-                        break;
-                        
-                    case 'intermediateThrowEvent':
-                        processContent += `<bpmn:intermediateThrowEvent id="${el.id}" name="${escapeXml(el.name)}">${eventDefinition}</bpmn:intermediateThrowEvent>\n`;
-                        shapeContent += generateShape(el.id, pos, 36, 36);
-                        break;
-                        
-                    case 'exclusiveGateway':
-                        processContent += `<bpmn:exclusiveGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateGatewayShape(el.id, pos, el.name);
-                        break;
-                        
-                    case 'parallelGateway':
-                        processContent += `<bpmn:parallelGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateGatewayShape(el.id, pos, el.name);
-                        break;
-                        
-                    case 'inclusiveGateway':
-                        processContent += `<bpmn:inclusiveGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateGatewayShape(el.id, pos, el.name);
-                        break;
-                        
-                    case 'complexGateway':
-                        processContent += `<bpmn:complexGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateGatewayShape(el.id, pos, el.name);
-                        break;
-                        
-                    case 'eventBasedGateway':
-                        processContent += `<bpmn:eventBasedGateway id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateGatewayShape(el.id, pos, el.name);
-                        break;
-                        
-                    case 'userTask':
-                        processContent += `<bpmn:userTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'serviceTask':
-                        processContent += `<bpmn:serviceTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'scriptTask':
-                        processContent += `<bpmn:scriptTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'businessRuleTask':
-                        processContent += `<bpmn:businessRuleTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'sendTask':
-                        processContent += `<bpmn:sendTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'receiveTask':
-                        processContent += `<bpmn:receiveTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'manualTask':
-                        processContent += `<bpmn:manualTask id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'callActivity':
-                        processContent += `<bpmn:callActivity id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                        break;
-                        
-                    case 'subProcess':
-                        processContent += `<bpmn:subProcess id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 120, 100, true);
-                        break;
-                        
-                    case 'dataObjectReference':
-                        processContent += `<bpmn:dataObjectReference id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 36, 50);
-                        break;
-                        
-                    case 'dataStoreReference':
-                        processContent += `<bpmn:dataStoreReference id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 50, 50);
-                        break;
-                        
-                    case 'textAnnotation':
-                        processContent += `<bpmn:textAnnotation id="${el.id}"><bpmn:text>${escapeXml(el.name)}</bpmn:text></bpmn:textAnnotation>\n`;
-                        shapeContent += generateShape(el.id, pos, 120, 50);
-                        break;
-                        
-                    default:
-                        processContent += `<bpmn:task id="${el.id}" name="${escapeXml(el.name)}"/>\n`;
-                        shapeContent += generateShape(el.id, pos, 100, 80);
-                }
+                processContent += generateElementXml(el);
+                shapeContent += generateShapeXml(el, pos);
             });
 
-            // Generate edges
+            let edgeContent = '';
             flows.forEach(flow => {
-                const sourceEl = elements.get(flow.sourceKey);
-                const targetEl = elements.get(flow.targetKey);
-                const sp = positions.get(flow.sourceKey);
-                const tp = positions.get(flow.targetKey);
-                
-                if (!sp || !tp || !sourceEl || !targetEl) return;
-                
-                const edge = g.edge(flow.sourceKey, flow.targetKey);
-                
-                processContent += `<bpmn:sequenceFlow id="${flow.id}" name="${escapeXml(flow.name)}" sourceRef="${flow.sourceRef}" targetRef="${flow.targetRef}"/>\n`;
-                
-                let waypointsXml = '';
-                if (edge && edge.points && edge.points.length > 0) {
-                    edge.points.forEach(pt => {
-                        waypointsXml += `<di:waypoint x="${Math.round(pt.x)}" y="${Math.round(pt.y)}"/>\n`;
-                    });
-                } else {
-                    const sx = sp.x + sp.width;
-                    const sy = sp.y + sp.height / 2;
-                    const tx = tp.x;
-                    const ty = tp.y + tp.height / 2;
-                    waypointsXml = `<di:waypoint x="${sx}" y="${sy}"/>\n<di:waypoint x="${tx}" y="${ty}"/>\n`;
-                }
-                
-                let labelXml = '';
-                if (flow.name && edge && edge.points && edge.points.length >= 2) {
-                    const midIdx = Math.floor(edge.points.length / 2);
-                    const midPt = edge.points[midIdx];
-                    labelXml = `<bpmndi:BPMNLabel><dc:Bounds x="${Math.round(midPt.x) - 15}" y="${Math.round(midPt.y) - 20}" width="40" height="14"/></bpmndi:BPMNLabel>`;
-                }
-                
-                edgeContent += `<bpmndi:BPMNEdge id="${flow.id}_di" bpmnElement="${flow.id}">
-                    ${waypointsXml}${labelXml}
-                </bpmndi:BPMNEdge>\n`;
+                processContent += generateFlowXml(flow);
+                edgeContent += generateEdgeXml(flow, g, positions, elements);
             });
 
             return `<?xml version="1.0" encoding="UTF-8"?>
@@ -1589,140 +1515,414 @@
     xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
     xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
     xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-    id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
-    <bpmn:process id="Process_1" isExecutable="false">
-        ${processContent}
-    </bpmn:process>
-    <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-        <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
-            ${shapeContent}
-            ${edgeContent}
-        </bpmndi:BPMNPlane>
-    </bpmndi:BPMNDiagram>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    id="Definitions_1"
+    targetNamespace="http://bpmn.io/schema/bpmn"
+    exporter="BPMN 2.0 Editor"
+    exporterVersion="1.0">
+  <bpmn:process id="Process_1" isExecutable="false">
+${processContent}  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+${shapeContent}${edgeContent}    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </bpmn:definitions>`;
         }
 
-        function generateShape(id, pos, width, height, isExpanded = false) {
-            const expanded = isExpanded ? ' isExpanded="false"' : '';
-            return `<bpmndi:BPMNShape id="${id}_di" bpmnElement="${id}"${expanded}>
-                <dc:Bounds x="${Math.round(pos.x)}" y="${Math.round(pos.y)}" width="${width}" height="${height}"/>
-            </bpmndi:BPMNShape>\n`;
-        }
-
-        function generateGatewayShape(id, pos, name) {
-            return `<bpmndi:BPMNShape id="${id}_di" bpmnElement="${id}" isMarkerVisible="true">
-                <dc:Bounds x="${Math.round(pos.x)}" y="${Math.round(pos.y)}" width="50" height="50"/>
-                <bpmndi:BPMNLabel><dc:Bounds x="${Math.round(pos.x) - 5}" y="${Math.round(pos.y) + 58}" width="60" height="14"/></bpmndi:BPMNLabel>
-            </bpmndi:BPMNShape>\n`;
-        }
-
-        function escapeXml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;')
-                      .replace(/</g, '&lt;')
-                      .replace(/>/g, '&gt;')
-                      .replace(/"/g, '&quot;')
-                      .replace(/'/g, '&apos;');
-        }
-
-        // Load example
-        function loadExample(name) {
-            closeExamples();
+        function generateElementXml(el) {
+            const name = escapeXml(el.name);
+            const trigger = el.trigger ? `<bpmn:${el.trigger}/>` : '';
             
-            if (name.startsWith('bpmn-')) {
-                setMode('bpmn');
-            } else {
-                setMode('mermaid');
+            // Handle markers
+            let markerXml = '';
+            if (el.marker) {
+                if (el.marker.loopCharacteristics === 'standardLoopCharacteristics') {
+                    markerXml = '<bpmn:standardLoopCharacteristics/>';
+                } else if (el.marker.loopCharacteristics === 'multiInstanceLoopCharacteristics') {
+                    const seq = el.marker.isSequential ? ' isSequential="true"' : '';
+                    markerXml = `<bpmn:multiInstanceLoopCharacteristics${seq}/>`;
+                }
+            }
+
+            switch (el.type) {
+                case 'startEvent':
+                    return `    <bpmn:startEvent id="${el.id}" name="${name}">${trigger}</bpmn:startEvent>\n`;
+                case 'endEvent':
+                    return `    <bpmn:endEvent id="${el.id}" name="${name}">${trigger}</bpmn:endEvent>\n`;
+                case 'intermediateCatchEvent':
+                    return `    <bpmn:intermediateCatchEvent id="${el.id}" name="${name}">${trigger}</bpmn:intermediateCatchEvent>\n`;
+                case 'intermediateThrowEvent':
+                    return `    <bpmn:intermediateThrowEvent id="${el.id}" name="${name}">${trigger}</bpmn:intermediateThrowEvent>\n`;
+                case 'task':
+                    return `    <bpmn:task id="${el.id}" name="${name}">${markerXml}</bpmn:task>\n`;
+                case 'userTask':
+                    return `    <bpmn:userTask id="${el.id}" name="${name}">${markerXml}</bpmn:userTask>\n`;
+                case 'serviceTask':
+                    return `    <bpmn:serviceTask id="${el.id}" name="${name}">${markerXml}</bpmn:serviceTask>\n`;
+                case 'scriptTask':
+                    return `    <bpmn:scriptTask id="${el.id}" name="${name}">${markerXml}</bpmn:scriptTask>\n`;
+                case 'businessRuleTask':
+                    return `    <bpmn:businessRuleTask id="${el.id}" name="${name}">${markerXml}</bpmn:businessRuleTask>\n`;
+                case 'sendTask':
+                    return `    <bpmn:sendTask id="${el.id}" name="${name}">${markerXml}</bpmn:sendTask>\n`;
+                case 'receiveTask':
+                    return `    <bpmn:receiveTask id="${el.id}" name="${name}">${markerXml}</bpmn:receiveTask>\n`;
+                case 'manualTask':
+                    return `    <bpmn:manualTask id="${el.id}" name="${name}">${markerXml}</bpmn:manualTask>\n`;
+                case 'subProcess':
+                    return `    <bpmn:subProcess id="${el.id}" name="${name}"/>\n`;
+                case 'callActivity':
+                    return `    <bpmn:callActivity id="${el.id}" name="${name}"/>\n`;
+                case 'transaction':
+                    return `    <bpmn:transaction id="${el.id}" name="${name}"/>\n`;
+                case 'adHocSubProcess':
+                    return `    <bpmn:adHocSubProcess id="${el.id}" name="${name}"/>\n`;
+                case 'exclusiveGateway':
+                    return `    <bpmn:exclusiveGateway id="${el.id}" name="${name}"/>\n`;
+                case 'parallelGateway':
+                    return `    <bpmn:parallelGateway id="${el.id}" name="${name}"/>\n`;
+                case 'inclusiveGateway':
+                    return `    <bpmn:inclusiveGateway id="${el.id}" name="${name}"/>\n`;
+                case 'complexGateway':
+                    return `    <bpmn:complexGateway id="${el.id}" name="${name}"/>\n`;
+                case 'eventBasedGateway':
+                    return `    <bpmn:eventBasedGateway id="${el.id}" name="${name}"/>\n`;
+                case 'dataObjectReference':
+                    return `    <bpmn:dataObjectReference id="${el.id}" name="${name}"/>\n`;
+                case 'dataStoreReference':
+                    return `    <bpmn:dataStoreReference id="${el.id}" name="${name}"/>\n`;
+                case 'textAnnotation':
+                    return `    <bpmn:textAnnotation id="${el.id}"><bpmn:text>${name}</bpmn:text></bpmn:textAnnotation>\n`;
+                default:
+                    return `    <bpmn:task id="${el.id}" name="${name}"/>\n`;
+            }
+        }
+
+        function generateShapeXml(el, pos) {
+            const isGateway = el.type.includes('Gateway');
+            const isEvent = el.type.includes('Event');
+            const markerVisible = isGateway ? ' isMarkerVisible="true"' : '';
+            
+            let labelXml = '';
+            if ((isGateway || isEvent) && el.name) {
+                labelXml = `\n        <bpmndi:BPMNLabel>
+          <dc:Bounds x="${pos.x - 10}" y="${pos.y + pos.height + 5}" width="${pos.width + 20}" height="14"/>
+        </bpmndi:BPMNLabel>`;
             }
             
-            document.getElementById('codeEditor').value = examples[name];
-            renderDiagram();
+            return `      <bpmndi:BPMNShape id="${el.id}_di" bpmnElement="${el.id}"${markerVisible}>
+        <dc:Bounds x="${pos.x}" y="${pos.y}" width="${pos.width}" height="${pos.height}"/>${labelXml}
+      </bpmndi:BPMNShape>\n`;
         }
 
-        // Dropdown handlers
-        function toggleExamples() {
-            document.getElementById('examplesMenu').classList.toggle('open');
+        function generateFlowXml(flow) {
+            const name = flow.name ? ` name="${escapeXml(flow.name)}"` : '';
+            return `    <bpmn:sequenceFlow id="${flow.id}"${name} sourceRef="${flow.sourceRef}" targetRef="${flow.targetRef}"/>\n`;
         }
 
-        function closeExamples() {
-            document.getElementById('examplesMenu').classList.remove('open');
+        function generateEdgeXml(flow, g, positions, elements) {
+            const sourceEl = elements.get(flow.sourceKey);
+            const targetEl = elements.get(flow.targetKey);
+            const sp = positions.get(flow.sourceKey);
+            const tp = positions.get(flow.targetKey);
+            
+            if (!sp || !tp || !sourceEl || !targetEl) {
+                return '';
+            }
+
+            // Calculate connection points based on relative positions
+            let waypoints = '';
+            
+            // Source center
+            const srcCenterX = sp.x + sp.width / 2;
+            const srcCenterY = sp.y + sp.height / 2;
+            
+            // Target center
+            const tgtCenterX = tp.x + tp.width / 2;
+            const tgtCenterY = tp.y + tp.height / 2;
+            
+            // Determine connection sides based on relative position
+            const dx = tgtCenterX - srcCenterX;
+            const dy = tgtCenterY - srcCenterY;
+            
+            // Check if this is a "backwards" flow (target is to the left of source)
+            const isBackwardsFlow = dx < -50;
+            
+            if (isBackwardsFlow) {
+                // Route backwards flows: go down from source, left, then up to target
+                const srcX = srcCenterX;
+                const srcY = sp.y + sp.height; // Bottom of source
+                const tgtX = tgtCenterX;
+                const tgtY = tp.y + tp.height; // Bottom of target
+                
+                // Go below both elements
+                const routeY = Math.max(srcY, tgtY) + 40;
+                
+                waypoints = `        <di:waypoint x="${Math.round(srcX)}" y="${Math.round(srcY)}"/>
+        <di:waypoint x="${Math.round(srcX)}" y="${Math.round(routeY)}"/>
+        <di:waypoint x="${Math.round(tgtX)}" y="${Math.round(routeY)}"/>
+        <di:waypoint x="${Math.round(tgtX)}" y="${Math.round(tgtY)}"/>\n`;
+            } else {
+                // Normal left-to-right flow
+                const isHorizontal = Math.abs(dx) > Math.abs(dy);
+                
+                let srcX, srcY, tgtX, tgtY;
+                
+                if (isHorizontal) {
+                    if (dx > 0) {
+                        // Target is to the right - connect right side to left side
+                        srcX = sp.x + sp.width;
+                        srcY = srcCenterY;
+                        tgtX = tp.x;
+                        tgtY = tgtCenterY;
+                    } else {
+                        // Target is slightly to the left but close - connect left to right
+                        srcX = sp.x;
+                        srcY = srcCenterY;
+                        tgtX = tp.x + tp.width;
+                        tgtY = tgtCenterY;
+                    }
+                    
+                    // If there's significant vertical difference, add intermediate waypoints
+                    if (Math.abs(dy) > 20) {
+                        const midX = (srcX + tgtX) / 2;
+                        waypoints = `        <di:waypoint x="${Math.round(srcX)}" y="${Math.round(srcY)}"/>
+        <di:waypoint x="${Math.round(midX)}" y="${Math.round(srcY)}"/>
+        <di:waypoint x="${Math.round(midX)}" y="${Math.round(tgtY)}"/>
+        <di:waypoint x="${Math.round(tgtX)}" y="${Math.round(tgtY)}"/>\n`;
+                    } else {
+                        waypoints = `        <di:waypoint x="${Math.round(srcX)}" y="${Math.round(srcY)}"/>
+        <di:waypoint x="${Math.round(tgtX)}" y="${Math.round(tgtY)}"/>\n`;
+                    }
+                } else {
+                    if (dy > 0) {
+                        // Target is below - connect bottom to top
+                        srcX = srcCenterX;
+                        srcY = sp.y + sp.height;
+                        tgtX = tgtCenterX;
+                        tgtY = tp.y;
+                    } else {
+                        // Target is above - connect top to bottom
+                        srcX = srcCenterX;
+                        srcY = sp.y;
+                        tgtX = tgtCenterX;
+                        tgtY = tp.y + tp.height;
+                    }
+                    
+                    // If there's significant horizontal difference, add intermediate waypoints
+                    if (Math.abs(dx) > 20) {
+                        const midY = (srcY + tgtY) / 2;
+                        waypoints = `        <di:waypoint x="${Math.round(srcX)}" y="${Math.round(srcY)}"/>
+        <di:waypoint x="${Math.round(srcX)}" y="${Math.round(midY)}"/>
+        <di:waypoint x="${Math.round(tgtX)}" y="${Math.round(midY)}"/>
+        <di:waypoint x="${Math.round(tgtX)}" y="${Math.round(tgtY)}"/>\n`;
+                    } else {
+                        waypoints = `        <di:waypoint x="${Math.round(srcX)}" y="${Math.round(srcY)}"/>
+        <di:waypoint x="${Math.round(tgtX)}" y="${Math.round(tgtY)}"/>\n`;
+                    }
+                }
+            }
+
+            // Label positioning
+            let labelXml = '';
+            if (flow.name) {
+                const labelX = Math.min(sp.x, tp.x) + Math.abs(dx) / 2;
+                const labelY = Math.min(sp.y, tp.y) - 15;
+                labelXml = `        <bpmndi:BPMNLabel>
+          <dc:Bounds x="${Math.round(labelX)}" y="${Math.round(labelY)}" width="50" height="14"/>
+        </bpmndi:BPMNLabel>\n`;
+            }
+
+            return `      <bpmndi:BPMNEdge id="${flow.id}_di" bpmnElement="${flow.id}">
+${waypoints}${labelXml}      </bpmndi:BPMNEdge>\n`;
         }
 
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.examples-dropdown')) closeExamples();
-            if (!e.target.closest('.export-dropdown')) closeExportMenu();
+        // ============================================================
+        // RENDER
+        // ============================================================
+        async function render() {
+            const code = document.getElementById('codeEditor').value.trim();
+            if (!code) {
+                updateStatus('Empty', true);
+                return;
+            }
+
+            try {
+                const parsed = parseDSL(code);
+                const xml = generateBPMNXml(parsed);
+                lastBpmnXml = xml;
+
+                await bpmnViewer.importXML(xml);
+                centerDiagram();
+
+                updateStatus('Ready', false);
+                document.getElementById('elementCount').textContent = `${parsed.elements.size} elements`;
+            } catch (err) {
+                console.error('Render error:', err);
+                updateStatus('Error: ' + err.message, true);
+                lastBpmnXml = null;
+            }
+        }
+
+        function centerDiagram() {
+            if (!bpmnViewer) return;
+            
+            try {
+                const canvas = bpmnViewer.get('canvas');
+                canvas.zoom('fit-viewport');
+                updateZoomDisplay();
+            } catch (err) {
+                console.error('Center error:', err);
+                zoomLevel = 1;
+                document.getElementById('zoomLevel').textContent = '100%';
+            }
+        }
+
+        function updateStatus(text, isError) {
+            document.getElementById('statusText').textContent = text;
+            document.getElementById('statusDot').classList.toggle('error', isError);
+        }
+
+        // ============================================================
+        // ZOOM
+        // ============================================================
+        function zoomIn() {
+            if (!bpmnViewer) return;
+            
+            try {
+                const canvas = bpmnViewer.get('canvas');
+                zoomLevel = Math.min(zoomLevel + 0.2, 4);
+                canvas.zoom(zoomLevel);
+                document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+            } catch (err) {
+                console.error('Zoom error:', err);
+            }
+        }
+
+        function zoomOut() {
+            if (!bpmnViewer) return;
+            
+            try {
+                const canvas = bpmnViewer.get('canvas');
+                zoomLevel = Math.max(zoomLevel - 0.2, 0.2);
+                canvas.zoom(zoomLevel);
+                document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+            } catch (err) {
+                console.error('Zoom error:', err);
+            }
+        }
+        
+        function updateZoomDisplay() {
+            if (!bpmnViewer) return;
+            try {
+                const canvas = bpmnViewer.get('canvas');
+                zoomLevel = canvas.zoom();
+                document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+            } catch (err) {}
+        }
+
+        function fitView() {
+            centerDiagram();
+        }
+
+        // ============================================================
+        // PAN / NAVIGATION
+        // ============================================================
+        function panCanvas(deltaX, deltaY) {
+            if (!bpmnViewer) return;
+            
+            try {
+                const canvas = bpmnViewer.get('canvas');
+                const viewbox = canvas.viewbox();
+                
+                canvas.viewbox({
+                    x: viewbox.x - deltaX,
+                    y: viewbox.y - deltaY,
+                    width: viewbox.width,
+                    height: viewbox.height
+                });
+            } catch (err) {
+                console.error('Pan error:', err);
+            }
+        }
+
+        function resetView() {
+            centerDiagram();
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // Only handle if preview panel is focused or no input is focused
+            const activeEl = document.activeElement;
+            if (activeEl && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT')) {
+                return;
+            }
+            
+            const panAmount = e.shiftKey ? 200 : 80;
+            
+            switch (e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    panCanvas(0, -panAmount);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    panCanvas(0, panAmount);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    panCanvas(-panAmount, 0);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    panCanvas(panAmount, 0);
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    resetView();
+                    break;
+                case '+':
+                case '=':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        zoomIn();
+                    }
+                    break;
+                case '-':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        zoomOut();
+                    }
+                    break;
+            }
         });
 
-        // File handling
-        function loadFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const content = e.target.result;
-                document.getElementById('codeEditor').value = content;
-                
-                if (file.name.endsWith('.bpmn') || file.name.endsWith('.xml') || content.includes('bpmn:')) {
-                    setMode('bpmn');
-                } else {
-                    setMode('mermaid');
-                }
-                
-                renderDiagram();
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        // Export
-        function toggleExportMenu() {
-            document.getElementById('exportMenu').classList.toggle('open');
-            closeExamples();
-        }
-
-        function closeExportMenu() {
-            document.getElementById('exportMenu').classList.remove('open');
+        // ============================================================
+        // EXPORT
+        // ============================================================
+        function exportBPMN() {
+            closeDropdowns();
+            if (!lastBpmnXml) {
+                showToast('No diagram to export');
+                return;
+            }
+            downloadFile(lastBpmnXml, `process-${Date.now()}.bpmn`, 'application/xml');
+            showToast('BPMN XML exported');
         }
 
         async function exportSVG() {
-            closeExportMenu();
-            
-            let svgContent;
-            
-            if (currentMode === 'mermaid') {
-                const svg = document.querySelector('#mermaid-output svg');
-                if (!svg) { alert('No diagram to export'); return; }
-                svgContent = new XMLSerializer().serializeToString(svg);
-            } else {
-                if (!bpmnViewer) { alert('No diagram to export'); return; }
-                try {
-                    const result = await bpmnViewer.saveSVG();
-                    svgContent = result.svg;
-                } catch (err) {
-                    console.error('SVG export failed:', err);
-                    alert('Failed to export SVG');
-                    return;
-                }
-            }
-
-            downloadFile(svgContent, `diagram-${Date.now()}.svg`, 'image/svg+xml');
-        }
-
-        function exportBPMN() {
-            closeExportMenu();
-            
-            if (currentMode !== 'bpmn') {
-                alert('BPMN export only available in BPMN mode');
+            closeDropdowns();
+            if (!bpmnViewer) {
+                showToast('No diagram to export');
                 return;
             }
-
-            if (!lastBpmnXml) {
-                alert('No diagram to export');
-                return;
+            try {
+                const { svg } = await bpmnViewer.saveSVG();
+                downloadFile(svg, `diagram-${Date.now()}.svg`, 'image/svg+xml');
+                showToast('SVG exported');
+            } catch (err) {
+                showToast('Export failed: ' + err.message);
             }
-
-            downloadFile(lastBpmnXml, `process-${Date.now()}.bpmn`, 'application/xml');
         }
 
         function downloadFile(content, filename, mimeType) {
@@ -1735,79 +1935,72 @@
             URL.revokeObjectURL(url);
         }
 
-        // Editor actions
+        // ============================================================
+        // IMPORT
+        // ============================================================
+        function importFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('codeEditor').value = e.target.result;
+                render();
+                showToast('File imported');
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // ============================================================
+        // EXAMPLES
+        // ============================================================
+        function loadExample(name) {
+            closeDropdowns();
+            if (EXAMPLES[name]) {
+                document.getElementById('codeEditor').value = EXAMPLES[name];
+                render();
+                showToast('Loaded: ' + name);
+            }
+        }
+
+        // ============================================================
+        // UI HELPERS
+        // ============================================================
+        function toggleDropdown(id) {
+            const menu = document.getElementById(id);
+            const wasOpen = menu.classList.contains('open');
+            closeDropdowns();
+            if (!wasOpen) menu.classList.add('open');
+        }
+
+        function closeDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+        }
+
         function copyCode() {
-            const editor = document.getElementById('codeEditor');
-            navigator.clipboard.writeText(editor.value);
-        }
-
-        // Insert text at cursor position in editor
-        function insertAtCursor(text) {
-            const editor = document.getElementById('codeEditor');
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            const value = editor.value;
-            
-            // Insert the text at cursor position
-            editor.value = value.substring(0, start) + text + value.substring(end);
-            
-            // Move cursor to end of inserted text
-            const newCursorPos = start + text.length;
-            editor.selectionStart = newCursorPos;
-            editor.selectionEnd = newCursorPos;
-            
-            // Focus the editor
-            editor.focus();
-            
-            // Trigger re-render with debounce
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(renderDiagram, 300);
-            
-            // Visual feedback - brief highlight
-            showInsertFeedback();
-        }
-
-        // Show brief visual feedback when inserting
-        function showInsertFeedback() {
-            const editor = document.getElementById('codeEditor');
-            editor.style.boxShadow = '0 0 0 2px var(--color-accent)';
-            setTimeout(() => {
-                editor.style.boxShadow = '';
-            }, 200);
+            navigator.clipboard.writeText(document.getElementById('codeEditor').value);
+            showToast('Copied to clipboard');
         }
 
         function clearEditor() {
             document.getElementById('codeEditor').value = '';
-            document.getElementById('mermaid-output').innerHTML = '';
             if (bpmnViewer) bpmnViewer.clear();
+            lastBpmnXml = null;
+            updateStatus('Cleared', false);
+            document.getElementById('elementCount').textContent = '0 elements';
         }
 
-        // Zoom
-        function zoomIn() {
-            zoomLevel = Math.min(zoomLevel + 0.1, 2);
-            updateZoom();
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
-        function zoomOut() {
-            zoomLevel = Math.max(zoomLevel - 0.1, 0.5);
-            updateZoom();
-        }
-
-        function resetZoom() {
-            zoomLevel = 1;
-            updateZoom();
-        }
-
-        function updateZoom() {
-            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
-            if (currentMode === 'mermaid') {
-                document.getElementById('mermaid-output').style.transform = `scale(${zoomLevel})`;
-            } else if (bpmnViewer) {
-                bpmnViewer.get('canvas').zoom(zoomLevel);
-            }
-        }
-
-        // Resizer
+        // ============================================================
+        // RESIZER
+        // ============================================================
         function initResizer() {
             const handle = document.getElementById('resizeHandle');
             const panel = document.getElementById('editorPanel');
@@ -1818,11 +2011,13 @@
                 startWidth = panel.offsetWidth;
                 document.addEventListener('mousemove', resize);
                 document.addEventListener('mouseup', stopResize);
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
             });
 
             function resize(e) {
                 const newWidth = startWidth + (e.clientX - startX);
-                if (newWidth > 250 && newWidth < window.innerWidth - 300) {
+                if (newWidth > 350 && newWidth < window.innerWidth - 400) {
                     panel.style.width = newWidth + 'px';
                 }
             }
@@ -1830,7 +2025,28 @@
             function stopResize() {
                 document.removeEventListener('mousemove', resize);
                 document.removeEventListener('mouseup', stopResize);
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
             }
+        }
+
+        // ============================================================
+        // UTILITIES
+        // ============================================================
+        function escapeXml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&apos;');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;');
         }
     </script>
 </body>

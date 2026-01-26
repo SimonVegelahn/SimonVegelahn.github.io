@@ -4,7 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simon Vegelahn - Student der Wirtschaftsinformatik</title>
+    <meta name="description" content="Simon Vegelahn - Data Engineer spezialisiert auf dbt, Snowflake und ML-Systeme. Wirtschaftsinformatik-Student mit Erfahrung bei Siemens AG.">
+    <meta name="keywords" content="Data Engineer, Wirtschaftsinformatik, Snowflake, dbt, Python, Machine Learning, Power BI">
+    <meta name="author" content="Simon Vegelahn">
+    <meta name="robots" content="index, follow">
+    <title>Simon Vegelahn - Data Engineer | Wirtschaftsinformatik</title>
     <link rel="icon" type="image/png" href="favicon.png">
 
     <style>
@@ -39,10 +43,29 @@
             text-decoration: underline;
         }
 
+        .fast-link:focus {
+            outline: 2px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        body.dark .fast-link:focus {
+            outline-color: #6ab0ff;
+        }
+
+        *:focus-visible {
+            outline: 2px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        body.dark *:focus-visible {
+            outline-color: #6ab0ff;
+        }
+
         .controls {
             display: flex;
             align-items: center;
             gap: 16px;
+            position: relative;
         }
 
         .lang-select {
@@ -70,7 +93,11 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23eee' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
         }
 
-        .theme-toggle {
+        .menu-container {
+            position: relative;
+        }
+
+        .menu-toggle {
             cursor: pointer;
             user-select: none;
             display: flex;
@@ -78,9 +105,12 @@
             justify-content: center;
             width: 32px;
             height: 32px;
+            border: none;
+            background: transparent;
+            padding: 0;
         }
 
-        .theme-toggle svg {
+        .menu-toggle svg {
             width: 20px;
             height: 20px;
             stroke: #000;
@@ -88,24 +118,107 @@
             transition: stroke 0.3s;
         }
 
-        body.dark .theme-toggle svg {
+        body.dark .menu-toggle svg {
             stroke: #eee;
         }
 
-        .icon-sun {
-            display: block;
+        .menu-tooltip {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
         }
 
-        .icon-moon {
-            display: none;
+        .menu-tooltip.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
-        body.dark .icon-sun {
-            display: none;
+        .menu-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 12px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #ccc;
         }
 
-        body.dark .icon-moon {
-            display: block;
+        .menu-tooltip::after {
+            content: '';
+            position: absolute;
+            top: -7px;
+            right: 13px;
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 7px solid #fff;
+        }
+
+        body.dark .menu-tooltip {
+            background: #222;
+            border-color: #444;
+        }
+
+        body.dark .menu-tooltip::before {
+            border-bottom-color: #444;
+        }
+
+        body.dark .menu-tooltip::after {
+            border-bottom-color: #222;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .menu-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .menu-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+
+        body.dark .menu-item {
+            color: #eee;
+        }
+
+        body.dark .menu-item:hover {
+            background: #333;
+        }
+
+        .menu-item svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
         }
 
         .header-row {
@@ -179,6 +292,111 @@
         body.dark .footer-border {
             border-color: #eee;
         }
+
+        .cert-item {
+            display: inline-block;
+            background: #f5f5f5;
+            padding: 4px 10px;
+            margin: 4px 4px 4px 0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        body.dark .cert-item {
+            background: #333;
+        }
+
+        .job-details {
+            margin: 8px 0 0 0;
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        .job-details li {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 4px;
+            padding-left: 4px;
+        }
+
+        .job-details li:last-child {
+            margin-bottom: 0;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                font-size: 11px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+
+            body.dark {
+                background: #fff !important;
+                color: #000 !important;
+            }
+
+            .controls, .menu-container, .lang-select {
+                display: none !important;
+            }
+
+            .fast-link {
+                color: #0066cc !important;
+            }
+
+            .article-box {
+                border-color: #ddd !important;
+                break-inside: avoid;
+            }
+
+            .text-secondary, body.dark .text-secondary {
+                color: #333 !important;
+            }
+
+            .text-muted, body.dark .text-muted {
+                color: #666 !important;
+            }
+
+            .subtitle, body.dark .subtitle {
+                color: #666 !important;
+            }
+
+            .header-border, body.dark .header-border {
+                border-color: #000 !important;
+            }
+
+            .footer-border, body.dark .footer-border {
+                border-color: #000 !important;
+            }
+
+            .nav-border, body.dark .nav-border {
+                border-color: #ccc !important;
+            }
+
+            .border-bottom, body.dark .border-bottom {
+                border-color: #ddd !important;
+            }
+
+            .cert-item, body.dark .cert-item {
+                background: #f5f5f5 !important;
+                color: #000 !important;
+            }
+
+            section, article {
+                break-inside: avoid;
+            }
+
+            h2 {
+                break-after: avoid;
+            }
+        }
     </style>
 </head>
 
@@ -190,59 +408,77 @@
                     <h1 style="font-size: 32px; font-weight: bold; margin: 0 0 4px 0;">
                         <a href="index.html" style="color: inherit; text-decoration: none;">SIMON VEGELAHN</a>
                     </h1>
-                    <p class="subtitle">Student der Wirtschaftsinformatik</p>
+                    <p class="subtitle">Data Engineer | Wirtschaftsinformatik</p>
                 </div>
                 <div class="controls">
-                    <select class="lang-select" onchange="if(this.value) window.location.href=this.value">
+                    <select class="lang-select" aria-label="Sprache auswählen" onchange="if(this.value) window.location.href=this.value">
                         <option value="about_me.html">EN</option>
-                        <option value="about_me_es.html">ES</option>
                         <option value="about_me_de.html" selected>DE</option>
-
+                        <option value="about_me_es.html">ES</option>
                     </select>
-                    <div class="theme-toggle" onclick="toggleTheme()">
-                        <svg class="icon-sun" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                        <svg class="icon-moon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                        </svg>
+                    <div class="menu-container">
+                        <button class="menu-toggle" onclick="toggleMenu(event)" aria-label="Menü öffnen">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <div class="menu-tooltip" id="menuTooltip">
+                            <div class="menu-item" onclick="toggleTheme()">
+                                <svg class="icon-theme" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                                <span id="themeText">Dunkelmodus</span>
+                            </div>
+                            <div class="menu-item" onclick="exportPDF()">
+                                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                                    <line x1="9" y1="15" x2="12" y2="18"></line>
+                                    <line x1="15" y1="15" x2="12" y2="18"></line>
+                                </svg>
+                                <span>Als PDF exportieren</span>
+                            </div>
+                            <a class="menu-item" href="index.html">
+                                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 12H5"></path>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                                <span>Zurück zum Portfolio</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <nav class="nav-border" style="margin-bottom: 24px; padding: 12px 0;">
+        <nav class="nav-border" style="margin-bottom: 24px; padding: 12px 0;" aria-label="Seitennavigation">
             <a href="#about" class="fast-link" style="margin-right: 20px; font-weight: bold;">Über mich</a>
             <a href="#experience" class="fast-link" style="margin-right: 20px; font-weight: bold;">Erfahrung</a>
             <a href="#education" class="fast-link" style="margin-right: 20px; font-weight: bold;">Ausbildung</a>
+            <a href="#certifications" class="fast-link" style="margin-right: 20px; font-weight: bold;">Zertifikate</a>
             <a href="#projects" class="fast-link" style="margin-right: 20px; font-weight: bold;">Projekte</a>
             <a href="#skills" class="fast-link" style="margin-right: 20px; font-weight: bold;">Fähigkeiten</a>
             <a href="#contact" class="fast-link" style="font-weight: bold;">Kontakt</a>
         </nav>
 
+        <main id="main-content">
         <article id="about" class="article-box" style="margin-bottom: 20px; padding: 16px;">
-            <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Über mich</h3>
+            <h2 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Über mich</h2>
             <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">
-                Wirtschaftsinformatik-Student mit ungewöhnlichem Werdegang: vom Chemisch-technischen Assistenten zum
-                Data Engineer.
-                <br><br>
-                Mehrjährige Erfahrung bei Siemens in den Bereichen Projektmanagement-Tooling und Data Governance,
-                nebenbei freiberufliche Webentwicklung. Ob VBA-Skripte oder dbt-Pipelines - ich arbeite mit dem, was das
-                Problem erfordert.
+                Data Engineer bei Siemens AG für Analytics-Infrastruktur, ML-Systeme und Self-Service-Reporting. Ursprünglich staatlich geprüfter Chemisch-technischer Assistent, vor vier Jahren Wechsel in die IT. Aktuell Abschluss meines Wirtschaftsinformatik-Studiums an der Fontys Venlo (Feb 2026). Stack: Snowflake, dbt, Python, Power BI, SQL, Git.
             </p>
-            <div class="text-muted" style="font-size: 12px;">Data Analytics • SQL • Java • Agiles Projektmanagement •
-                BPMN
-            </div>
+            <div class="text-muted" style="font-size: 12px;">Data Analytics • Snowflake • Applied Machine Learning • dbt • Python</div>
         </article>
 
         <section id="experience" style="margin-bottom: 32px;">
@@ -250,53 +486,63 @@
 
             <div style="margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong>Werkstudent - Siemens</strong>
-                    <span class="text-muted" style="font-size: 14px;">Feb 2022 - Heute</span>
+                    <strong>Werkstudent, Data Governance</strong>
+                    <span class="text-muted" style="font-size: 14px;">Siemens AG | März 2025 - Heute</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;"><b>Data Governance und
-                        Analytics:</b>
-                    Erstellung von Snowflake- und dbt-Datenprodukten für Analysezwecke. Visualisierung der
-                    Analyseergebnisse
-                    mit PowerBI.
-                </p>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;"><b>Projektmanagement (3
-                        Jahre):</b> Erstellung interner Prognose- und Onboarding-Tools. Unterstützung bei
-                    Projektmanagement-
-                    und Baumanagementaufgaben mit Python, VBA und AutoCAD.
-                </p>
+                <ul class="job-details text-secondary">
+                    <li>Entwicklung von 5 Power BI Dashboards für Self-Service-Analytics und Management-Reporting in Controlling und Fachabteilungen.</li>
+                    <li>Aufbau und Pflege von Datenprodukten für unternehmensweite Nutzung; Refactoring bestehender Pipelines, Anpassung an Umstrukturierungen.</li>
+                    <li>Mitwirkung bei der Etablierung modularer dbt-Standards über dutzende Quellen hinweg; Reduktion der rechnerischen Verarbeitungszeit um 60%.</li>
+                    <li>Vollständige Entwicklung eines Zeitreihen-Prognosesystems für Brandschutz- und Sicherheitstechnik (SI B); MAPE &lt;16%.</li>
+                    <li>Entwicklung eines ML-Klassifikationssystems für Lead-Bewertung (91%+ Genauigkeit) im Rahmen der COMET-Initiative.</li>
+                    <li>Dokumentation bestehender Datenprodukte und Dashboards zum Aufbau einer Wissensbasis.</li>
+                </ul>
             </div>
 
             <div style="margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong>Labortechniker Qualitätskontrolle - Mayr-Melnhof Karton</strong>
-                    <span class="text-muted" style="font-size: 14px;">Aug 2020 - Mai 2021</span>
+                    <strong>Werkstudent, Project Management & Management Tooling</strong>
+                    <span class="text-muted" style="font-size: 14px;">Siemens AG | Feb 2022 - Feb 2025</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Durchführung von
-                    Qualitätskontrolltests
-                    und Pflege technischer Dokumentation in einer Produktionsumgebung. Sicherstellung der Einhaltung von
-                    GLP-Standards.</p>
+                <ul class="job-details text-secondary">
+                    <li>Entwicklung von VBA-Tools für Management und Vertrieb; Zeitersparnis von ca. 1 bis 2 Stunden pro Woche pro Projekt.</li>
+                    <li>Aufbau eines automatisierten Onboarding-Systems mit rollenbasierten Benachrichtigungen, Berechtigungsanfragen und Ausrüstungsbestellung.</li>
+                    <li>Bearbeitung von über 110 Vertragsverlängerungen in SAP für den Vertrieb.</li>
+                    <li>Aufmaßerstellung (Kabelvermessung) für ein mehrstöckiges Krankenhaus-Bauprojekt am Uniklinikum Düsseldorf.</li>
+                </ul>
             </div>
 
             <div style="margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong>Logistikmitarbeiter - flaschenpost SE</strong>
-                    <span class="text-muted" style="font-size: 14px;">Feb 2020 - Mai 2020</span>
+                    <strong>Labortechniker Qualitätskontrolle</strong>
+                    <span class="text-muted" style="font-size: 14px;">Mayr-Melnhof Karton GmbH | Aug 2020 - Mai 2021</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Lagerbetrieb und
-                    Bestandsverwaltung.</p>
+                <ul class="job-details text-secondary">
+                    <li>Durchführung von Qualitätskontrolltests und Pflege technischer Dokumentation in einer Produktionsumgebung.</li>
+                    <li>Sicherstellung der Einhaltung von GLP-Standards.</li>
+                    <li>Zunächst über Jobactive GmbH beschäftigt (Aug 2020 - März 2021), anschließend Übernahme in Direktanstellung.</li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong>Lagerist</strong>
+                    <span class="text-muted" style="font-size: 14px;">flaschenpost SE | Feb 2020 - Mai 2020</span>
+                </div>
+                <ul class="job-details text-secondary">
+                    <li>Lagerbetrieb und Bestandsverwaltung.</li>
+                </ul>
             </div>
 
             <div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong>Praktikum Chemielabortechniker - Bergische Universität
-                        Wuppertal</strong>
-                    <span class="text-muted" style="font-size: 14px;">Okt 2019 - Dez 2019</span>
+                    <strong>Praktikum Chemielaborant</strong>
+                    <span class="text-muted" style="font-size: 14px;">Bergische Universität Wuppertal | Okt 2019 - Dez 2019</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Durchführung von
-                    Labortechniken
-                    einschließlich nasschemischer Verfahren in einem akademischen Forschungsumfeld. Unterstützung eines
-                    Doktoranden
-                    bei einem Forschungsprojekt.</p>
+                <ul class="job-details text-secondary">
+                    <li>Durchführung von Labortechniken einschließlich nasschemischer Verfahren in einem akademischen Forschungsumfeld.</li>
+                    <li>Unterstützung eines Doktoranden bei einem Forschungsprojekt.</li>
+                </ul>
             </div>
         </section>
 
@@ -308,8 +554,15 @@
                     <strong>Fontys Venlo University of Applied Sciences</strong>
                     <span class="text-muted" style="font-size: 14px;">2021 - 2026</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Bachelor (B.Sc.),
-                    Wirtschaftsinformatik</p>
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Bachelor (B.Sc.), Wirtschaftsinformatik</p>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong>Fontys Venlo University of Applied Sciences</strong>
+                    <span class="text-muted" style="font-size: 14px;">Sep 2023 - Jan 2024</span>
+                </div>
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">International Business Management Minor</p>
             </div>
 
             <div style="margin-bottom: 16px;">
@@ -317,62 +570,70 @@
                     <strong>Heinrich-Hertz-Berufskolleg Düsseldorf</strong>
                     <span class="text-muted" style="font-size: 14px;">2019 - 2020</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Staatlich geprüfter
-                    Chemisch-technischer Assistent</p>
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Staatlich geprüfter Chemisch-technischer Assistent</p>
             </div>
 
             <div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong>Europaschule Marie-Curie Gymnasium Neuss</strong>
+                    <strong>Marie-Curie Gymnasium Neuss</strong>
                     <span class="text-muted" style="font-size: 14px;">2011 - 2019</span>
                 </div>
-                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Allgemeine
-                    Hochschulreife / Abitur</p>
+                <p class="text-secondary" style="font-size: 14px; margin: 0; line-height: 1.5;">Allgemeine Hochschulreife (Abitur)</p>
+            </div>
+        </section>
+
+        <section id="certifications" style="margin-bottom: 32px;">
+            <h2 style="font-size: 18px; font-weight: bold; margin: 0 0 12px 0;">ZERTIFIKATE</h2>
+            <div role="list" aria-label="Zertifikate">
+                <span class="cert-item" role="listitem">GCCEP</span>
+                <span class="cert-item" role="listitem">Data Engineering Professional Certificate by Snowflake</span>
+                <span class="cert-item" role="listitem">Artificial Intelligence for Cybersecurity</span>
+                <span class="cert-item" role="listitem">Advanced Data Engineering with Snowflake</span>
+                <span class="cert-item" role="listitem">dbt Fundamentals</span>
             </div>
         </section>
 
         <section id="projects" style="margin-bottom: 32px;">
             <h2 style="font-size: 18px; font-weight: bold; margin: 0 0 16px 0;">PROJEKTE</h2>
+
             <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
-                <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Prognose von Materialdaten
-                </h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Implementierung
-                    eines
-                    Prognosemodells zur Vorhersage des Materialbedarfs, Optimierung von Lieferzeiten und Kostensenkung.
+                <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Prognose von Materialdaten</h3>
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">
+                    Implementierung eines Prognosemodells zur Vorhersage des Materialbedarfs, Optimierung von Lieferzeiten und Kostensenkung.
                 </p>
-                <div class="text-muted" style="font-size: 12px;">Applied Machine Learning • Regressionsanalyse •
-                    Snowflake
-                    Notebook • SQL • Python</div>
+                <div class="text-muted" style="font-size: 12px;">Applied Machine Learning • Regressionsanalyse • Snowflake Notebook • SQL • Python</div>
             </article>
+
             <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
-                <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Enterprise-Datenprodukte
-                </h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Implementierung
-                    von Datenprodukten
-                    für Analysezwecke gemäß definierten Best Practices, wodurch Laufzeiten um bis zu 79% reduziert
-                    wurden.</p>
+                <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Enterprise-Datenprodukte</h3>
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">
+                    Implementierung von Datenprodukten für Analysezwecke gemäß definierten Best Practices, wodurch Laufzeiten um bis zu 79% reduziert wurden.
+                </p>
                 <div class="text-muted" style="font-size: 12px;">SQL • Snowflake • PowerBI • Python</div>
             </article>
 
             <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
                 <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Universitäts-Sozialplattform</h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Teamentwicklung
-                    eines
-                    Prototyps für eine universitäre Sozial- und Netzwerkplattform. Mit großer Begeisterung aufgenommen.
-                    Projekt
-                    zur Weiterentwicklung ausgewählt und mit vollständiger und detaillierter Dokumentation an ein
-                    Folgeteam übergeben.</p>
-                <div class="text-muted" style="font-size: 12px;">Kotlin • AndroidSDK • Material UI • Cytoscape • REST
-                    APIs •
-                    Figma</div>
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">
+                    Teamentwicklung eines Prototyps für eine universitäre Sozial- und Netzwerkplattform. Mit großer Begeisterung aufgenommen. Projekt zur Weiterentwicklung ausgewählt und mit vollständiger und detaillierter Dokumentation an ein Folgeteam übergeben.
+                </p>
+                <div class="text-muted" style="font-size: 12px;">Kotlin • AndroidSDK • Material UI • Cytoscape • REST APIs • Figma</div>
             </article>
+
             <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
-                <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Webentwicklungsprojekte
-                </h3>
-                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">Design und
-                    Implementierung
-                    von Websites für KMU. Freiberufliche Tätigkeit.</p>
+                <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">Webentwicklungsprojekte</h3>
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">
+                    Design und Implementierung von Websites für KMU. Freiberufliche Tätigkeit.
+                </p>
                 <div class="text-muted" style="font-size: 12px;">TypeScript • Vue • React • Wordpress • Figma</div>
+            </article>
+
+            <article class="article-box" style="margin-bottom: 20px; padding: 16px;">
+                <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">AMI Design System</h3>
+                <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">
+                    Open-Source-CSS-Design-System mit Fokus auf Barrierefreiheit und einladende Ästhetik. WCAG AA/AAA konform, ohne JavaScript, ~15KB minifiziert. Verfügbar auf <a href="https://github.com/SimonVegelahn/AMI" class="fast-link" rel="noopener noreferrer">GitHub</a> und <a href="https://www.npmjs.com/package/ami-css" class="fast-link" rel="noopener noreferrer">npm</a>.
+                </p>
+                <div class="text-muted" style="font-size: 12px;">CSS • WCAG Barrierefreiheit • Design Systems • npm</div>
             </article>
         </section>
 
@@ -381,12 +642,11 @@
             <table style="width: 100%; border-collapse: collapse;">
                 <tr class="border-bottom">
                     <td style="padding: 8px 0; font-weight: bold; width: 30%;">Entwicklung</td>
-                    <td style="padding: 8px 0;">Python, Java, Kotlin, SQL, REST APIs, OAuth2</td>
+                    <td style="padding: 8px 0;">Python, Java, Kotlin, REST APIs, OAuth2</td>
                 </tr>
                 <tr class="border-bottom">
                     <td style="padding: 8px 0; font-weight: bold;">Daten & ML</td>
-                    <td style="padding: 8px 0;">SQL, Snowflake, dbt, R, Python, Data Analytics, Business Intelligence,
-                        Applied Machine Learning</td>
+                    <td style="padding: 8px 0;">SQL, Snowflake, dbt, R, Python, Data Analytics, Business Intelligence, Applied Machine Learning</td>
                 </tr>
                 <tr class="border-bottom">
                     <td style="padding: 8px 0; font-weight: bold;">Web</td>
@@ -394,8 +654,7 @@
                 </tr>
                 <tr class="border-bottom">
                     <td style="padding: 8px 0; font-weight: bold;">Tools</td>
-                    <td style="padding: 8px 0;">Git, Linux, Bash, Excel, Docker, Agile Methodologies, BPMN, VBA,
-                        Prozessautomatisierung</td>
+                    <td style="padding: 8px 0;">Git, Linux, Bash, Excel, Docker, Agile Methodologien, BPMN, VBA, Prozessautomatisierung</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; font-weight: bold;">Sprachen</td>
@@ -403,33 +662,90 @@
                 </tr>
             </table>
         </section>
+        </main>
 
         <footer id="contact" class="footer-border" style="padding-top: 16px; margin-top: 40px;">
-            <div class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">
-                <strong>E-Mail:</strong> auf Anfrage. Bitte kontaktieren Sie mich über LinkedIn.
-            </div>
-            <div class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">
-                <strong>Telefon:</strong> auf Anfrage.
-            </div>
+            <h2 style="font-size: 18px; font-weight: bold; margin: 0 0 12px 0;">KONTAKT</h2>
             <div class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">
                 <strong>Standort:</strong> Großraum Düsseldorf, Deutschland
             </div>
             <div style="font-size: 14px;">
-                <a href="https://www.linkedin.com/in/simonvegelahn" class="fast-link">LinkedIn</a>
+                <strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/simonvegelahn" class="fast-link" rel="noopener noreferrer">linkedin.com/in/simonvegelahn</a>
             </div>
         </footer>
     </div>
 
     <script>
-        function toggleTheme() {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        let menuTimeout;
+
+        function toggleMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('menuTooltip');
+            menu.classList.toggle('visible');
+            clearTimeout(menuTimeout);
         }
 
-        // Load saved theme
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark');
+        function closeMenu() {
+            const menu = document.getElementById('menuTooltip');
+            menu.classList.remove('visible');
         }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeText();
+            closeMenu();
+        }
+
+        function updateThemeText() {
+            const themeText = document.getElementById('themeText');
+            const isDark = document.body.classList.contains('dark');
+            themeText.textContent = isDark ? 'Hellmodus' : 'Dunkelmodus';
+            
+            const themeIcon = document.querySelector('.icon-theme');
+            if (isDark) {
+                themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+            } else {
+                themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            }
+        }
+
+        function exportPDF() {
+            closeMenu();
+            window.print();
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menuContainer = document.querySelector('.menu-container');
+            if (!menuContainer.contains(event.target)) {
+                closeMenu();
+            }
+        });
+
+        // Close menu when hovering outside for 2 seconds
+        document.addEventListener('mouseover', function(event) {
+            const menuContainer = document.querySelector('.menu-container');
+            const menu = document.getElementById('menuTooltip');
+            
+            if (!menuContainer.contains(event.target) && menu.classList.contains('visible')) {
+                clearTimeout(menuTimeout);
+                menuTimeout = setTimeout(function() {
+                    closeMenu();
+                }, 2000);
+            }
+        });
+
+        // Cancel close when hovering back over menu
+        document.querySelector('.menu-container').addEventListener('mouseover', function() {
+            clearTimeout(menuTimeout);
+        });
+
+        // Initialize theme text on load (always light mode by default)
+        document.addEventListener('DOMContentLoaded', function() {
+            updateThemeText();
+        });
     </script>
 </body>
 

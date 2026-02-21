@@ -760,7 +760,7 @@
                     colorBorder: "border-gray-600",
                     colorHex: "#4B5563",
                     bg: "bg-gray-800",
-                    focus: "Joint Flow, Jaw Relaxation, Posture, Lymphatic Drainage, Zone 2.",
+                    focus: "Joint Flow, Jaw (Kiefer) Rehab, Posture, Lymphatic Drainage, Zone 2.",
                     duration: "50-65 MIN",
                     phases: [
                         {
@@ -907,7 +907,7 @@
                             ],
                         },
                         {
-                            name: "C4: JAW PROTOCOL (8 MIN)",
+                            name: "C4: JAW (KIEFER) PROTOCOL (8 MIN)",
                             exercises: [
                                 {
                                     name: "Heat & Massage",
@@ -1176,8 +1176,8 @@
                     // Scroll
                     if (content) {
                         setTimeout(() => {
-                            content.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }, 100);
+                            content.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 350); // Wait for previous accordions to finish closing to avoid scroll jitter
                     }
                 },
 
@@ -1462,7 +1462,7 @@
                         }
 
                         exercisesHTML += `
-                        <div class="border border-gray-200 mb-2">
+                        <div class="border border-gray-200 mb-2 scroll-mt-16">
                             <button onclick="toggleAccordion('${uniqueId}')" class="w-full text-left p-3 md:p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center focus:outline-none focus:bg-gray-200 chamber-transition">
                                 <div>
                                     <span class="font-bold font-sans text-sm md:text-base text-gray-800 uppercase">${ex.name}</span>

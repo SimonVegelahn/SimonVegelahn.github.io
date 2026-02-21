@@ -276,27 +276,33 @@
                                     name: "Wrist Circles + Shoulder Rolls",
                                     reps: "1 min total",
                                     link: "https://www.youtube.com/results?search_query=GMB+Fitness+Wrist+Prep",
-                                    timings: [{ phase: "FLUID MOTION", time: "1m" }],
+                                    timings: [
+                                        { phase: "L WRIST CW", time: "10s" },
+                                        { phase: "L WRIST CCW", time: "10s" },
+                                        { phase: "R WRIST CW", time: "10s" },
+                                        { phase: "R WRIST CCW", time: "10s" },
+                                        { phase: "SHOULDER ROLLS", time: "20s" }
+                                    ],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Stand up tall. Let your arms hang completely loose by your sides. Make very light, relaxed fists with your hands.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>1.</b> Keep your arms still and use ONLY your wrists to draw the biggest circles possible with your fists (10 times clockwise, 10 times counter-clockwise). <b>2.</b> Next, lift your shoulders straight up toward your ears, pull them backward as if trying to pinch a pencil between your shoulder blades, and let them drop down in a smooth rolling motion (10 times).</p><p><b class="text-portal-blue">CUES:</b> Do not tense your neck. If your neck hurts, make the shoulder rolls smaller.</p>` + getOpticalCue("text-portal-blue", "Notice the smooth, full-range rotation coming strictly from the wrists without forearm twisting, followed by pronounced retraction during the shoulder rolls."),
                                 },
                                 {
                                     name: "Thoracic Squat Rotation",
-                                    reps: "10 per side",
+                                    reps: "10 / side",
                                     link: "https://www.youtube.com/results?search_query=Squat+University+Thoracic+Rotation+in+Deep+Squat",
                                     timings: [
-                                        { phase: "1: FORCE (ROTATE)", time: "1s" },
-                                        { phase: "2: STATIC (HOLD)", time: "1s" },
-                                        { phase: "3: YIELD (RETURN)", time: "1s" },
+                                        { phase: "1: ROTATE UP", time: "2s" },
+                                        { phase: "2: HOLD", time: "1s" },
+                                        { phase: "3: RETURN", time: "2s" },
                                     ],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner - "Deep Squat"):</b> Stand with your feet slightly wider than your shoulders, toes pointing slightly outward. Drop your butt straight down toward the floor as if trying to sit on a tiny stool. Keep your heels completely flat on the ground. Once at the bottom, place both of your elbows against the *inside* of your knees and press your hands together in front of your chest.</p><p><b class="text-portal-blue">EXECUTION:</b> Take your right hand and place your fingertips lightly behind your right ear. <b>Twist your upper body</b> to point your right elbow straight up at the ceiling. <b>Hold for 1 second</b> at the top. Come back down to the start. Do 10, then switch sides.</p><p><b class="text-portal-blue">CUES:</b> Follow your elbow with your eyes. Only your upper back should twist—do not let your hips shift or your feet lift off the floor.</p>` + getOpticalCue("text-portal-blue", "Hips stay completely still and low in the squat. The rotation comes entirely from the mid-back driving the elbow toward the ceiling."),
                                 },
                                 {
                                     name: "Standing Hip March",
-                                    reps: "20 total",
+                                    reps: "20 reps",
                                     link: "https://www.youtube.com/results?search_query=standing+hip+march+exercise",
                                     timings: [
-                                        { phase: "1: FORCE (DRIVE)", time: "1s" },
-                                        { phase: "2: YIELD (LOWER)", time: "1s" },
+                                        { phase: "1: KNEE DRIVE", time: "1s" },
+                                        { phase: "2: LOWER", time: "1s" },
                                     ],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Stand perfectly straight with your feet hip-width apart. Look straight ahead. You can lightly hold a wall for balance if needed.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>Lift your right knee</b> straight up in front of you until your thigh is parallel to the floor (like you are stepping onto a high box). Keep your foot flexed (toes pulled up toward your shin). <b>Hold it at the top for a split second</b>, then lower it with control. Alternate left and right.</p><p><b class="text-portal-blue">CUES:</b> Stand as tall as possible. The most common mistake is leaning backward to get the knee higher—do not lean back.</p>` + getOpticalCue("text-portal-blue", "The torso remains perfectly upright. The knee drives up powerfully without the lower back rounding or leaning backward."),
                                 },
@@ -305,8 +311,9 @@
                                     reps: "2 x 15",
                                     link: "https://www.youtube.com/results?search_query=Athlean+X+Band+Pull+Apart",
                                     timings: [
-                                        { phase: "1: FORCE (PULL)", time: "1s" },
-                                        { phase: "2: YIELD (RETURN)", time: "1s" },
+                                        { phase: "1: PULL", time: "1s" },
+                                        { phase: "2: SQUEEZE", time: "1s" },
+                                        { phase: "3: RETURN", time: "2s" },
                                     ],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Stand up. Hold a light rubber resistance band with both hands. Extend your arms straight out in front of you at exactly shoulder height. Your palms should be facing the floor. Your hands should be about shoulder-width apart on the band.</p><p><b class="text-portal-blue">EXECUTION:</b> Keeping your arms completely straight, <b>pull your hands outward and backward</b>, stretching the band until it touches your chest. As you pull, actively squeeze your shoulder blades together in the back.</p><p><b class="text-portal-blue">CUES:</b> Do not bend your elbows. Keep your shoulders pulled down away from your ears—do not shrug.</p>` + getOpticalCue("text-portal-blue", "Arms stay straight and horizontal. The movement is driven by the shoulder blades pinching together at the back, not by bending the elbows."),
                                 },
@@ -317,7 +324,7 @@
                             exercises: [
                                 {
                                     name: "Split Squats (Cube)",
-                                    reps: "3 x 10/side", // Simplified for parser
+                                    reps: "3 x 10/side", 
                                     link: "https://www.youtube.com/results?search_query=Squat+University+Bulgarian+Split+Squat",
                                     timings: [
                                         { phase: "1: YIELD", time: "3s Lower" },
@@ -328,7 +335,7 @@
                                 },
                                 {
                                     name: "Banded / Archer Push-Ups",
-                                    reps: "3 x 10", // Fallback number for timer if failure
+                                    reps: "3 x 10", 
                                     link: "https://www.youtube.com/results?search_query=Calisthenicmovement+Archer+Push+Up",
                                     timings: [
                                         { phase: "1: YIELD", time: "3s Lower" },
@@ -408,7 +415,7 @@
                                     reps: "3 x 30s",
                                     link: "https://www.youtube.com/results?search_query=Calisthenicmovement+Hollow+Body+Hold",
                                     timings: [
-                                        { phase: "1: STATIC (ISOMETRIC)", time: "30s HOLD" },
+                                        { phase: "1: ISOMETRIC HOLD", time: "30s" },
                                     ],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Lie flat on your back on your mat. Squeeze your legs tightly together and point your toes. Reach your arms straight up over your head, resting on the floor.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>First, and most importantly: crush your lower back completely flat against the floor.</b> There should be zero space between your lower back and the mat. Once flat, <b>lift your legs a few inches off the floor</b>, and <b>lift your head and shoulder blades off the floor</b>. Your body should look like a shallow banana. Hold this shape.</p><p><b class="text-portal-blue">CUES:</b> If your lower back lifts off the floor even a tiny bit, you are doing it wrong and hurting your spine. To fix this, lift your legs higher into the air until you can press your back flat again.</p>` + getOpticalCue("text-portal-blue", "The lower back is absolutely pinned to the mat. The shape is a shallow banana curve; if the back lifts, the legs are brought higher to compensate."),
                                 },
@@ -427,7 +434,7 @@
                                     reps: "3 x 20s",
                                     link: "https://www.youtube.com/results?search_query=Calisthenicmovement+L-Sit+Tutorial",
                                     timings: [
-                                        { phase: "1: STATIC (ISOMETRIC)", time: "20s HOLD" },
+                                        { phase: "1: ISOMETRIC HOLD", time: "20s" },
                                     ],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Sit on the floor with your legs straight out in front of you. Place your hands flat on the floor right next to your hips, fingers pointing forward. (If your arms are short, you can place your hands on books or blocks).</p><p><b class="text-portal-blue">EXECUTION:</b> <b>Push down hard into the floor to straighten your arms</b>, lifting your butt off the ground. Once lifted, <b>pull your knees tightly into your chest</b> so your feet lift off the floor too. Hold yourself suspended in the air.</p><p><b class="text-portal-blue">CUES:</b> Keep your shoulders pushed down away from your ears; do not shrug. Brace your stomach tight.</p>` + getOpticalCue("text-portal-blue", "Arms are actively locked straight, pushing the floor away so the shoulders stay far from the ears. The knees are tucked tightly to the chest."),
                                 },
@@ -447,7 +454,7 @@
                                     reps: "3 x 45s",
                                     link: "https://www.youtube.com/results?search_query=Calisthenicmovement+Perfect+Plank",
                                     timings: [
-                                        { phase: "1: STATIC (ISOMETRIC)", time: "45s HOLD" },
+                                        { phase: "1: ISOMETRIC HOLD", time: "45s" },
                                     ],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Lie face down on the floor. Prop yourself up on your forearms (elbows directly under your shoulders) and your toes. Your body must form a perfectly straight line from your head to your heels.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>Tuck your tailbone under</b> (like a dog hiding its tail) to flatten your lower back. <b>Squeeze your butt cheeks together tightly.</b> Now, without actually moving them, imagine trying to drag your elbows down toward your toes. Hold this intense contraction for as long as possible.</p><p><b class="text-portal-blue">CUES:</b> Do not let your hips sag toward the floor. If your lower back hurts, you need to tuck your tailbone more.</p>` + getOpticalCue("text-portal-blue", "Notice the slight posterior pelvic tilt (tailbone tucked under) and the active squeezing of the glutes. This is an active brace, not a sagging hold."),
                                 },
@@ -460,35 +467,35 @@
                                     name: "Kneeling Hip Flexor Stretch",
                                     reps: "45s / side",
                                     link: "https://www.youtube.com/results?search_query=Squat+University+Hip+Flexor+Stretch",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "45s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "45s" }],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Get into a kneeling lunge position. Right knee resting on the floor, left foot flat on the floor in front of you (both knees bent at 90-degree angles). Stand tall in your torso.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>First, tuck your tailbone under</b> (this is mandatory). Then, <b>gently shift your hips forward</b> just an inch or two until you feel a deep stretch in the front of your right hip/thigh. Reach your right arm straight up toward the ceiling for a deeper stretch.</p><p><b class="text-portal-blue">CUES:</b> If you just lean forward without tucking your tailbone first, you are stretching your lower back instead of your hip flexor.</p>` + getOpticalCue("text-portal-blue", "The pelvis is visibly tucked backward (posterior tilt) BEFORE shifting forward. The same-side arm reaches up and slightly across the body."),
                                 },
                                 {
                                     name: "Standing Quad Stretch",
                                     reps: "30s / side",
                                     link: "https://www.youtube.com/results?search_query=Standing+Quad+Stretch+Form",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "30s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "30s" }],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Stand tall next to a wall. Place one hand on the wall for balance. Stand on your left leg.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>Bend your right knee</b> and bring your right heel up toward your butt. Reach behind you with your right hand and <b>grab your right ankle</b>. Gently pull your heel closer to your butt while standing perfectly straight.</p><p><b class="text-portal-blue">CUES:</b> Keep your right knee pointing straight down at the floor, right next to your left knee. Do not let the right knee drift forward.</p>` + getOpticalCue("text-portal-blue", "The stretching knee points straight down at the floor, perfectly aligned with the standing leg, preventing the hip from breaking forward."),
                                 },
                                 {
                                     name: "Doorway Chest Opener",
                                     reps: "45s",
                                     link: "https://www.youtube.com/results?search_query=Bob+and+Brad+Doorway+Chest+Stretch",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "45s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "45s" }],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Stand inside an open doorway. Bend your elbows to 90 degrees and raise your arms so your upper arms are parallel to the floor. Place your forearms flat against the doorframe on both sides.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>Take one small step forward</b> through the doorway with one foot. Allow your chest and upper body to gently fall forward through the door opening until you feel a deep stretch across your chest and shoulders.</p><p><b class="text-portal-blue">CUES:</b> Keep your chest up and proud. Do not push through pain, just find a comfortable stretching sensation.</p>` + getOpticalCue("text-portal-blue", "Forearms are flat against the doorframe. The chest falls forward through the space slowly, without the lower back arching excessively."),
                                 },
                                 {
                                     name: "Child's Pose Lat Stretch",
                                     reps: "30s / side",
                                     link: "https://www.youtube.com/results?search_query=Childs+Pose+Lat+Stretch",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "30s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "30s" }],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Get on your hands and knees. Push your hips all the way back so your butt is resting on your heels. Stretch your arms completely straight out on the floor in front of you. Lower your forehead to the mat.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>Walk both of your hands over to the far right side of the mat.</b> As you reach right, <b>sink your left hip down heavily</b> toward your left heel. You should feel a stretch down the entire left side of your ribs/armpit.</p><p><b class="text-portal-blue">CUES:</b> Keep the stretching arm (the left one) locked completely straight.</p>` + getOpticalCue("text-portal-blue", "The hands walk far over to one side while the opposite hip actively sinks heavily backward to create a long stretch down the side of the torso."),
                                 },
                                 {
                                     name: "Wrist Flexor Stretch",
                                     reps: "20s / side",
                                     link: "https://www.youtube.com/results?search_query=Bob+and+Brad+Wrist+Flexor+Stretch",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "20s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "20s" }],
                                     details: `<p><b class="text-portal-blue">SETUP (Absolute Beginner):</b> Stand or sit tall. Extend your right arm completely straight out in front of you, with your palm facing up toward the ceiling.</p><p><b class="text-portal-blue">EXECUTION:</b> Use your left hand to grab the fingers of your right hand. <b>Gently pull your right fingers down toward the floor</b> and backward toward your body until you feel a stretch in your right forearm/wrist.</p><p><b class="text-portal-blue">CUES:</b> Keep the extended arm locked straight. Be gentle; the wrist is a delicate joint.</p>` + getOpticalCue("text-portal-blue", "Arm extended fully straight with the palm facing up. The other hand gently pulls the fingers downward, keeping the elbow locked."),
                                 },
                             ],
@@ -510,9 +517,14 @@
                             exercises: [
                                 {
                                     name: "Standing Hip Circles",
-                                    reps: "10 per side",
+                                    reps: "1 min total",
                                     link: "https://www.youtube.com/results?search_query=Standing+Hip+CARs",
-                                    timings: [{ phase: "FLUID MOTION", time: "10s" }],
+                                    timings: [
+                                        { phase: "L HIP CW", time: "15s" },
+                                        { phase: "L HIP CCW", time: "15s" },
+                                        { phase: "R HIP CW", time: "15s" },
+                                        { phase: "R HIP CCW", time: "15s" },
+                                    ],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner):</b> Stand straight next to a wall. Place one hand on the wall for balance. Stand solidly on your left leg.</p><p><b class="text-portal-orange">EXECUTION:</b> <b>Lift your right knee</b> up to waist height. Without moving your upper body at all, <b>draw the biggest circle you possibly can in the air with your right knee</b>. Open the knee out to the side, rotate it backward, and bring it down. Do 10 circles forward, then reverse and do 10 backward.</p><p><b class="text-portal-orange">CUES:</b> Your torso must remain completely frozen like a statue. The only thing moving is the ball-and-socket joint of your hip.</p>` + getOpticalCue("text-portal-orange", "The torso remains perfectly still while the knee draws the largest possible circle in the air, exploring the extreme edges of the hip joint."),
                                 },
                                 {
@@ -520,8 +532,8 @@
                                     reps: "10 reps",
                                     link: "https://www.youtube.com/results?search_query=Squat+University+Cat+Cow",
                                     timings: [
-                                        { phase: "1: FORCE (FLEX)", time: "2s" },
-                                        { phase: "2: FORCE (EXTEND)", time: "2s" },
+                                        { phase: "1: CAT FLEX", time: "3s" },
+                                        { phase: "2: COW EXTEND", time: "3s" },
                                     ],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner - "Tabletop"):</b> Get on the floor on your hands and knees. Your hands must be exactly under your shoulders, and your knees exactly under your hips. Your back should be flat like a table.</p><p><b class="text-portal-orange">EXECUTION (CAT):</b> <b>Tuck your tailbone under</b>, pull your stomach in, and push your upper back forcefully toward the ceiling so your spine arches up like an angry cat. Let your head drop down.</p><p><b class="text-portal-orange">EXECUTION (COW):</b> <b>Stick your tailbone up toward the ceiling</b>, let your stomach sag down toward the floor, and lift your chest and head to look slightly forward.</p><p><b class="text-portal-orange">CUES:</b> Move slowly (4 seconds total). Always start the movement from your tailbone, letting it ripple up your spine to your neck.</p>` + getOpticalCue("text-portal-orange", "The spinal wave initiates at the tailbone and travels upward. The movement takes 4 seconds per cycle, avoiding abrupt snapping of the neck."),
                                 },
@@ -578,9 +590,9 @@
                                     reps: "3 x 12",
                                     link: "https://www.youtube.com/results?search_query=Squat+University+YTW+Exercises",
                                     timings: [
-                                        { phase: "1: FORCE", time: "1s Lift" },
-                                        { phase: "2: STATIC", time: "2s Scap Squeeze" },
-                                        { phase: "3: YIELD", time: "3s Lower" },
+                                        { phase: "1: LIFT", time: "1s" },
+                                        { phase: "2: SQUEEZE", time: "2s" },
+                                        { phase: "3: LOWER", time: "2s" },
                                     ],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner):</b> Lie face down flat on your stomach. Rest your forehead gently on the mat so your neck is straight.</p><p><b class="text-portal-orange">EXECUTION:</b> <b>Y:</b> Arms out in a 'Y' shape, thumbs pointing to ceiling. Squeeze upper back to lift arms 2 inches off floor. Lower. <br><b>T:</b> Arms straight out sides ('T'), thumbs up. Pinch shoulder blades to lift. Lower. <br><b>W:</b> Bend elbows to 90 degrees ('W'). Lift arms and rotate hands higher than elbows. Lower. <br><b>I:</b> Arms straight down by your sides ('I'). Lift arms and chest off the floor. Lower.</p><p><b class="text-portal-orange">CUES:</b> Do not throw your arms up. The lift must come from squeezing the muscles between your shoulder blades.</p>` + getOpticalCue("text-portal-orange", "Watch the shoulder blades initiate every movement by pulling down and together before the arms lift off the floor. The neck stays relaxed and looking down."),
                                 },
@@ -703,35 +715,38 @@
                                     name: "Seated Hamstring Stretch",
                                     reps: "60s",
                                     link: "https://www.youtube.com/results?search_query=Bob+and+Brad+Hamstring+Stretch",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "60s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "60s" }],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner):</b> Sit on the floor with your legs fully extended straight out in front of you. Pull your toes back toward your shins.</p><p><b class="text-portal-orange">EXECUTION:</b> Sit up perfectly tall. Imagine your pelvis is a bowl of water—tilt the bowl forward to spill the water out the front. This means <b>hinging forward at your hips</b>, keeping your back totally flat. Reach your hands toward your feet. Stop when you feel a stretch in the back of your thighs and breathe.</p><p><b class="text-portal-orange">CUES:</b> Do not just slouch and round your upper back to reach your toes. The hinge must come from the hips.</p>` + getOpticalCue("text-portal-orange", "The hinge happens at the hips (pelvis tilting forward), rather than simply collapsing the upper back and neck toward the knees."),
                                 },
                                 {
                                     name: "Pigeon Pose",
                                     reps: "60s / side",
                                     link: "https://www.youtube.com/results?search_query=Squat+University+Pigeon+Pose",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "60s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "60s" }],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner):</b> Start on your hands and knees. Bring your right knee forward and place it on the floor just behind your right wrist. Swing your right foot over toward your left wrist so your lower leg rests diagonally on the mat.</p><p><b class="text-portal-orange">EXECUTION:</b> <b>Slide your straight left leg straight backward</b> as far as it will go. <b>Let your hips sink heavily down toward the floor.</b> If comfortable, lower your upper body down to rest on your forearms.</p><p><b class="text-portal-orange">CUES:</b> Keep your front foot slightly flexed to protect your knee joint. If your right hip is hovering high in the air, stuff a pillow under it for support.</p>` + getOpticalCue("text-portal-orange", "The back leg is extended straight, and the hips are squared to the floor (not rolling completely onto the bent hip)."),
                                 },
                                 {
                                     name: "Figure-4 Supine Glute",
                                     reps: "45s / side",
                                     link: "https://www.youtube.com/results?search_query=Figure+4+Glute+Stretch",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "45s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "45s" }],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner):</b> Lie flat on your back. Bend both knees and place your feet flat on the floor. Lift your right leg and rest your right ankle across your left knee, creating a "figure-4" shape with your legs.</p><p><b class="text-portal-orange">EXECUTION:</b> Reach both hands down, grab the back of your left thigh, and <b>pull your left leg up toward your chest</b>. Keep pulling until you feel a deep stretch in your right butt cheek. Lay your head back on the floor and breathe.</p>` + getOpticalCue("text-portal-orange", "The crossed foot is actively flexed to protect the knee, while the hands gently pull the opposite thigh toward the chest."),
                                 },
                                 {
                                     name: "Cat-Cow to Child's Pose",
                                     reps: "45s",
                                     link: "https://www.youtube.com/results?search_query=Cat+Cow+Childs+Pose+Stretch",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "45s HOLD" }],
+                                    timings: [
+                                        { phase: "CAT-COW FLOW", time: "15s" },
+                                        { phase: "CHILD'S POSE", time: "30s" }
+                                    ],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner):</b> Start on hands and knees.</p><p><b class="text-portal-orange">EXECUTION:</b> Do 3 slow Cat-Cows (arching and dipping your spine). On the final arch (Cat pose, back rounded), push your hips all the way back until your butt rests on your heels. Reach arms forward and rest your head on the ground (Child's Pose). <b>Take deep breaths into your lower back, trying to expand your ribs against your thighs.</b></p>` + getOpticalCue("text-portal-orange", "The final transition is seamless, pushing the hips back heavily onto the heels while keeping the arms extended to decompress the spine."),
                                 },
                                 {
                                     name: "Thoracic Extension",
                                     reps: "45s",
                                     link: "https://www.youtube.com/results?search_query=Thoracic+Extension+Over+Rolled+Towel",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "45s HOLD" }],
+                                    timings: [{ phase: "STATIC STRETCH", time: "45s" }],
                                     details: `<p><b class="text-portal-orange">SETUP (Absolute Beginner):</b> Take a yoga mat or a thick towel and roll it up tightly into a cylinder. Place it horizontally on the floor. Sit on the floor just in front of it.</p><p><b class="text-portal-orange">EXECUTION:</b> <b>Lie backward over the rolled towel</b> so that it presses firmly against your middle/upper back (around the level of your shoulder blades). Support the back of your head with your hands. <b>Let your chest fall open toward the ceiling</b>, arching your upper back over the roll.</p><p><b class="text-portal-orange">CUES:</b> If it hurts, use a smaller towel. Move an inch up or down to find the stiffest part of your spine.</p>` + getOpticalCue("text-portal-orange", "The fulcrum (mat/towel) is strictly under the mid-to-upper back, not the lower back. The head is supported by the hands, letting the chest passively open."),
                                 },
                             ],
@@ -756,43 +771,57 @@
                                     reps: "2 min total",
                                     link: "https://www.youtube.com/results?search_query=Squat+University+Ankle+Mobility",
                                     timings: [
-                                        { phase: "1: FLUID", time: "20s" }, // Modified to a real loop
-                                        { phase: "2: STATIC", time: "100s" },
+                                        { phase: "L FOOT CW", time: "10s" },
+                                        { phase: "L FOOT CCW", time: "10s" },
+                                        { phase: "R FOOT CW", time: "10s" },
+                                        { phase: "R FOOT CCW", time: "10s" },
+                                        { phase: "DEEP SQUAT", time: "80s" }
                                     ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit on the floor, legs extended. Then, transition to standing.</p><p><b class="text-gray-800">EXECUTION (ANKLES):</b> Lift one leg slightly. <b>Draw the largest possible circle with your toes</b>, moving only the ankle joint. 10 times clockwise, 10 times counter-clockwise, per foot.</p><p><b class="text-gray-800">EXECUTION (SQUAT):</b> Stand feet shoulder-width apart. Drop your hips all the way down into a deep resting squat (butt near ankles, heels flat on the floor). Place your elbows on the inside of your knees and press them outward. Shift your weight side to side to loosen the hips. Stay here for 2 minutes.</p>` + getOpticalCue("text-gray-600", "Massive, deliberate ankle circles. Heels stay completely on the floor during the squat while elbows actively press the knees outward."),
                                 },
                                 {
                                     name: "90/90 Switches & Cossack",
-                                    reps: "10x | 8x/side",
+                                    reps: "90s total",
                                     link: "https://www.youtube.com/results?search_query=Squat+University+90%2F90+Hip+Switches",
-                                    timings: [{ phase: "FLUID MOTION", time: "30s" }],
+                                    timings: [
+                                        { phase: "90/90 SWITCHES", time: "40s" },
+                                        { phase: "L COSSACK", time: "25s" },
+                                        { phase: "R COSSACK", time: "25s" }
+                                    ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner - "90/90"):</b> Sit on the floor. Bend your right leg to 90 degrees and lay it flat on the floor in front of you. Bend your left leg to 90 degrees and lay it flat on the floor behind/to the side of you. Your torso should be upright.</p><p><b class="text-gray-800">EXECUTION:</b> Keep your feet planted on the floor. <b>Lift your knees and swivel your hips like windshield wipers</b>, flipping both legs over to the other side without using your hands for support if possible. Do 10 flips.</p><p><b class="text-gray-800">COSSACK SQUAT:</b> Stand up, spread feet extremely wide. Keeping your left leg totally straight, bend your right knee and squat all the way down on the right side. Return to center, swap sides.</p>` + getOpticalCue("text-gray-600", "The torso stays as upright as possible while hips rotate smoothly over. In the Cossack, the squatting heel stays down and the extended leg points to the ceiling."),
                                 },
                                 {
                                     name: "Hip & Shoulder CARs",
-                                    reps: "5x / side",
+                                    reps: "2 min total",
                                     link: "https://www.youtube.com/results?search_query=Shoulder+and+Hip+CARs+Mobility",
-                                    timings: [{ phase: "FLUID MOTION", time: "15s" }],
+                                    timings: [
+                                        { phase: "L SHOULDER", time: "30s" },
+                                        { phase: "R SHOULDER", time: "30s" },
+                                        { phase: "L HIP", time: "30s" },
+                                        { phase: "R HIP", time: "30s" }
+                                    ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Stand tall. CARs stands for Controlled Articular Rotations.</p><p><b class="text-gray-800">EXECUTION:</b> Focus on your right shoulder. Keep your arm straight. Move it forward, straight up to the ceiling, reach it as far back behind you as it will physically go, and lower it down. <b>Trace the absolute boundary of the joint's movement.</b> Take 15 full seconds to do one circle. Do 5 per arm, then do the same thing with your hips (lift knee, open side, kick back, lower).</p><p><b class="text-gray-800">CUES:</b> Your torso must stay frozen solid. Squeeze your fists to generate full-body tension.</p>` + getOpticalCue("text-gray-600", "The torso is absolutely rigid. The joint explores its maximum boundary of flexion, extension, and rotation at a very slow pace."),
                                 },
                                 {
                                     name: "Thoracic Rot & Wrist Prep",
-                                    reps: "10x | 1 min",
+                                    reps: "90s total",
                                     link: "https://www.youtube.com/results?search_query=Seated+Thoracic+Rotation+Mobility",
                                     timings: [
-                                        { phase: "1: FORCE", time: "2s" },
-                                        { phase: "2: YIELD", time: "2s" },
+                                        { phase: "THORACIC L", time: "20s" },
+                                        { phase: "THORACIC R", time: "20s" },
+                                        { phase: "WRIST ROCKS", time: "50s" }
                                     ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit cross-legged on the floor. Then, move to hands and knees.</p><p><b class="text-gray-800">EXECUTION (THORACIC):</b> Sit tall. Place hands behind head. Twist your upper body to the right as far as possible, leading with your right elbow. Return, twist left. 10 times.</p><p><b class="text-gray-800">EXECUTION (WRIST):</b> Get on hands and knees. Fingers pointing forward. Keep elbows locked straight. Gently lean your bodyweight forward over your wrists until you feel a stretch. Rock back and forth for 1 minute.</p>` + getOpticalCue("text-gray-600", "Hips are locked to the floor. The upper back drives the rotation, gazing up at the elbow. Gentle rocking for the wrists."),
                                 },
                                 {
                                     name: "Crab Reach & World's Greatest",
-                                    reps: "5x | 3x/side",
+                                    reps: "2 min total",
                                     link: "https://www.youtube.com/results?search_query=Animal+Flow+Crab+Reach+Tutorial",
                                     timings: [
-                                        { phase: "1: FORCE", time: "2s" },
-                                        { phase: "2: STATIC", time: "3s" },
-                                        { phase: "3: YIELD", time: "2s" },
+                                        { phase: "CRAB REACH L", time: "15s" },
+                                        { phase: "CRAB REACH R", time: "15s" },
+                                        { phase: "WGS LUNGE L", time: "45s" },
+                                        { phase: "WGS LUNGE R", time: "45s" }
                                     ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner - Crab):</b> Sit on floor, knees bent, feet flat. Hands flat on the floor behind you.</p><p><b class="text-gray-800">EXECUTION (CRAB):</b> Push your hips up toward the ceiling. Lift your right hand off the floor, reach it over your head toward the left side, arching your back slightly. Return and switch sides.</p><p><b class="text-gray-800">EXECUTION (WORLD'S GREATEST):</b> Take a massive lunge step forward with your right foot. Place your left hand flat on the floor next to your right foot. Keep your back leg straight. Reach your right arm straight up to the ceiling, twisting your chest open. Hold 3 seconds. Switch sides.</p>` + getOpticalCue("text-gray-600", "Hips drive high toward the ceiling as the arm reaches deeply across and over the body, expanding the ribcage."),
                                 },
@@ -803,23 +832,36 @@
                             exercises: [
                                 {
                                     name: "Child's Pose & Knee-to-Chest",
-                                    reps: "2 min | 1 min",
+                                    reps: "3 min total",
                                     link: "https://www.youtube.com/results?search_query=Childs+Pose+Lower+Back+Stretch",
-                                    timings: [{ phase: "STATIC (RELAX)", time: "180s" }],
+                                    timings: [
+                                        { phase: "CHILD'S POSE", time: "120s" },
+                                        { phase: "KNEE TO CHEST", time: "60s" }
+                                    ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Start on hands and knees. Then transition to lying flat on your back.</p><p><b class="text-gray-800">EXECUTION (CHILD'S POSE):</b> Push hips back to rest on heels. Arms stretched forward. Forehead on mat. Completely relax your muscles and take deep belly breaths for 2 minutes to separate your lower spine vertebrae.</p><p><b class="text-gray-800">EXECUTION (KNEE-TO-CHEST):</b> Lie on back. Pull both knees tightly into your chest, hugging them with your arms. Gently rock left and right to massage the lower back for 1 minute.</p>` + getOpticalCue("text-gray-600", "Hips sink heavy onto the heels. A gentle, passive rock side-to-side lets the floor massage the lumbar erectors."),
                                 },
                                 {
                                     name: "Figure-4 & Spinal Twist",
-                                    reps: "60s | 45s/side",
+                                    reps: "2.5 min total",
                                     link: "https://www.youtube.com/results?search_query=Supine+Spinal+Twist+Stretch",
-                                    timings: [{ phase: "STATIC (RELAX)", time: "150s" }],
+                                    timings: [
+                                        { phase: "FIGURE-4 L", time: "30s" },
+                                        { phase: "FIGURE-4 R", time: "30s" },
+                                        { phase: "TWIST L", time: "45s" },
+                                        { phase: "TWIST R", time: "45s" }
+                                    ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Lie flat on your back.</p><p><b class="text-gray-800">EXECUTION (FIGURE-4):</b> Cross right ankle over left knee. Pull left thigh to chest to stretch the right glute. Hold 60s.</p><p><b class="text-gray-800">EXECUTION (TWIST):</b> Lay legs flat. Extend arms out wide in a 'T' shape. Bend your right knee to 90 degrees, lift it up, and cross it over your body to the floor on your left side. Turn your head to look right. Let gravity pull the knee down. Hold 45s, then switch.</p>` + getOpticalCue("text-gray-600", "The opposite shoulder remains pinned to the mat. Gravity does the work pulling the knees down; no forcing."),
                                 },
                                 {
                                     name: "Hip Flexor, Cobra, Fold",
-                                    reps: "60s | 3x20s | 90s",
+                                    reps: "3.5 min total",
                                     link: "https://www.youtube.com/results?search_query=Bob+and+Brad+Cobra+Pose",
-                                    timings: [{ phase: "STATIC (RELAX)", time: "210s" }],
+                                    timings: [
+                                        { phase: "FLEXOR L", time: "30s" },
+                                        { phase: "FLEXOR R", time: "30s" },
+                                        { phase: "COBRA LIFTS", time: "60s" },
+                                        { phase: "SEATED FOLD", time: "90s" }
+                                    ],
                                     details: `<p><b class="text-gray-800">EXECUTION (HIP FLEXOR):</b> Kneel, tuck tailbone under, shift hips forward slightly to stretch the front of the thigh.</p><p><b class="text-gray-800">EXECUTION (COBRA):</b> Lie face down. Place hands under shoulders. Keeping hips glued to the floor, gently lift your chest upward using your back muscles (use hands for light support only). Hold 20s, do 3 times.</p><p><b class="text-gray-800">EXECUTION (FOLD):</b> Sit on floor, legs straight out. Hinge forward at the hips, reaching for toes. Relax head down. Hold 90 seconds.</p>` + getOpticalCue("text-gray-600", "In Cobra, the lift comes from the back muscles pulling the chest forward and up, with the arms only lightly assisting. Glutes remain relaxed."),
                                 },
                             ],
@@ -832,24 +874,34 @@
                                     reps: "3 x 10",
                                     link: "https://www.youtube.com/results?search_query=Bob+and+Brad+Chin+Tucks",
                                     timings: [
-                                        { phase: "1: FORCE", time: "1s" },
-                                        { phase: "2: STATIC", time: "2s" },
-                                        { phase: "3: YIELD", time: "1s" },
+                                        { phase: "1: RETRACT", time: "1s" },
+                                        { phase: "2: HOLD", time: "2s" },
+                                        { phase: "3: RELEASE", time: "1s" },
                                     ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit or stand perfectly tall. Look straight ahead. Relax your shoulders down.</p><p><b class="text-portal-blue">EXECUTION:</b> <b>Pull your chin straight backward horizontally</b>, as if someone is about to push a pie in your face and you are pulling away. You will create an ugly double-chin. <b>Hold this retracted position for 2 seconds.</b> Return to normal resting posture.</p><p><b class="text-gray-800">CUES:</b> Do not look down at the floor or up at the ceiling. The movement is purely backward, gliding on a horizontal track.</p>` + getOpticalCue("text-gray-600", "The head glides straight backward horizontally (making a double chin). It does NOT nod downward."),
                                 },
                                 {
                                     name: "Upper Trap, SCM, Levator",
-                                    reps: "45s/30s/45s per side",
+                                    reps: "4 min total",
                                     link: "https://www.youtube.com/results?search_query=Bob+and+Brad+Neck+Stretches",
-                                    timings: [{ phase: "STATIC (STRETCH)", time: "120s" }],
+                                    timings: [
+                                        { phase: "TRAP L", time: "40s" },
+                                        { phase: "TRAP R", time: "40s" },
+                                        { phase: "SCM L", time: "40s" },
+                                        { phase: "SCM R", time: "40s" },
+                                        { phase: "LEVATOR L", time: "40s" },
+                                        { phase: "LEVATOR R", time: "40s" }
+                                    ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit tall on a chair. Anchor your right hand under your chair seat to keep the right shoulder pulled down.</p><p><b class="text-gray-800">EXECUTION (TRAP):</b> Tilt your left ear toward your left shoulder. Rest your left hand on top of your head (don't pull, just use the weight of the arm). Hold 45s.</p><p><b class="text-gray-800">EXECUTION (SCM):</b> Keep head tilted left, but now turn your head to look up and over your right shoulder. Tilt chin up to stretch the thick cord on the front right of your neck. Hold 30s.</p><p><b class="text-gray-800">EXECUTION (LEVATOR):</b> Turn head 45 degrees left. Tuck your chin down into your left armpit. Rest hand on back of head. Hold 45s.</p>` + getOpticalCue("text-gray-600", "The opposite arm anchors the shoulder. The head utilizes only the gentle weight of gravity to fall sideways."),
                                 },
                                 {
                                     name: "Suboccipital Release",
-                                    reps: "2 min",
+                                    reps: "2 min total",
                                     link: "https://www.youtube.com/results?search_query=Suboccipital+Release+Massage",
-                                    timings: [{ phase: "STATIC", time: "120s" }],
+                                    timings: [
+                                        { phase: "FIND KNOTS", time: "20s" },
+                                        { phase: "DEEP PRESS", time: "100s" }
+                                    ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Lie flat on your back on the floor. Take your fingertips and place them right at the base of your skull, where the hard bone meets the soft tissue of the neck.</p><p><b class="text-gray-800">EXECUTION:</b> Press your fingertips firmly into the tissue. Make small, slow circles. When you find a spot that feels tender or tight (a trigger point), stop moving and just maintain steady, deep pressure on it for 20-30 seconds until you feel the muscle "melt" and release. Move to the next spot.</p><p><b class="text-gray-800">CUES:</b> Releasing these specific muscles directly turns off nerve tension connected to the jaw.</p>` + getOpticalCue("text-gray-600", "Fingertips sink into the muscular pocket directly below the hard ridge of the back of the skull, applying sustained pressure."),
                                 },
                             ],
@@ -861,16 +913,20 @@
                                     name: "Heat & Massage",
                                     reps: "5 min total",
                                     link: "https://www.youtube.com/results?search_query=Bob+and+Brad+TMJ+Massage",
-                                    timings: [{ phase: "MASSAGE", time: "300s" }],
-                                    details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit comfortably. Wet a washcloth with hot (but safe) water.</p><p><b class="text-gray-800">EXECUTION (HEAT):</b> Hold the warm cloth against the sides of your jaw and cheeks for 2 minutes to increase blood flow.</p><p><b class="text-gray-800">EXECUTION (MASSAGE):</b> Open your mouth very slightly. Use your first two fingers to press into the Masseter (the thick muscle at the corner of your jawbone) and the Temporalis (the side of your head/temples). Make slow, firm circles. If you find a knot, hold pressure on it until it fades.</p>` + getOpticalCue("text-gray-600", "Fingers apply steady circular pressure right at the corner of the jawline. The mouth is held slightly and limply open."),
+                                    timings: [
+                                        { phase: "APPLY HEAT", time: "120s" },
+                                        { phase: "MASSETER L", time: "90s" },
+                                        { phase: "MASSETER R", time: "90s" }
+                                    ],
+                                    details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit comfortably. Wet a washcloth with hot (but safe) water.</p><p><b class="text-gray-800">EXECUTION (HEAT):</b> hold the warm cloth against the sides of your jaw and cheeks for 2 minutes to increase blood flow.</p><p><b class="text-gray-800">EXECUTION (MASSAGE):</b> Open your mouth very slightly. Use your first two fingers to press into the Masseter (the thick muscle at the corner of your jawbone) and the Temporalis (the side of your head/temples). Make slow, firm circles. If you find a knot, hold pressure on it until it fades.</p>` + getOpticalCue("text-gray-600", "Fingers apply steady circular pressure right at the corner of the jawline. The mouth is held slightly and limply open."),
                                 },
                                 {
                                     name: "Resisted Opening",
                                     reps: "5 reps",
                                     link: "https://www.youtube.com/results?search_query=TMJ+Resisted+Opening+Exercise",
                                     timings: [
-                                        { phase: "1: FORCE", time: "5s" },
-                                        { phase: "2: YIELD", time: "5s" },
+                                        { phase: "SLOW OPEN", time: "5s" },
+                                        { phase: "SLOW CLOSE", time: "5s" },
                                     ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit in front of a mirror. Place your thumb gently but firmly flat underneath your chin.</p><p><b class="text-gray-800">EXECUTION:</b> <b>Slowly open your mouth</b> while pushing up slightly with your thumb to create light resistance. Open as far as is comfortable, taking 5 seconds to do so. Close slowly.</p><p><b class="text-gray-800">CUES:</b> Watch the mirror closely. Your bottom teeth MUST travel perfectly straight down. If your jaw swings to one side, you must consciously use your muscles to force it back to the center line as it opens.</p>` + getOpticalCue("text-gray-600", "The thumb provides light upward pressure. The jaw tracks perfectly straight down without deviating sideways."),
                                 },
@@ -879,9 +935,9 @@
                                     reps: "5 reps",
                                     link: "https://www.youtube.com/results?search_query=TMJ+Lateral+Deviation+Exercise",
                                     timings: [
-                                        { phase: "1: FORCE", time: "3s" },
-                                        { phase: "2: STATIC", time: "1s" },
-                                        { phase: "3: YIELD", time: "3s" },
+                                        { phase: "GLIDE", time: "3s" },
+                                        { phase: "HOLD", time: "2s" },
+                                        { phase: "RETURN", time: "3s" },
                                     ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Sit in front of a mirror. Keep your mouth relaxed and slightly open (teeth separated).</p><p><b class="text-gray-800">EXECUTION:</b> Without opening your mouth any further, <b>slowly slide your lower jaw strictly to the left</b> (or whichever side is your tight/restricted side). Go as far as you can without pain. <b>Hold for 1 second</b>, then slowly return to the center.</p><p><b class="text-gray-800">CUES:</b> Only the lower jaw moves. Do not tilt your head. The movement is a smooth glide, not a jerky force.</p>` + getOpticalCue("text-gray-600", "A slow, controlled glide of the lower jaw to the restricted side only, pushing the boundary gently."),
                                 },
@@ -892,13 +948,13 @@
                             exercises: [
                                 {
                                     name: "Box Breathing",
-                                    reps: "10 cycles",
+                                    reps: "10 reps",
                                     link: "https://www.youtube.com/results?search_query=Navy+SEAL+Box+Breathing+Technique",
                                     timings: [
-                                        { phase: "1: INHALE", time: "4s" },
-                                        { phase: "2: HOLD", time: "4s" },
-                                        { phase: "3: EXHALE", time: "4s" },
-                                        { phase: "4: HOLD EMPTY", time: "4s" },
+                                        { phase: "INHALE", time: "4s" },
+                                        { phase: "HOLD FULL", time: "4s" },
+                                        { phase: "EXHALE", time: "4s" },
+                                        { phase: "HOLD EMPTY", time: "4s" },
                                     ],
                                     details: `<p><b class="text-gray-800">SETUP (Absolute Beginner):</b> Lie flat on your back, or sit up in a quiet space. Close your eyes.</p><p><b class="text-gray-800">EXECUTION:</b> Breathe in silently through your nose for a slow count of 4. Hold the air inside your lungs for a count of 4. Exhale the air slowly out of your mouth for a count of 4. Keep your lungs completely empty for a count of 4. This is one "box". Repeat 10 times.</p><p><b class="text-gray-800">CUES:</b> This specifically hacks your vagus nerve to command your body to drop cortisol and release deep neck/jaw tension.</p>` + getOpticalCue("text-gray-600", "Belly expands first on the inhale, deflates on the exhale. Shoulders remain entirely relaxed and do not shrug with the breath."),
                                 },
@@ -928,7 +984,10 @@
                 let sets = 1;
                 let reps = 1;
                 let sides = (str.includes('side') || str.includes('leg') || str.includes('arm')) ? 2 : 1;
-                let isHold = str.includes('s') || str.includes('min') || str.includes('time') || str.includes('total');
+
+                // FIXED PARSER: More robust check for time-based holds vs regular reps
+                // Ensuring that a string like "10 reps" evaluates to false, while "30s" or "2 min" evaluate to true.
+                let isHold = str.match(/\ds/) !== null || str.includes('min') || str.includes('time') || str.includes('total');
 
                 let setsMatch = str.match(/(\d+)\s*x/);
                 if (setsMatch) sets = parseInt(setsMatch[1]);

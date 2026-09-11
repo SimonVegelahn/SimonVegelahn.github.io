@@ -19,22 +19,22 @@
         }
 
         body {
-                Data Scientist / Data Engineer at Siemens AG delivering analytics, automation, AI, and ML solutions across business and technical teams. My work centers on building reliable data products with Snowflake, dbt, Python, Power BI, and SQL. Originally a state-certified chemical-technical assistant, I transitioned to IT four years ago and graduated from my Business Informatics degree at Fontys Venlo in March 2026.
+            font-family: Arial, sans-serif;
             background: #fff;
             color: #000;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark {
             background: #111;
             color: #eee;
-                <span class="cert-item" role="listitem">Generative AI Professional Certificate by Snowflake</span>
-                <span class="cert-item" role="listitem">Qdrant Essentials</span>
-                <span class="cert-item" role="listitem">GCCEP</span>
-                <span class="cert-item" role="listitem">Artificial Intelligence for Cybersecurity</span>
-                <span class="cert-item" role="listitem">Aha! Product Management Professional Certificate</span>
         }
+
         .fast-link {
             color: #0066cc;
             text-decoration: none;
         }
-                    Lead developer for part of an international Siemens initiative to build a sales lead classification system using Snowflake, dbt, Python, and AI/ML techniques, reaching 94% accuracy.
+
         body.dark .fast-link {
             color: #6ab0ff;
         }
@@ -335,7 +335,6 @@
                 font-size: 11px;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                color-adjust: exact;
             }
 
             body.dark {
@@ -476,7 +475,7 @@
         <article id="about" class="article-box" style="margin-bottom: 20px; padding: 16px;">
             <h2 style="font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">About</h2>
             <p class="text-secondary" style="font-size: 14px; margin: 0 0 8px 0; line-height: 1.5;">
-                Data Scientist / Data Engineer at Siemens AG building analytics infrastructure, ML systems, and self-service reporting. Originally a state-certified chemical-technical assistant, I transitioned to IT four years ago. I graduated from my Business Informatics degree at Fontys Venlo in March 2026. Stack: Snowflake, dbt, Python, Power BI, SQL, Git.
+                Data Scientist / Data Engineer at Siemens AG building analytics infrastructure, ML systems, and self-service reporting. Originally a state-certified chemical-technical assistant, I transitioned to IT in 2021. I graduated from my Business Informatics degree at Fontys Venlo in March 2026. Stack: Snowflake, dbt, Python, Power BI, SQL, Git.
             </p>
             <div class="text-muted" style="font-size: 12px;">Data Analytics • Snowflake • Applied Machine Learning • dbt • Python</div>
         </article>
@@ -490,11 +489,20 @@
                     <span class="text-muted" style="font-size: 14px;">Siemens AG | Apr 2026 - Present</span>
                 </div>
                 <ul class="job-details text-secondary">
-                    <li>Development of 5 Power BI Dashboards for self-service analytics and management reporting in controlling and specialist departments.</li>
                     <li>Building and maintaining data products for enterprise-wide use; refactoring existing pipelines, adapting to restructuring.</li>
-                    <li>Contributing to establishing modular dbt standards across dozens of sources; 60% reduction in computational processing time.</li>
                     <li>Full development of a material-based forecasting thesis project; MAPE 13.8%.</li>
-                    <li>Technical lead for a part of the international Siemens Sales Lead Classification initiative; 94% accuracy.</li>
+                    <li>Technical lead developer for the Siemens Sales Lead Classification as part of the international COMET initiative; 94% accuracy.</li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong>Student Employee, Data Governance / Data Engineer</strong>
+                    <span class="text-muted" style="font-size: 14px;">Siemens AG | Mar 2025 - Mar 2026</span>
+                </div>
+                <ul class="job-details text-secondary">
+                    <li>Development of 5 Power BI Dashboards for self-service analytics and management reporting in controlling and specialist departments.</li>
+                    <li>Contributing to establishing modular dbt standards across dozens of sources; 60% reduction in computational processing time.</li>
                     <li>Documentation of existing data products and dashboards to build a knowledge base.</li>
                 </ul>
             </div>
@@ -703,24 +711,18 @@
         }
 
         function toggleTheme() {
-            document.body.classList.toggle('dark');
-            const isDark = document.body.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.body.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
             updateThemeText();
             closeMenu();
         }
 
         function updateThemeText() {
             const themeText = document.getElementById('themeText');
-            const isDark = document.body.classList.contains('dark');
-            themeText.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            themeText.textContent = 'Light Mode';
             
             const themeIcon = document.querySelector('.icon-theme');
-            if (isDark) {
-                themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
-            } else {
-                themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
-            }
+            themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
         }
 
         function exportPDF() {
@@ -756,6 +758,8 @@
 
         // Initialize theme text on load (always light mode by default)
         document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
             updateThemeText();
         });
     </script>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Route Weather Pro</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    
+    <style>
+        :root {
+            --sys-blue: #007aff;
+            --sys-red: #ff3b30;
+            --sys-bg: #f2f2f7;
+            --sys-text: #1d1d1f;
+            --sys-text-secondary: #86868b;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, sans-serif;
+            background-color: var(--sys-bg); color: var(--sys-text); overflow: hidden;
+        }
+
+        #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        /* Floating Main Panel */
+        .floating-panel {
+            position: absolute; top: 20px; left: 20px; width: 350px;
+            max-height: calc(100vh - 120px); overflow-y: auto; z-index: 1000;
+            background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border); border-radius: 24px; padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); box-sizing: border-box;
+        }
+        .floating-panel::-webkit-scrollbar { width: 0px; }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+
+        /* Segmented Control (Units) */
+        .segmented-control {
+            display: flex; background: rgba(0,0,0,0.06); border-radius: 8px; padding: 2px;
+        }
+        .seg-btn {
+            border: none; background: transparent; padding: 4px 12px; font-size: 12px;
+            font-weight: 600; border-radius: 6px; cursor: pointer; color: var(--sys-text-secondary);
+        }
+        .seg-btn.active { background: white; color: var(--sys-text); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        /* Inputs */
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+        .location-input, .time-input, .stay-input {
+            width: 100%; padding: 12px 14px; border: none; background: rgba(0, 0, 0, 0.05);
+            border-radius: 12px; font-size: 14px; font-family: inherit; box-sizing: border-box; outline: none;
+        }
+        .location-input:focus, .time-input:focus, .stay-input:focus {
+            background: rgba(0, 0, 0, 0.08); box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+
+        .stop-container {
+            display: flex; align-items: center; gap: 8px; background: white; padding: 6px;
+            border-radius: 14px; border: 1px solid rgba(0,0,0,0.05); cursor: grab;
+        }
+        .stop-container:active { cursor: grabbing; }
+        .drag-handle { color: #ccc; padding: 0 4px; font-weight: bold; cursor: grab; }
+        .stay-wrapper { display: flex; align-items: center; font-size: 11px; color: var(--sys-text-secondary); gap: 4px;}
+        .stay-input { width: 50px; padding: 8px; text-align: center; }
+        
+        .remove-btn { background: none; color: var(--sys-red); border: none; font-size: 20px; cursor: pointer; padding: 0 8px;}
+
+        /* Time Controls */
+        .time-controls { background: rgba(0,0,0,0.03); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+        .time-label { display: block; font-size: 12px; font-weight: 600; color: var(--sys-text-secondary); margin-bottom: 8px; text-transform: uppercase; }
+        .time-row { display: flex; gap: 8px; margin-bottom: 12px; }
+
+        /* Buttons */
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-secondary { background: rgba(0, 122, 255, 0.1); color: var(--sys-blue); margin-bottom: 10px; }
+        .btn-primary { background: var(--sys-blue); color: white; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); }
+        .btn-magic { background: linear-gradient(135deg, #a259ff, #007aff); color: white; margin-bottom: 10px; }
+        
+        /* Interactive Scrubber Bar */
+        .scrubber-bar {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 600px; background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-radius: 20px; padding: 16px 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1000; display: none; align-items: center; gap: 16px; border: 1px solid var(--glass-border);
+        }
+        .scrubber-label { font-size: 14px; font-weight: 700; min-width: 70px; text-align: right; }
+        input[type=range] { flex-grow: 1; accent-color: var(--sys-blue); }
+
+        /* iOS Bottom Sheet */
+        .bottom-sheet {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: var(--glass-bg);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            z-index: 2000; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
+        }
+        .bottom-sheet.open { transform: translateY(0); }
+        .sheet-handle { width: 40px; height: 5px; background: rgba(0,0,0,0.2); border-radius: 3px; margin-bottom: 20px; }
+        .sheet-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .sheet-time { font-size: 15px; color: var(--sys-blue); font-weight: 600; margin-bottom: 24px; }
+        .sheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 400px; }
+        .sheet-card { background: rgba(0,0,0,0.04); padding: 16px; border-radius: 16px; text-align: center; }
+        .sheet-val { font-size: 20px; font-weight: 700; }
+        .sheet-lbl { font-size: 12px; color: var(--sys-text-secondary); text-transform: uppercase; font-weight: 600; margin-top: 4px; }
+        .close-sheet { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.1); border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; }
+
+        /* Custom Weather Map Marker */
+        .weather-marker {
+            background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.1); border-radius: 20px; padding: 6px 12px;
+            display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); white-space: nowrap; transform: translate(-50%, -50%);
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .weather-marker:active { transform: translate(-50%, -50%) scale(0.9); }
+        .weather-marker.warning { border: 2px solid var(--sys-red); color: var(--sys-red); }
+        .time-tag {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--sys-text); color: white; font-size: 10px; padding: 3px 8px;
+            border-radius: 10px; font-weight: 700; letter-spacing: 0.5px;
+        }
+
+        #loader { display: none; font-size: 13px; color: var(--sys-text-secondary); text-align: center; margin-top: 16px; font-weight: 500; }
+        
+        .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important; border-radius: 12px !important; overflow: hidden; margin-bottom: 90px !important; }
+        .leaflet-control-zoom a { background: rgba(255,255,255,0.9) !important; backdrop-filter: blur(10px); color: var(--sys-blue) !important; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div class="floating-panel">
+        <div class="header-row">
+            <h1>Route Weather</h1>
+            <div class="segmented-control">
+                <button class="seg-btn active" id="btn-metric" onclick="setUnits('metric')">°C / kmh</button>
+                <button class="seg-btn" id="btn-imperial" onclick="setUnits('imperial')">°F / mph</button>
+            </div>
+        </div>
+        
+        <div class="input-group" id="waypoints-container">
+            <input type="text" id="start" class="location-input" placeholder="Start (e.g. Los Angeles)">
+            <div id="intermediate-stops"></div>
+            <input type="text" id="destination" class="location-input" placeholder="Destination (e.g. Las Vegas)">
+        </div>
+
+        <button class="btn btn-secondary" onclick="addStop()">+ Add Stop with Visit</button>
+
+        <div class="time-controls">
+            <span class="time-label">Departure Time</span>
+            <div class="time-row">
+                <input type="datetime-local" id="departure-time" class="time-input">
+                <button class="btn" style="width:auto; padding:0 16px; background:rgba(0,0,0,0.06);" onclick="setNow()">Now</button>
+            </div>
+            <button class="btn btn-magic" onclick="optimizeDeparture()">🪄 Find Best Time to Leave</button>
+        </div>
+
+        <button class="btn btn-primary" id="calc-btn" onclick="calculateRoute()">Generate Smart Route</button>
+        <div id="loader">Calculating route & fetching forecasts...</div>
+    </div>
+
+    <!-- Time Scrubber -->
+    <div class="scrubber-bar" id="scrubber">
+        <span class="scrubber-label">Offset</span>
+        <input type="range" id="time-slider" min="0" max="24" step="1" value="0">
+        <span class="scrubber-label" id="scrubber-val">+0 hrs</span>
+    </div>
+
+    <!-- iOS Bottom Sheet -->
+    <div class="bottom-sheet" id="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <button class="close-sheet" onclick="closeSheet()">×</button>
+        <div class="sheet-title" id="sheet-emoji">☀️ 22°</div>
+        <div class="sheet-time" id="sheet-time">Arrive at 14:30</div>
+        
+        <div class="sheet-grid">
+            <div class="sheet-card">
+                <div class="sheet-val" id="sheet-pop">0%</div>
+                <div class="sheet-lbl">Rain Prob</div>
+            </div>
+            <div class="sheet-card">
+                <div class="sheet-val" id="sheet-wind">10 km/h</div>
+                <div class="sheet-lbl">Wind</div>
+            </div>
+            <div class="sheet-card">
+                <div class="sheet-val" id="sheet-uv">5</div>
+                <div class="sheet-lbl">UV Index</div>
+            </div>
+            <div class="sheet-card">
+                <div class="sheet-val" id="sheet-hum">45%</div>
+                <div class="sheet-lbl">Humidity</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // --- State ---
+        let map, routeLayer = null;
+        let weatherMarkers = [];
+        let stopCount = 0;
+        let units = 'metric'; // 'metric' or 'imperial'
+        
+        // Data stores for scrubber
+        let globalRouteData = null;
+        let globalWeatherData = [];
+        let markerDefinitions = []; // Stores base time and location for each marker
+        let baseDepartureTime = new Date();
+
+        // --- Init ---
+        map = L.map('map', { zoomControl: false }).setView([37.7749, -122.4194], 5);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        setNow();
+
+        // Scrubber Event Listener
+        document.getElementById('time-slider').addEventListener('input', function(e) {
+            const offset = parseInt(e.target.value);
+            document.getElementById('scrubber-val').innerText = `+${offset} hrs`;
+            if (globalRouteData) updateWeatherMarkers(offset);
+        });
+
+        // --- UI Functions ---
+        function setNow() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('departure-time').value = now.toISOString().slice(0, 16);
+        }
+
+        function setUnits(u) {
+            units = u;
+            document.getElementById('btn-metric').classList.toggle('active', u === 'metric');
+            document.getElementById('btn-imperial').classList.toggle('active', u === 'imperial');
+            if (globalRouteData) updateWeatherMarkers(parseInt(document.getElementById('time-slider').value));
+        }
+
+        function addStop() {
+            stopCount++;
+            const container = document.getElementById('intermediate-stops');
+            const div = document.createElement('div');
+            div.className = 'stop-container';
+            div.draggable = true;
+            
+            // Drag and drop listeners
+            div.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', ''); div.classList.add('dragging'); });
+            div.addEventListener('dragend', () => div.classList.remove('dragging'));
+            
+            div.innerHTML = `
+                <div class="drag-handle">≡</div>
+                <input type="text" class="location-input waypoint-input" style="flex-grow:1; padding:8px;" placeholder="Stop location">
+                <div class="stay-wrapper">
+                    Stay: <input type="number" class="stay-input" min="0" step="0.5" value="0"> hr
+                </div>
+                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(div);
+        }
+
+        // Setup Drag & Drop container logic
+        const stopsContainer = document.getElementById('intermediate-stops');
+        stopsContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            const dragging = document.querySelector('.dragging');
+            const afterElement = getDragAfterElement(stopsContainer, e.clientY);
+            if (afterElement == null) stopsContainer.appendChild(dragging);
+            else stopsContainer.insertBefore(dragging, afterElement);
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.stop-container:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+                else return closest;
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // --- Core Logic ---
+        async function calculateRoute() {
+            const btn = document.getElementById('calc-btn');
+            const loader = document.getElementById('loader');
+            
+            // Gather locations and stay times
+            const startVal = document.getElementById('start').value;
+            const destVal = document.getElementById('destination').value;
+            const stopElements = document.querySelectorAll('.stop-container');
+            
+            const places = [{ name: startVal, staySecs: 0 }];
+            stopElements.forEach(el => {
+                const name = el.querySelector('.waypoint-input').value;
+                const hrs = parseFloat(el.querySelector('.stay-input').value) || 0;
+                if (name.trim() !== "") places.push({ name: name, staySecs: hrs * 3600 });
+            });
+            places.push({ name: destVal, staySecs: 0 });
+
+            const validPlaces = places.filter(p => p.name.trim() !== "");
+            if (validPlaces.length < 2) return alert("Need at least Start and Destination.");
+            
+            const deptTimeStr = document.getElementById('departure-time').value;
+            if (!deptTimeStr) return alert("Set a departure time.");
+            baseDepartureTime = new Date(deptTimeStr);
+
+            btn.disabled = true; loader.style.display = 'block';
+            document.getElementById('scrubber').style.display = 'none';
+            closeSheet();
+
+            try {
+                // 1. Geocode
+                const coords = [];
+                for (const p of validPlaces) {
+                    const c = await geocode(p.name);
+                    if (!c) throw new Error(`Location not found: ${p.name}`);
+                    coords.push(c);
+                }
+
+                // 2. OSRM Routing
+                globalRouteData = await getRoute(coords);
+                drawRoute(globalRouteData.geometry);
+
+                // 3. Define Markers & Base Times (handling durations and legs)
+                markerDefinitions = calculateMarkerPoints(globalRouteData, coords, validPlaces);
+
+                // 4. Fetch Weather (Fetch a wide 48hr block to allow scrubbing)
+                globalWeatherData = await getWeatherData(markerDefinitions.map(m => m.coord), baseDepartureTime);
+                
+                // 5. Render
+                document.getElementById('time-slider').value = 0;
+                document.getElementById('scrubber-val').innerText = `+0 hrs`;
+                document.getElementById('scrubber').style.display = 'flex';
+                updateWeatherMarkers(0);
+
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                btn.disabled = false; loader.style.display = 'none';
+            }
+        }
+
+        // Maps Route Legs and Stays to specific exact times and points
+        function calculateMarkerPoints(route, geocodedCoords, places) {
+            const markers = [];
+            let cumulativeTimeSecs = 0;
+            const totalDistance = route.distance;
+            const totalCoords = route.geometry.coordinates;
+            let legStartCoordIdx = 0;
+
+            for (let i = 0; i < route.legs.length; i++) {
+                const leg = route.legs[i];
+                
+                // Waypoint Marker (Start of Leg)
+                markers.push({
+                    coord: geocodedCoords[i],
+                    baseTimeOffset: cumulativeTimeSecs,
+                    isWaypoint: true
+                });
+
+                // Add stay duration at this waypoint
+                cumulativeTimeSecs += places[i].staySecs;
+
+                // Midpoint Marker for long legs (Add a marker roughly halfway through the leg)
+                if (leg.distance > 20000) { // Only if leg > 20km
+                    // Find coordinate halfway through this leg based on index approximation
+                    // (For perfect accuracy we'd measure polyline distances, but index midpoint is sufficient for weather)
+                    let legEndCoordIdx = totalCoords.findIndex((c, idx) => idx > legStartCoordIdx && c[0] === geocodedCoords[i+1][0] && c[1] === geocodedCoords[i+1][1]);
+                    if (legEndCoordIdx === -1) legEndCoordIdx = totalCoords.length - 1; // Fallback
+                    
+                    const midIdx = Math.floor((legStartCoordIdx + legEndCoordIdx) / 2);
+                    markers.push({
+                        coord: totalCoords[midIdx],
+                        baseTimeOffset: cumulativeTimeSecs + (leg.duration / 2),
+                        isWaypoint: false
+                    });
+                    legStartCoordIdx = legEndCoordIdx;
+                }
+
+                cumulativeTimeSecs += leg.duration;
+            }
+            
+            // Final Destination Marker
+            markers.push({
+                coord: geocodedCoords[geocodedCoords.length - 1],
+                baseTimeOffset: cumulativeTimeSecs,
+                isWaypoint: true
+            });
+
+            return markers;
+        }
+
+        // --- Render & Update Markers ---
+        function updateWeatherMarkers(scrubOffsetHours) {
+            weatherMarkers.forEach(m => map.removeLayer(m));
+            weatherMarkers = [];
+
+            const scrubOffsetMs = scrubOffsetHours * 3600 * 1000;
+
+            markerDefinitions.forEach((def, index) => {
+                const targetTime = new Date(baseDepartureTime.getTime() + (def.baseTimeOffset * 1000) + scrubOffsetMs);
+                const wd = globalWeatherData[index];
+                
+                // Find matching hourly forecast
+                const apiTimes = wd.hourly.time;
+                let bestIdx = 0, minDiff = Infinity;
+                for (let i = 0; i < apiTimes.length; i++) {
+                    const t = new Date(apiTimes[i] + 'Z').getTime();
+                    const diff = Math.abs(t - targetTime.getTime());
+                    if (diff < minDiff) { minDiff = diff; bestIdx = i; }
+                }
+
+                // Extract data
+                let tempC = wd.hourly.temperature_2m[bestIdx];
+                let windKmh = wd.hourly.windspeed_10m[bestIdx];
+                const code = wd.hourly.weathercode[bestIdx];
+                const pop = wd.hourly.precipitation_probability[bestIdx];
+                const uv = wd.hourly.uv_index[bestIdx];
+                const hum = wd.hourly.relative_humidity_2m[bestIdx];
+                
+                // Conversions based on Units
+                let displayTemp = units === 'imperial' ? Math.round((tempC * 9/5) + 32) + '°F' : Math.round(tempC) + '°C';
+                let displayWind = units === 'imperial' ? Math.round(windKmh * 0.621371) + ' mph' : Math.round(windKmh) + ' km/h';
+
+                const emoji = getWeatherEmoji(code);
+                const isDangerous = windKmh > 40 || code >= 95 || code === 75 || code === 77; // High wind or storms/heavy snow
+                const warningClass = isDangerous ? 'warning' : '';
+                
+                const timeStr = targetTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dot = def.isWaypoint ? '📍 ' : '';
+
+                const html = `
+                    <div class="weather-marker ${warningClass}">
+                        <div class="time-tag">${timeStr}</div>
+                        <span style="font-size:18px">${emoji}</span>
+                        <div style="display:flex; flex-direction:column; line-height:1.1;">
+                            <span>${dot}${displayTemp}</span>
+                            <span style="font-size:10px; font-weight:500; opacity:0.8;">💨 ${displayWind}</span>
+                        </div>
+                    </div>
+                `;
+
+                const icon = L.divIcon({ html: html, className: '', iconSize: null });
+                const marker = L.marker([def.coord[1], def.coord[0]], { icon: icon }).addTo(map);
+                
+                // Setup Bottom Sheet Data
+                marker.on('click', () => {
+                    document.getElementById('sheet-emoji').innerHTML = `${emoji} ${displayTemp}`;
+                    document.getElementById('sheet-time').innerText = `${def.isWaypoint ? 'Stop' : 'Passing through'} at ${timeStr}`;
+                    document.getElementById('sheet-pop').innerText = `${pop}%`;
+                    document.getElementById('sheet-wind').innerText = displayWind;
+                    document.getElementById('sheet-uv').innerText = Math.round(uv);
+                    document.getElementById('sheet-hum').innerText = `${hum}%`;
+                    document.getElementById('bottom-sheet').classList.add('open');
+                });
+
+                weatherMarkers.push(marker);
+            });
+        }
+
+        // --- Optimizer Magic ---
+        function optimizeDeparture() {
+            if (!globalRouteData || !globalWeatherData) return alert("Generate a route first before optimizing.");
+            
+            let bestOffset = 0;
+            let lowestBadness = Infinity;
+
+            // Check departures for the next 12 hours
+            for (let offsetHr = 0; offsetHr <= 12; offsetHr++) {
+                let currentBadness = 0;
+                const offsetMs = offsetHr * 3600 * 1000;
+
+                markerDefinitions.forEach((def, index) => {
+                    const t = new Date(baseDepartureTime.getTime() + (def.baseTimeOffset * 1000) + offsetMs);
+                    const wd = globalWeatherData[index];
+                    const bestIdx = wd.hourly.time.findIndex(apiT => Math.abs(new Date(apiT+'Z').getTime() - t.getTime()) < 1800000);
+                    
+                    if (bestIdx !== -1) {
+                        const wind = wd.hourly.windspeed_10m[bestIdx];
+                        const code = wd.hourly.weathercode[bestIdx];
+                        if (wind > 35) currentBadness += 10;
+                        if (code >= 50 && code < 70) currentBadness += 5; // Rain
+                        if (code >= 70 && code < 80) currentBadness += 15; // Snow
+                        if (code >= 95) currentBadness += 30; // Storm
+                    }
+                });
+
+                if (currentBadness < lowestBadness) {
+                    lowestBadness = currentBadness;
+                    bestOffset = offsetHr;
+                }
+            }
+
+            // Apply best time
+            const optimizedTime = new Date(baseDepartureTime.getTime() + (bestOffset * 3600 * 1000));
+            optimizedTime.setMinutes(optimizedTime.getMinutes() - optimizedTime.getTimezoneOffset());
+            document.getElementById('departure-time').value = optimizedTime.toISOString().slice(0, 16);
+            
+            alert(`🪄 Found the safest departure window! Adjusted time forward by ${bestOffset} hours.`);
+            calculateRoute(); // Recalculate with new base time
+        }
+
+        // --- APIs ---
+        async function geocode(query) {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+            const data = await res.json();
+            return data.length > 0 ? [parseFloat(data[0].lon), parseFloat(data[0].lat)] : null;
+        }
+
+        async function getRoute(coords) {
+            const coordsString = coords.map(c => `${c[0]},${c[1]}`).join(';');
+            const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`);
+            const data = await res.json();
+            if (data.code !== "Ok") throw new Error("Could not calculate route.");
+            return data.routes[0];
+        }
+
+        async function getWeatherData(points, startDate) {
+            const lats = points.map(p => p[1]).join(',');
+            const lons = points.map(p => p[0]).join(',');
+            
+            // Request 3 days of data to safely cover travel + 24h scrubbing
+            const startStr = startDate.toISOString().split('T')[0];
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 3);
+            const endStr = endDate.toISOString().split('T')[0];
+
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=temperature_2m,windspeed_10m,weathercode,precipitation_probability,uv_index,relative_humidity_2m&start_date=${startStr}&end_date=${endStr}&timezone=GMT`;
+            
+            const res = await fetch(url);
+            let data = await res.json();
+            if (data.error) throw new Error("Route time extends beyond available weather forecast data (max 14 days).");
+            return Array.isArray(data) ? data : [data];
+        }
+
+        // --- Helpers ---
+        function drawRoute(geometry) {
+            if (routeLayer) map.removeLayer(routeLayer);
+            const latLngs = geometry.coordinates.map(c => [c[1], c[0]]);
+            routeLayer = L.polyline(latLngs, { color: 'var(--sys-blue)', weight: 6, opacity: 0.8, lineCap: 'round', lineJoin: 'round' }).addTo(map);
+            map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+        }
+
+        function closeSheet() { document.getElementById('bottom-sheet').classList.remove('open'); }
+
+        function getWeatherEmoji(code) {
+            if (code === 0) return '☀️'; 
+            if (code === 1 || code === 2) return '🌤️'; 
+            if (code === 3) return '☁️'; 
+            if (code === 45 || code === 48) return '🌫️'; 
+            if (code >= 51 && code <= 55) return '🌦️'; 
+            if (code >= 61 && code <= 65) return '🌧️'; 
+            if (code >= 71 && code <= 77) return '❄️'; 
+            if (code >= 80 && code <= 82) return '🌧️'; 
+            if (code >= 85 && code <= 86) return '❄️'; 
+            if (code >= 95 && code <= 99) return '⛈️'; 
+            return '🌡️';
+        }
+    </script>
+</body>
+</html>
